@@ -2,11 +2,7 @@
 
 // ************** Forward Declared Headers ************** //
 
-
-
 // ************** Other Headers ************** //
-
-
 
 DECLARE_TOOL_FACTORY( CC1P1PiAnalysis );
 
@@ -80,4 +76,13 @@ StatusCode CC1P1PiAnalysis::tagTruth( Minerva::GenMinInteraction* truth ) const{
     truth->setIntData("should_be_accepted", 1);
     
     return StatusCode::SUCCESS;
+}
+
+bool CC1P1PiAnalysis::truthIsPlausible( const Minerva::PhysicsEvent * ) const
+{
+    // truthIsPlausible is now a pure virtual function of MinervaAnalysisTool, so you must implement it.
+    // It is called automatically by PhysicsEventAnalysisAlg AFTER reconstructEvent() and interpretEvent() are run.
+    // If it returns false, the event is not included in the analysis ntuple
+    throw MinervaException( "You need to implement truthIsPlausible" );
+    return false;
 }

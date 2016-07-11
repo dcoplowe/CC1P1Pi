@@ -23,6 +23,11 @@ public:
     
     StatusCode tagTruth( Minerva::GenMinInteraction* truth ) const;
     
+private:
+    bool truthIsPlausible( const Minerva::PhysicsEvent * event ) const;
+
+    
+    
 };
 
 #endif
