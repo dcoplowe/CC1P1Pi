@@ -67,7 +67,9 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent* event, Mine
 
 StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent* event, const Minerva::GenMinInteraction* truth, std::vector<Minerva::NeutrinoInt*>& nuInts ) const{
     
-    
+    (void)event;
+    (void)truth;
+    (void)nuInts;
     
     debug() << "Exit interpretEvent()" << endmsg;
     
