@@ -1,11 +1,10 @@
 #ifndef CC1P1PIANALYSIS_H
 #define CC1P1PIANALYSIS_H 1
 
+
 #include "AnaUtils/MinervaAnalysisTool.h"
 
 // ************** Forward Declarations ************** //
-
-
 
 class CC1P1PiAnalysis : public MinervaAnalysisTool{
 
@@ -25,3 +24,5 @@ public:
     StatusCode tagTruth( Minerva::GenMinInteraction* truth ) const;
     
 };
+
+#endif
