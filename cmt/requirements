@@ -1,0 +1,32 @@
+package AnalysisExamples
+version ${MINERVA_RELEASE}
+
+branches cmt src options
+
+use GaudiKernel   v* Gaudi
+use GaudiAlg      v* Gaudi
+
+use MinervaDDDB      v*     Det
+use MinervaDDDBIF    v*     Det -no_auto_imports
+
+use MinervaEvent     v*     Event
+use MinervaMCEvent   v*     Event
+
+use ProngMaker       v*     Rec
+use ParticleMaker    v*     Rec
+use EnergyRecTools   v*     Rec 
+use RecUtils         v*     Rec
+
+use MinervaUtils     v*     Tools
+
+use AnaInterfaces    v*     Ana
+use AnaUtils         v*     Ana
+
+include_dirs $(CC1P1PIROOT)
+
+library CC1P1Pi     *.cpp
+apply_pattern component_library library=CC1P1Pi
+
+private
+apply_pattern application_path
+macro AnalysisExamples_linkopts 	"${application_linkopts}"
