@@ -10,7 +10,7 @@
 
 DECLARE_TOOL_FACTORY( CC1P1PiAnalysis );
 
-using namespace Minerva;
+//using namespace Minerva;
 
 CC1P1PiAnalysis::CC1P1PiAnalysis( const std::string& type, const std::string& name, const IInterface* parent ) : MinervaAnalysisTool( type, name, parent ) {
     
