@@ -8,7 +8,7 @@
 
 
 
-ECLARE_TOOL_FACTORY( CC1P1PiAnalysis );
+DECLARE_TOOL_FACTORY( CC1P1PiAnalysis );
 
 using namespace Minerva;
 
@@ -47,7 +47,7 @@ StatusCode CC1P1PiAnalysis::finalize(){
     return sc;
 }
 
-StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth = NULL ) const{
+StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth ) const{
     
     debug() << "CC1P1PiAnalysis::reconstructEvent : Called." << endmsg;
     
