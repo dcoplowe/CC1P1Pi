@@ -70,7 +70,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent* event, Mine
     unsigned int nout_tracks = reco_vertex->getNOutgoingTracks();
     
     if(!(ntot_tracks == nout_tracks && ntot_tracks == 3)){
-        debug() << "Event doesn't contain extactly three tracks." << endmsg();
+        debug() << "Event doesn't contain extactly three tracks." << endmsg;
         return StatusCode::SUCCESS;
     }
 
