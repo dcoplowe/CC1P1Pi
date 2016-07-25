@@ -22,7 +22,8 @@ CC1P1PiAnalysis::CC1P1PiAnalysis( const std::string& type, const std::string& na
 }
 
 StatusCode CC1P1PiAnalysis::initialize(){
-    
+    info()<<"CC1P1PiAnalysis::initialize()"<<endmsg;
+
     StatusCode sc = this->MinervaAnalysisTool::initialize();
     
     if( sc.isFailure() ){
@@ -34,6 +35,8 @@ StatusCode CC1P1PiAnalysis::initialize(){
 }
 
 StatusCode CC1P1PiAnalysis::finalize(){
+    info()<<"CC1P1PiAnalysis::finalize()"<<endmsg;
+    
     StatusCode sc = this->MinervaAnalysisTool::finalize();
     
     if( sc.isFailure() ){
@@ -46,7 +49,38 @@ StatusCode CC1P1PiAnalysis::finalize(){
 StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth ) const{
     
     debug() << "CC1P1PiAnalysis::reconstructEvent : Called." << endmsg;
+    debug() << gateData() << "Event Number: " << event->physicsEventNumber() << ", no. of slices " << event->sliceNumbers() << endmsg;
+    debug() << "Event time: " << event->time() / 1000.0 << " microseconds" << endmsg;
+
+    //*********** 1 : Find vertex              ***********//
+    debug() << "1) Find vertex" << endmsg;
     
+    if(!event->hasInteractionVertex()){
+        debug() << "No event vertex. Quitting..." << endmsg;
+        return StatusCode::SUCCESS;
+    }
+
+    //*********** 2 : Vertex has only 3 tracks ***********//
+    //Only want a total of three outgoing tracks therefore total number of
+    //tracks is equal to no. of outgoing tracks.
+    debug() << "2) Three tracks" << endmsg;
+    SmartRef<Minerva::Vertex> reco_vertex = event->interactionVertex();
+
+    unsigned int ntot_tracks = reco_vertex->getNtracks();
+    unsigned int nout_tracks = reco_vertex->GetNOutgoingTracks();
+    
+    if(!(ntot_tracks == nout_tracks && ntot_tracks == 3)){
+        debug() << "Event doesn't contain extactly three tracks." << endmsg();
+        return StatusCode::SUCCESS;
+    }
+
+    //*********** 3 : Vertex in active tracker or carbon target ***********//
+
+    
+    //*********** 4 : Muon track coming from common vertex ***********//
+    
+    //*********** 5 : PID on p/pi+ ***********//
+
     
     
     markEvent( event );
