@@ -1,0 +1,174 @@
+//============================================================
+//    Ana_CCQE2T.opts
+//
+//    options file for CC QuasiElastic Neutrino Two Track analysis in scintillator
+//    input is reco file
+//    output is CCQENuTwoTrack analysis ntuple
+//============================================================
+
+//------------------------------------------------------------
+// Standard MINERvA-GAUDI Job Setup
+//-----------------------------------------------------------
+#include "$MINERVAOPTS/MinervaApplication.opts"
+
+//------------------------------------------------------------
+// Geometry selection
+//-----------------------------------------------------------
+DetectorDataSvc.DetDbLocation = "$MINERVA_GEOMETRY/MINERVA.xml";
+DetectorDataSvc.ApplyAlignment = true;
+
+
+//------------------------------------------------------------
+// Applications to Run in this job
+//------------------------------------------------------------
+
+ApplicationMgr.TopAlg += { "PhysicsEventMakerAlg","PhysicsEventAnalysisAlg" };
+
+ApplicationMgr.TopAlg += { "TrackEfficiencyAlg" };
+
+ApplicationMgr.TopAlg += { "DSTWriterAlg","POTCounterAlg" };
+
+
+//==============================================================
+//
+//  Algorithm/Tool user-defined parameters
+//
+//==============================================================
+
+// fiducial volume
+ToolSvc.CCQENuTwoTrack.FidVolApothem            = 850.; // mm
+ToolSvc.CCQENuTwoTrack.FidVolUpstreamZ          = 5990; // mm  ~module27
+ToolSvc.CCQENuTwoTrack.FidVolDownstreamZ        = 8400; // mm  ~module80
+
+// proton cuts
+ToolSvc.CCQENuTwoTrack.ProtonApothem            = 850.; // mm
+ToolSvc.CCQENuTwoTrack.ProtonUpstreamZ          = 5990; // mm  ~module27
+ToolSvc.CCQENuTwoTrack.ProtonDownstreamZ        = 8800; // mm  ~module90
+ToolSvc.CCQENuTwoTrack.ProtonScoreThreshold     = 0.;   // acceptance, analysis cut is below
+
+// allowed distance between muon and proton vertex (shortPR) 
+ToolSvc.CCQENuTwoTrack.ShortTrackVertexDistance = 500.; // mm  
+
+// CCQE analysis cuts
+ToolSvc.CCQENuTwoTrack.AnalysisPrIDThreshold    = 0.4;
+ToolSvc.CCQENuTwoTrack.ProtonDeltaKECut_lower   = -0.5; 
+ToolSvc.CCQENuTwoTrack.ProtonDeltaKECut_upper   = 1.25; 
+ToolSvc.CCQENuTwoTrack.BlobEnergyCut            = 60;
+
+
+ToolSvc.CCQENuTwoTrackProtonUtils.MaxProtonChi2 = 50.;
+ToolSvc.CCQENuTwoTrackProtonUtils.MinProtonScore = 0.0;
+ToolSvc.CCQENuTwoTrackProtonUtils.EndPointZLow = 5500.0;  //-- mm ~ start of nuclear targets
+ToolSvc.CCQENuTwoTrackProtonUtils.EndPointZHigh =  9050.;  //-- mm ~ end of ECAL
+ToolSvc.CCQENuTwoTrackProtonUtils.EndPointApothem = 1200;  //-- mm ~ end of strip
+
+ToolSvc.CCQENuTwoTrackParticleMaker.ToolNames += { "dEdXTool" };
+ToolSvc.CCQENuTwoTrackParticleMaker.ToolAlias = { "CCQENuTwoTrackdEdX" };
+
+ToolSvc.CCQENuTwoTrackdEdX.AddDistanceBeyondTrackLength = 34.0; // default is 34.0mm
+
+//ToolSvc.ShortFitter.ApplyMSCorrection = false;
+
+ToolSvc.ListOfProngData.RemoveMethodList = {"NotContained","ODMatch"};
+
+// Track Efficiency Algorithm
+TrackEfficiencyAlg.TupleOutput = "SIM_minerva_00010000_0001_AnaTrkTuple_v2_v10r0p1.root";
+TrackEfficiencyAlg.FilterTags = {"signal_matchedMuon"};      // <--- looks at if the alg was designed for one filter tag,
+TrackEfficiencyAlg.ParticleList = {13,2212};                 //      there is no distinction in the tuple for different tags
+TrackEfficiencyAlg.UseShortTracks = true;
+TrackEfficiencyAlg.UseLowKECut = false;
+TrackEfficiencyAlg.LowKEParticles = {2212};
+TrackEfficiencyAlg.LowKECuts = {50.0};
+TrackEfficiencyAlg.UsePlanesCut = false;
+TrackEfficiencyAlg.PlanesCutParticles = {2212};
+
+//------------------------------------------------------------
+// Configure the PhysicsEventMaker
+//------------------------------------------------------------
+PhysicsEventAnalysisAlg.CreateNtuples     = true; //true
+//list of reconstruction tool ( type = IInteractionHypothesis )
+PhysicsEventAnalysisAlg.Analyses = { "CCQENuTwoTrack" };
+
+//------------------------------------------------------------
+// Configure the AnaTupleManager
+//------------------------------------------------------------
+ToolSvc.AnaTupleManager.TupleOutput   = "AnaTuple.root";// name of TFile.  if "" , no tuple is made.
+ToolSvc.AnaTupleManager.OutputLevelOfChildren   = -1; //-1 sets each child's output level to be the same as the manager's
+
+
+//------------------------------------------------------------
+// Input File and Event Selection
+//------------------------------------------------------------
+
+EventSelector.Input = {"DATAFILE='/minerva/data/users/minervapro/mc_production_feb28/grid/minerva/reco/v10r0p1/00/01/00/01/SIM_minerva_00010001_0123_Reco_v3_v10r0p1.root' TYP='POOL_ROOTTREE' OPT='READ'" };
+
+//EventSelector.Input = {"DATAFILE='' TYP='POOL_ROOTTREE' OPT='READ'" };
+
+//EventSelector.Input = {"DATAFILE='Prongs.root' TYP='POOL_ROOTTREE' OPT='READ'" };
+
+EventSelector.PrintFreq  =  1;
+EventSelector.FirstEvent =  1;
+ApplicationMgr.EvtMax    =  250;
+
+
+//==============================================================
+//
+//  Verbosity Levels
+//
+//==============================================================
+
+//-----------------------------------------------------------
+// 1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL
+//-----------------------------------------------------------
+
+MessageSvc.OutputLevel                             = 3;
+
+PhysicsEventMakerAlg.OutputLevel                   = 3;
+PhysicsEventAnalysisAlg.OutputLevel                = 3;
+DSTWriterAlg.OutputLevel                           = 3;
+POTCounterAlg.OutputLevel                          = 3;
+
+ToolSvc.AnaTupleManager.OutputLevel                = 3;
+ToolSvc.CCQENuTwoTrack.OutputLevel                 = 4;
+ToolSvc.CCQENuTwoTrackProtonUtils.OutputLevel      = 4;
+
+//===========================================================================
+//===========================================================================
+//===========================================================================
+
+//--------------------------------------------------------------
+// POOL / DST / Histogram Output Files
+//--------------------------------------------------------------
+
+DSTWriterAlg.OutputFile  =  "DST.root";
+
+HistogramPersistencySvc.OutputFile  = "Histos.root";
+
+HistogramPersistencySvc.ConvertHistos = {  };  // e.g. { "myHisto", "myOtherHisto" };
+HistogramPersistencySvc.ExcludeHistos = {  };  // e.g. { "noWayMan", "notYouEither" };
+
+POTCounterAlg.POTTool.Output  = "POT_Summary.txt";
+
+DSTWriterAlg.WriteDAQHeader   = true;
+DSTWriterAlg.WriteFPGAs       = true;
+DSTWriterAlg.WriteRawDigits   = true;
+DSTWriterAlg.WriteIDDigits    = true;
+DSTWriterAlg.WriteODDigits    = true;
+DSTWriterAlg.WriteVetoDigits  = true;
+DSTWriterAlg.WriteBeamData    = true;
+DSTWriterAlg.WriteIDClusters  = true;
+DSTWriterAlg.WriteODClusters  = true;
+DSTWriterAlg.WriteIDBlobs     = true;
+DSTWriterAlg.WriteODBlobs     = true;
+DSTWriterAlg.WriteTracks      = true;
+DSTWriterAlg.WriteVertices    = true;
+DSTWriterAlg.WriteMinos       = true;
+DSTWriterAlg.WriteFilters     = false;
+DSTWriterAlg.WritePlace       = false;
+DSTWriterAlg.WriteInteraction = true;
+DSTWriterAlg.WriteMCIDDigits  = false;
+DSTWriterAlg.WriteMCODDigits  = false;
+DSTWriterAlg.WriteMCVetoDigits= false;
+DSTWriterAlg.RawDigitLocation = "DAQ/SupDigits";
+DSTWriterAlg.NumModules = 120;
+DSTWriterAlg.SaveFrequency = 10;
