@@ -27,6 +27,8 @@ StatusCode CC1P1PiAnalysis::initialize(){
         return Error( "Failed to finalize!", sc );
     }
     
+    //Declare Physics branches:
+    declareIntEventBranch( "n_tracks_prim_vtx", -999 );
     
     return sc;
 }
@@ -79,6 +81,8 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent* event, Mine
     //*********** 5 : PID on p/pi+ ***********//
 
     
+    
+    event->setIntData( "n_tracks_prim_vtx", ntot_tracks );
     
     markEvent( event );
     // Now interpret the event and add NeutrinoInts
