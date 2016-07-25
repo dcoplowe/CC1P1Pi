@@ -66,8 +66,8 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent* event, Mine
     debug() << "2) Three tracks" << endmsg;
     SmartRef<Minerva::Vertex> reco_vertex = event->interactionVertex();
 
-    unsigned int ntot_tracks = reco_vertex->getNtracks();
-    unsigned int nout_tracks = reco_vertex->GetNOutgoingTracks();
+    unsigned int ntot_tracks = reco_vertex->getNTracks();
+    unsigned int nout_tracks = reco_vertex->getNOutgoingTracks();
     
     if(!(ntot_tracks == nout_tracks && ntot_tracks == 3)){
         debug() << "Event doesn't contain extactly three tracks." << endmsg();
