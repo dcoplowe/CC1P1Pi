@@ -16,9 +16,6 @@ CC1P1PiAnalysis::CC1P1PiAnalysis( const std::string& type, const std::string& na
     m_hypMeths.push_back( "numuCC1P1Pi" );
     declareProperty("HypothesisMethods", m_hypMeths);
     // ********************************************* //
-
-    
-    
 }
 
 StatusCode CC1P1PiAnalysis::initialize(){
@@ -48,7 +45,7 @@ StatusCode CC1P1PiAnalysis::finalize(){
 
 StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth ) const{
     
-    debug() << "CC1P1PiAnalysis::reconstructEvent : Called." << endmsg;
+    debug() << "***** CHIPS AND CHEESE ********* CC1P1PiAnalysis::reconstructEvent : Called. ************* " << endmsg;
     debug() << gateData() << "Event Number: " << event->physicsEventNumber() << ", no. of slices " << event->sliceNumbers() << endmsg;
     debug() << "Event time: " << event->time() / 1000.0 << " microseconds" << endmsg;
 
