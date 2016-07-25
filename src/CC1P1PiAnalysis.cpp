@@ -12,8 +12,8 @@ CC1P1PiAnalysis::CC1P1PiAnalysis( const std::string& type, const std::string& na
     
     // ************** Mandatory Code: ************** //
     declareInterface<IInteractionHypothesis>(this);
-    m_anaSignature = "numuCC1P1PiAnalysis";
-    m_hypMeths.push_back( "numuCC1P1Pi" );
+    m_anaSignature = "CC1P1PiAnalysis";
+    m_hypMeths.push_back( "CC1P1Pi" );
     declareProperty("HypothesisMethods", m_hypMeths);
     // ********************************************* //
 }
