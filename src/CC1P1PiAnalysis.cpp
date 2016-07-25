@@ -47,12 +47,16 @@ StatusCode CC1P1PiAnalysis::finalize(){
 
 StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth ) const{
     
-    debug() << "***** CHIPS AND CHEESE ********* CC1P1PiAnalysis::reconstructEvent : Called. ************* " << endmsg;
-    debug() << gateData() << "Event Number: " << event->physicsEventNumber() << ", no. of slices " << event->sliceNumbers() << endmsg;
-    debug() << "Event time: " << event->time() / 1000.0 << " microseconds" << endmsg;
+    //debug()
+    info() << "***** CHIPS AND CHEESE ********* CC1P1PiAnalysis::reconstructEvent : Called. ************* " << endmsg;
+    //debug()
+    info() << gateData() << "Event Number: " << event->physicsEventNumber() << ", no. of slices " << event->sliceNumbers() << endmsg;
+    //debug()
+    info() << "Event time: " << event->time() / 1000.0 << " microseconds" << endmsg;
 
     //*********** 1 : Find vertex              ***********//
-    debug() << "1) Find vertex" << endmsg;
+    //debug()
+    info() << "1) Find vertex" << endmsg;
     
     if(!event->hasInteractionVertex()){
         debug() << "No event vertex. Quitting..." << endmsg;
@@ -62,7 +66,8 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent* event, Mine
     //*********** 2 : Vertex has only 3 tracks ***********//
     //Only want a total of three outgoing tracks therefore total number of
     //tracks is equal to no. of outgoing tracks.
-    debug() << "2) Three tracks" << endmsg;
+    //debug()
+    info() << "2) Three tracks" << endmsg;
     SmartRef<Minerva::Vertex> reco_vertex = event->interactionVertex();
 
     unsigned int ntot_tracks = reco_vertex->getNTracks();
