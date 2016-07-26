@@ -67,9 +67,9 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
 {
     debug() << "CC1P1PiAnalysis::reconstructEvent" << endmsg;
    
-   /* event->setIntData( "n_orig_prongs", event->primaryProngs().size() );
+   event->setIntData( "n_orig_prongs", event->primaryProngs().size() );
     
-    debug() << "n_orig_prongs " << event->primaryProngs().size() << endmsg;
+   /* debug() << "n_orig_prongs " << event->primaryProngs().size() << endmsg;
     
     // You can also tag the GenMinInteraction with any special truth matching stuff here
     std::vector<int> intData;
