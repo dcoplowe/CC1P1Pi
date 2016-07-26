@@ -26,7 +26,7 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
 //! Initialize
 StatusCode CC1P1PiAnalysis::initialize()
 {
-    debug() << "CC1P1PiAnalysis::initialize()" << endmsg;
+    debug() << "DAVID : : CC1P1PiAnalysis::initialize()" << endmsg;
     
     // Initialize the base class.  This will fail if you did not define m_anaSignature.
     StatusCode sc = this->MinervaAnalysisTool::initialize();
@@ -65,7 +65,7 @@ StatusCode CC1P1PiAnalysis::initialize()
 
 StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Minerva::GenMinInteraction* truth ) const
 {
-    debug() << "CC1P1PiAnalysis::reconstructEvent" << endmsg;
+    debug() << "DAVID : : CC1P1PiAnalysis::reconstructEvent" << endmsg;
    
     event->setIntData( "n_orig_prongs", event->primaryProngs().size() );
     
