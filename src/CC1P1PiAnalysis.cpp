@@ -40,6 +40,7 @@ StatusCode CC1P1PiAnalysis::initialize()
     declareIntEventBranch( "n_orig_prongs", -1 ); // Inherited from Template
     
     declareIntEventBranch( "n_tracks3", -999);
+    declareIntEventBranch( "vert_exists", -999);
     //  declareContainerDoubleEventBranch( "shower_momentum", 4, -999. );
     
     //---------------------------------------------------------------------
@@ -66,8 +67,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
 {
     debug() << "CC1P1PiAnalysis::reconstructEvent" << endmsg;
    
-    
-    event->setIntData( "n_orig_prongs", event->primaryProngs().size() );
+   /* event->setIntData( "n_orig_prongs", event->primaryProngs().size() );
     
     debug() << "n_orig_prongs " << event->primaryProngs().size() << endmsg;
     
@@ -87,19 +87,22 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     }
     truth->setContainerIntData("tracked_FSPart",intData);
     intData.clear();
+    */
     
     //*********** 1 : Find vertex              ***********//
     debug()<< "1) Find vertex" << endmsg;
     
-    if(!event->hasInteractionVertex()){
+    if( !event->hasInteractionVertex() ){
         debug() << "No event vertex. Quitting..." << endmsg;
         return StatusCode::SUCCESS;
     }
     
+    event->setIntData("vert_exists", 1);
+    
     //*********** 2 : Vertex has only 3 tracks ***********//
     //Only want a total of three outgoing tracks therefore total number of
     //tracks is equal to no. of outgoing tracks.
-    debug()<< "2) Three tracks" << endmsg;
+/*    debug()<< "2) Three tracks" << endmsg;
     SmartRef<Minerva::Vertex> reco_vertex = event->interactionVertex();
     
     unsigned int ntot_tracks = reco_vertex->getNTracks();
@@ -110,7 +113,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         return StatusCode::SUCCESS;
     }
     
-    event->setIntData( "n_tracks3", 3);
+    event->setIntData( "n_tracks3", 3);*/
     
     //*********** 3 : Vertex in active tracker or carbon target ***********//
     
