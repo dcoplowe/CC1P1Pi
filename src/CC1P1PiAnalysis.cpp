@@ -9,113 +9,67 @@ DECLARE_TOOL_FACTORY( CC1P1PiAnalysis );
 
 CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& name, const IInterface* parent ) : MinervaAnalysisTool( type, name, parent )
 {
-    // Declare the interface so other tools/algs can get this tool via an IInteractionHypothesis
+    
     declareInterface<IInteractionHypothesis>(this);
     
-    // Mandatory declaration of analysis signature:
     m_anaSignature = "CC1P1Pi";
     
-    /*
-     The m_hypMeths variable is from MinervaAnalysisTool and makes many things easier.
-     The interpretations correspond to the methodSignatures of NeutrinoInts you will allow to be created.
-     Push back the default interpretations you will allow.
-     */
-    /*
-     I will include hypothesis methods by default:
-     <ul>
-     <li> InterpretationA
-     <li> InterpretationB
-     </ul>
-     */
     m_hypMeths.push_back( "CC1P1Pi" );
     //m_hypMeths.push_back( "InterpretationB" );
     declareProperty("HypothesisMethods", m_hypMeths);
     
     // Declare other properties you can set from an options file.
     declareProperty( "SomeProperty", m_someProperty = 1 );
+    
 }
 
 //! Initialize
 StatusCode CC1P1PiAnalysis::initialize()
 {
-    info() << "DAVID: CC1P1PiAnalysis::initialize()" << endmsg;
+    debug() << "CC1P1PiAnalysis::initialize()" << endmsg;
     
     // Initialize the base class.  This will fail if you did not define m_anaSignature.
     StatusCode sc = this->MinervaAnalysisTool::initialize();
     if( sc.isFailure() )
         return Error( "Failed to initialize!", sc );
     
-    /*
-     Start declaring branches you want to get in your analysis DST.
-     These branches go into the AnaTuple associated with the PhysicsEvents that this tool \b reconstructs.
-     See <a href="http://minerva-docdb.fnal.gov:8080/cgi-bin/ShowDocument?docid=6855">docdb6855</a> for more detail.
-     */
-    
     //---------------------------------------------------------------------
-    // Declare the PhysicsEvent block branches
+    // Declare recon vars
     //---------------------------------------------------------------------
-    // If you add extra int data to the PhysicsEvent it will show up in your analysis DST.
+    declareDoubleEventBranch( "time_width", -999.0 ); // Inherited from Template
+    declareIntEventBranch( "n_orig_prongs", -1 ); // Inherited from Template
     
-    // This creates a double branch called time_width
-    declareDoubleEventBranch( "time_width", -1 );
-    //double branch linked with PhysicsEvent.
-    // branch will be "time_width/D"
-    
-    // This branch is called n_orig_prongs and has a default value of -1.
-    declareIntEventBranch( "n_orig_prongs", -1 );
-    //int branch with default linked with PhysicsEvent ( "n_orig_prongs/I" )
-    
-    // You can also add container branches.
-    // Here is a containerDouble branch called shower_momentum of constant size 4 with default value -999 for each element
+    declareIntEventBranch( "n_tracks3", -999);
     //  declareContainerDoubleEventBranch( "shower_momentum", 4, -999. );
-    //constant-sized container double branch linked with PhysicsEvent ( "shower_momentum[4]/D" )
-    
-    // Here is a containerInt branch called hit_module with variable size.
-    // Size will be set by a branch named hit_module_sz (created for you).
-    //  declareContainerIntEventBranch( "hit_module" );
-    //variable-sized container int branch linked with PhysicsEvent.
-    // branches will be "hit_module_sz/I" and "hit_module[hit_module_sz]/I"
     
     //---------------------------------------------------------------------
     // Declare the Interpretations block branches
     //---------------------------------------------------------------------
-    // If you add extra containerDouble data to a NeutrinoInt it will show up in your analysis DST
     
     // The size of the iso_blob_energy branch is controlled by the n_iso_blobs branch, which you should not manually create.
-    declareContainerDoubleBranch( m_hypMeths, "iso_blob_energy", "n_iso_blobs" );
+    declareContainerDoubleBranch( m_hypMeths, "iso_blob_energy", "n_iso_blobs" ); // Inherited from Template
     // variable-sized containerDouble branches for each hypMeth.
-    // branches will be "InterpretationA_iso_blob_energy[n_iso_blobs]/D", "InterpretationB_..." )
-    // a branch "n_iso_blobs/I" will be created automatically if it does not already exist.
     
     // Another example of variable length container branch using the same sizer: n_iso_blobs
-    declareContainerIntBranch( m_hypMeths, "iso_blob_nclusters", "n_iso_blobs" );
-    // another variable-sized container double branch ( "<hypmeth>_iso_blob_nclusters[n_iso_blobs]/I" )
+    declareContainerIntBranch( m_hypMeths, "iso_blob_nclusters", "n_iso_blobs" ); // Inherited from Template
     
     //---------------------------------------------------------------------
     // Declare the Truth block branches.
     // Truth branches contain information matched to a GenMinInteraction
     //---------------------------------------------------------------------
-    // If a GenMinInteraction has 'should_be_accepted' in the extra int data it will show up in you analysis DST
-    declareIntTruthBranch( "should_be_accepted", 0 );
-    // int branch linked to GenMinInteraction ( "truth_should_be_accepted/I" )
+    declareIntTruthBranch( "should_be_accepted", 0 ); // Inherited from Template
     
     return sc;
 }
 
-//! Reconstruct a PhysicsEvent
-/*!
- You can:
- Break down unwanted prongs, tracks, blobs etc.
- Create new prongs, tracks, etc.
- Promote prongs to be primary prongs.
- */
-StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Minerva::GenMinInteraction* truth /* = NULL */ ) const
+StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Minerva::GenMinInteraction* truth ) const
 {
-    debug() << "CC1P1PiAnalysis::reconstructEvent( PhysicsEvent *event, GenMinInteraction* truth )" << endmsg;
+    debug() << "CC1P1PiAnalysis::reconstructEvent" << endmsg;
+   
     
-    // Add your own extra data to the PhysicsEvent.  Remember that you declared branches so that extra data could be written to an analysis DST...
-    // Do the same to Prongs and Particles
     event->setIntData( "n_orig_prongs", event->primaryProngs().size() );
+    
+    debug() << "n_orig_prongs " << event->primaryProngs().size() << endmsg;
     
     // You can also tag the GenMinInteraction with any special truth matching stuff here
     std::vector<int> intData;
@@ -133,6 +87,41 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     }
     truth->setContainerIntData("tracked_FSPart",intData);
     intData.clear();
+    
+    //*********** 1 : Find vertex              ***********//
+    debug()<< "1) Find vertex" << endmsg;
+    
+    if(!event->hasInteractionVertex()){
+        debug() << "No event vertex. Quitting..." << endmsg;
+        return StatusCode::SUCCESS;
+    }
+    
+    //*********** 2 : Vertex has only 3 tracks ***********//
+    //Only want a total of three outgoing tracks therefore total number of
+    //tracks is equal to no. of outgoing tracks.
+    debug()<< "2) Three tracks" << endmsg;
+    SmartRef<Minerva::Vertex> reco_vertex = event->interactionVertex();
+    
+    unsigned int ntot_tracks = reco_vertex->getNTracks();
+    unsigned int nout_tracks = reco_vertex->getNOutgoingTracks();
+    
+    if(!(ntot_tracks == nout_tracks && ntot_tracks == 3)){
+        debug() << "Event doesn't contain extactly three tracks." << endmsg;
+        return StatusCode::SUCCESS;
+    }
+    
+    event->setIntData( "n_tracks3", 3);
+    
+    //*********** 3 : Vertex in active tracker or carbon target ***********//
+    
+    
+    //*********** 4 : Muon track coming from common vertex ***********//
+    
+    //*********** 5 : PID on p/pi+ ***********//
+
+    
+    
+    
     
     // Set the PhysicsEvent reconstructionSignature to m_anaSignature, so I know that this tool reconstructed this event.
     // If you mark the event it will go to your analysis DST.  If you don't want it to go there, don't mark it!
@@ -152,22 +141,9 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     return sc;
 }
 
-
-
-//! Attach interpretation to the event if it passed the filters
-/*!
- Create NeutrinoInts and attach analysis data to them.
- Here are the NeutrinoInt signatures I use:
- <table border="1">
- <tr>  <th>signature</th> <th>who gets it</th>  </tr>
- <tr> <td>InterpretationA</td>  <td>Some explanation of what this interpretation means</td> </tr>
- <tr> <td>InterpretationB</td>  <td>Some explanation of what this interpretation means</td> </tr>
- </table>
- 
- */
 StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *interaction, std::vector<Minerva::NeutrinoInt*>& nuInts ) const
 {
-    debug() << "CC1P1PiAnalysis::interpretEvent( const PhysicsEvent*, const GenMinInteraction*, std::vector<NeutrinoInt*>& )const" << endmsg;
+    debug() << "CC1P1PiAnalysis::interpretEvent" << endmsg;
     
     counter("N Primary Prongs") += event->primaryProngs().size();
     // If you decide you want to interpret the event, create a new NeutrinoInt.
@@ -198,6 +174,8 @@ StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, 
 //! Attach information to the GenMinInteraction
 StatusCode CC1P1PiAnalysis::tagTruth( Minerva::GenMinInteraction *truth ) const
 {
+    debug() << "CC1P1PiAnalysis::tagTruth" << endmsg;
+    
     truth->setIntData("should_be_accepted", 1);
     
     return StatusCode::SUCCESS;
@@ -222,6 +200,9 @@ StatusCode CC1P1PiAnalysis::finalize()
 //! did this PhysicsEvent come (primarily) from the MC?  (See DocDB 10471.)
 bool CC1P1PiAnalysis::truthIsPlausible( const Minerva::PhysicsEvent * event ) const
 {
+    
+    debug() << "CC1P1PiAnalysis::truthIsPlausible" << endmsg;
+
     // Here you need to decide whether the things that you require for the event
     // to pass your signal selection were made up primarily of MC.
     // SEE DOCDB 10471 IF YOU ARE UNSURE HOW TO IMPLEMENT THIS METHOD.
