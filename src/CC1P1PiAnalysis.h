@@ -32,7 +32,7 @@ protected:
 private:
     
     //****** Find Muon ******//
-    bool FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth, SmartRef<Minerva::Prong>& muonProng, SmartRef<Minerva::Particle>& muonPart);
+    bool FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth, SmartRef<Minerva::Prong>& muonProng, SmartRef<Minerva::Particle>& muonPart) const;
     IMuonUtils * m_muonUtils;
     std::string  m_muonUtilsAlias;
     double m_minMuonScore;
