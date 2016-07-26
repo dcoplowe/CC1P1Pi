@@ -56,6 +56,7 @@ ToolSvc.AnaTupleManager.OutputLevelOfChildren   = 50;
 //------------------------------------------------------------
 // Input File and Event Selection
 //------------------------------------------------------------
+//EventSelector.Input -- This is required for some reason and I do not know why. Find out.
 
 EventSelector.Input = { "DATAFILE='/minerva/data/mc_production/central_value/minerva/reco/v10r6p13/00/01/32/00/SIM_minerva_00013200_0001_Reco_v4_v10r6p13.root' TYP='POOL_ROOTTREE' OPT='READ'" };
 
