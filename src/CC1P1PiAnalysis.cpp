@@ -71,7 +71,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     debug() << "n_orig_prongs " << event->primaryProngs().size() << endmsg;
     
-  /*  // You can also tag the GenMinInteraction with any special truth matching stuff here
+    // You can also tag the GenMinInteraction with any special truth matching stuff here
     std::vector<int> intData;
     SmartRefVector<Minerva::TG4Trajectory> truePrimaries = truth->trajectories();
     for( SmartRefVector<Minerva::TG4Trajectory>::iterator i = truePrimaries.begin(); i != truePrimaries.end(); ++i )
@@ -87,7 +87,6 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     }
     truth->setContainerIntData("tracked_FSPart",intData);
     intData.clear();
-    */
     
     //*********** 1 : Find vertex              ***********//
     debug()<< "1) Find vertex" << endmsg;
