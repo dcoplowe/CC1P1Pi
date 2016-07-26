@@ -1,21 +1,67 @@
 //============================================================
-//    Ana_CCQE2T.opts
-//
-//    options file for CC QuasiElastic Neutrino Two Track analysis in scintillator
-//    input is reco file
-//    output is CCQENuTwoTrack analysis ntuple
+//    TemplateAnalysisTool.opts
+//    Options file for making TemplateAnalysisTool ntuples
 //============================================================
 
 //------------------------------------------------------------
 // Standard MINERvA-GAUDI Job Setup
 //-----------------------------------------------------------
 #include "$MINERVAOPTS/MinervaApplication.opts"
+#include "$MNVDETECTORMCOPTS/GiGaGeom.opts"
 
 //------------------------------------------------------------
 // Geometry selection
 //-----------------------------------------------------------
 DetectorDataSvc.DetDbLocation = "$MINERVA_GEOMETRY/MINERVA.xml";
-DetectorDataSvc.ApplyAlignment = true;
+DetectorDataSvc.ApplyAlignment = false;
+
+//------------------------------------------------------------
+// Applications to Run in this job
+//------------------------------------------------------------
+
+ApplicationMgr.TopAlg += { "GaudiSequencer/Simulation" }; // For G4 geom
+
+ApplicationMgr.TopAlg += { "CentralValueReweightAlg" };
+
+ApplicationMgr.TopAlg += { "PhysicsEventCreatorAlg" };
+
+ApplicationMgr.TopAlg += { "Sequencer/AnaSeq" };
+AnaSeq.Members        += { "PhysicsEventAnalysisAlg" };
+AnaSeq.Members        += { "DSTWriterAlg" };
+
+PhysicsEventAnalysisAlg.Analyses = { "CC1P1PiAnalysis" };
+
+//==============================================================
+//
+//  Algorithm/Tool user-defined parameters
+//
+//==============================================================
+
+//------------------------------------------------------------
+// Configure the PhysicsEventMaker
+//------------------------------------------------------------
+
+PhysicsEventCreatorAlg.EmulatePEMA = true;
+PhysicsEventCreatorAlg.WhichKludgeTool = "ResurrectionKludgeTool";
+
+PhysicsEventAnalysisAlg.CreateNtuples     = true;
+PhysicsEventAnalysisAlg.AnalyzeBadObjects = false;
+
+//------------------------------------------------------------
+// Configure the AnaTupleManager
+//------------------------------------------------------------
+ToolSvc.AnaTupleManager.TupleOutput   = "CC1P1PiAnalysis_AnaTuple.root";
+ToolSvc.AnaTupleManager.OutputLevelOfChildren   = 50;
+
+//------------------------------------------------------------
+// Input File and Event Selection
+//------------------------------------------------------------
+
+EventSelector.Input = { "DATAFILE='/minerva/data/mc_production/central_value/minerva/reco/v10r6p13/00/01/32/00/SIM_minerva_00013200_0001_Reco_v4_v10r6p13.root' TYP='POOL_ROOTTREE' OPT='READ'" };
+
+EventSelector.PrintFreq  = 10;
+EventSelector.FirstEvent = 1;
+ApplicationMgr.EvtMax    = -1;
 
 //==============================================================
 //
@@ -26,11 +72,22 @@ DetectorDataSvc.ApplyAlignment = true;
 //-----------------------------------------------------------
 // 1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL
 //-----------------------------------------------------------
+MessageSvc.OutputLevel                               = 3; 
 
-MessageSvc.OutputLevel                             = 2;
+PhysicsEventCreatorAlg.OutputLevel                   = 3;
+PhysicsEventAnalysisAlg.OutputLevel                  = 3;
+ToolSvc.CC1P1PiAnalysis.OutputLevel                  = 2;
 
-//------------------------------------------------------------
-// Applications to Run in this job :: What is this??????
-//------------------------------------------------------------
+//===========================================================================
+//===========================================================================
+//===========================================================================
 
-//ApplicationMgr.TopAlg += { "PhysicsEventMakerAlg","PhysicsEventAnalysisAlg" };
+//--------------------------------------------------------------
+// POOL / DST / Histogram Output Files
+//--------------------------------------------------------------
+
+HistogramPersistencySvc.OutputFile  = "histos.root";
+
+//HistogramPersistencySvc.ConvertHistos = {  };
+//HistogramPersistencySvc.ExcludeHistos = {  };
+

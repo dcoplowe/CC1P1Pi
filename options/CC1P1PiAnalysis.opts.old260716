@@ -1,0 +1,36 @@
+//============================================================
+//    Ana_CCQE2T.opts
+//
+//    options file for CC QuasiElastic Neutrino Two Track analysis in scintillator
+//    input is reco file
+//    output is CCQENuTwoTrack analysis ntuple
+//============================================================
+
+//------------------------------------------------------------
+// Standard MINERvA-GAUDI Job Setup
+//-----------------------------------------------------------
+#include "$MINERVAOPTS/MinervaApplication.opts"
+
+//------------------------------------------------------------
+// Geometry selection
+//-----------------------------------------------------------
+DetectorDataSvc.DetDbLocation = "$MINERVA_GEOMETRY/MINERVA.xml";
+DetectorDataSvc.ApplyAlignment = true;
+
+//==============================================================
+//
+//  Verbosity Levels
+//
+//==============================================================
+
+//-----------------------------------------------------------
+// 1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL
+//-----------------------------------------------------------
+
+MessageSvc.OutputLevel                             = 2;
+
+//------------------------------------------------------------
+// Applications to Run in this job :: What is this??????
+//------------------------------------------------------------
+
+//ApplicationMgr.TopAlg += { "PhysicsEventMakerAlg","PhysicsEventAnalysisAlg" };

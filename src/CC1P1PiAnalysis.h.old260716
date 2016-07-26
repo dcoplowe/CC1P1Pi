@@ -3,16 +3,17 @@
 
 #include "AnaUtils/MinervaAnalysisTool.h"
 
-class CC1P1PiAnalysis : public MinervaAnalysisTool
-{
+// ************** Forward Declarations ************** //
+
+class CC1P1PiAnalysis : public MinervaAnalysisTool{
+
 public:
     
     CC1P1PiAnalysis( const std::string& type, const std::string& name, const IInterface* parent );
-    
     ~CC1P1PiAnalysis(){};
     
     StatusCode initialize();
-
+    
     StatusCode finalize();
     
     StatusCode reconstructEvent( Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth = NULL ) const;
@@ -23,12 +24,10 @@ public:
     
     bool truthIsPlausible( const Minerva::PhysicsEvent * event ) const;
     
-protected:
-    
-    
 private:
-       int m_someProperty;
+
+    int m_someProperty;
+    
 };
 
 #endif
-
