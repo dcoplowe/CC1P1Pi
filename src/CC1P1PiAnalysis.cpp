@@ -67,11 +67,11 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
 {
     debug() << "CC1P1PiAnalysis::reconstructEvent" << endmsg;
    
-   event->setIntData( "n_orig_prongs", event->primaryProngs().size() );
+    event->setIntData( "n_orig_prongs", event->primaryProngs().size() );
     
-   /* debug() << "n_orig_prongs " << event->primaryProngs().size() << endmsg;
+    debug() << "n_orig_prongs " << event->primaryProngs().size() << endmsg;
     
-    // You can also tag the GenMinInteraction with any special truth matching stuff here
+  /*  // You can also tag the GenMinInteraction with any special truth matching stuff here
     std::vector<int> intData;
     SmartRefVector<Minerva::TG4Trajectory> truePrimaries = truth->trajectories();
     for( SmartRefVector<Minerva::TG4Trajectory>::iterator i = truePrimaries.begin(); i != truePrimaries.end(); ++i )
@@ -94,10 +94,12 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     if( !event->hasInteractionVertex() ){
         debug() << "No event vertex. Quitting..." << endmsg;
-        return StatusCode::SUCCESS;
+        event->setIntData("vert_exists", 0);
+        //return StatusCode::SUCCESS;
     }
-    
-    event->setIntData("vert_exists", 1);
+    else{
+        event->setIntData("vert_exists", 1);
+    }
     
     //*********** 2 : Vertex has only 3 tracks ***********//
     //Only want a total of three outgoing tracks therefore total number of
