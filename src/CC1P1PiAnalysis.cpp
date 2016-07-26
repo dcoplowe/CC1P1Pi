@@ -4,6 +4,9 @@
 #include "Event/TG4PrimaryTrajectory.h"
 #include <AnaUtils/IMuonUtils.h>
 
+//Forward declared headers:
+#include "AnaUtils/IMuonUtils.h"
+
 //this command allows other parts of Gaudi to use the tool
 DECLARE_TOOL_FACTORY( CC1P1PiAnalysis );
 
@@ -19,29 +22,26 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("HypothesisMethods", m_hypMeths);
     
     // Declare other properties you can set from an options file.
-    declareProperty( "SomeProperty", m_someProperty = 1 );
-    
+    declareProperty("MuonUtilsAlias", m_muonUtilsAlias = "CC1P1PiMuonUtils");
+    declareProperty("MinMuonScore", m_minMuonScore = 0.9);
 }
 
 //! Initialize
 StatusCode CC1P1PiAnalysis::initialize()
 {
-    debug() << "DAVID : : CC1P1PiAnalysis::initialize()" << endmsg;
+    debug() << "CC1P1PiAnalysis::initialize()" << endmsg;
     
     // Initialize the base class.  This will fail if you did not define m_anaSignature.
     StatusCode sc = this->MinervaAnalysisTool::initialize();
     if( sc.isFailure() )
         return Error( "Failed to initialize!", sc );
     
-    //---------------------------------------------------------------------
-    // Declare recon vars
-    //---------------------------------------------------------------------
-    //declareDoubleEventBranch( "time_width", -999.0 ); // Inherited from Template
-    //declareIntEventBranch( "n_orig_prongs", -1 ); // Inherited from Template
     
-    declareIntEventBranch( "n_tracks3", -999);
-    declareIntEventBranch( "vert_exists", -999);
-    //  declareContainerDoubleEventBranch( "shower_momentum", 4, -999. );
+    try{ m_muonUtils = tool<IMuonUtils>("MuonUtils", m_muonUtilsAlias); }
+    catch( GaudiException& e){
+        error() << "Could not find MuonUtils with alias: " << m_muonUtilsAlias << endmsg;
+        return StatusCode::FAILURE;
+    }
     
     //---------------------------------------------------------------------
     // Declare the Interpretations block branches
@@ -55,9 +55,21 @@ StatusCode CC1P1PiAnalysis::initialize()
     declareContainerIntBranch( m_hypMeths, "iso_blob_nclusters", "n_iso_blobs" ); // Inherited from Template
     
     //---------------------------------------------------------------------
+    // Declare recon vars
+    //---------------------------------------------------------------------
+
+    declareIntEventBranch( "n_tracks3", -999);
+    declareIntEventBranch( "vert_exists", -999);
+    //  declareContainerDoubleEventBranch( "shower_momentum", 4, -999. );
+    declareBoolEventBranch( "isMinosMatchTrack");
+    declareBoolEventBranch( "isMinosMatchStub");
+    
+    //---------------------------------------------------------------------
     // Declare the Truth block branches.
     // Truth branches contain information matched to a GenMinInteraction
     //---------------------------------------------------------------------
+    
+    declareBoolTruthBranch("reco_isMinosMatch");
     declareIntTruthBranch( "should_be_accepted", 0 ); // Inherited from Template
     
     return sc;
@@ -67,7 +79,20 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
 {
     debug() << "CC1P1PiAnalysis::reconstructEvent" << endmsg;
     
-    //*********** 1 : Find vertex              ***********//
+    //--------------------------------------------------------------
+    // Initialize truth reco booleans
+    //--------------------------------------------------------------
+    if (truth) {
+        truth->filtertaglist()->setOrAddFilterTag( "reco_isMinosMatch", false );
+    }
+    
+    //--------------------------------------------------------------
+    // Initialize reco booleans
+    //--------------------------------------------------------------
+    event->filtertaglist()->setOrAddFilterTag( "isMinosMatchTrack", false );
+    event->filtertaglist()->setOrAddFilterTag( "isMinosMatchStub", false );
+    
+    //----------- 1 : Find vertex              -----------//
     debug()<< "1) Find vertex" << endmsg;
     
     if( !event->hasInteractionVertex() ){
@@ -80,11 +105,18 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         event->setIntData("vert_exists", 1);
     //}
     
-    //*********** 2 : Vertex has only 3 tracks ***********//
+    //----------- 2 : Vertex has only 3 tracks -----------//
     //Only want a total of three outgoing tracks therefore total number of
     //tracks is equal to no. of outgoing tracks.
     debug()<< "2) Three tracks" << endmsg;
     SmartRef<Minerva::Vertex> reco_vertex = event->interactionVertex();
+    
+    if( !reco_vertex ) {
+        bool pass = true; std::string tag = "BadObject";
+        event->filtertaglist()->addFilterTag(tag,pass);
+        error() << "This vertex is NULL! Flag this event as bad!" << endmsg;
+        return StatusCode::SUCCESS;
+    }
     
     unsigned int ntot_tracks = reco_vertex->getNTracks();
     unsigned int nout_tracks = reco_vertex->getNOutgoingTracks();
@@ -98,12 +130,20 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     event->setIntData( "n_tracks3", 3);
     
-    //*********** 3 : Vertex in active tracker or carbon target ***********//
+    //----------- 3 : Muon track coming from common vertex -----------//
+    debug()<< "3) Muon Track" << endmsg;
+    SmartRef<Minerva::Prong>    muonProng = (Minerva::Prong*)NULL;
+    SmartRef<Minerva::Particle> muonPart = (Minerva::Particle*)NULL;
     
+    if(!FindMuon(event, truth, muonProng, muonPart )){
+        debug() << "Muon not found..." << endmsg;
+        return StatusCode::SUCCESS;
+    }
+    debug()<< "Muon track found!" << endmsg;
     
-    //*********** 4 : Muon track coming from common vertex ***********//
+    //----------- 4 : Vertex in active tracker or carbon target -----------//
     
-    //*********** 5 : PID on p/pi+ ***********//
+    //----------- 5 : PID on p/pi+ -----------//
 
     
     
@@ -201,3 +241,56 @@ bool CC1P1PiAnalysis::truthIsPlausible( const Minerva::PhysicsEvent * event ) co
     return muonIsPlausible(muonProng);
 }
 
+
+//Selection Functions:
+
+bool CC1P1PiAnalysis::FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth, SmartRef<Minerva::Prong>& muonProng, SmartRef<Minerva::Particle>& muonPart ) const
+{
+    
+    bool is_minos_track = false;
+    bool is_minos_stub = false;
+    
+    if(m_muonUtils->findMuonProng(event, muonProng, muonPart)){
+        
+        if ( !muonProng ) {
+            warning() << "Identified a muon Prong, but it is NULL!" << endmsg;
+            return false; // We sort of did crash...
+        }
+        
+       /* double mc_frac = -1.0;
+        if ( m_doPlausibilityCuts && !muonIsPlausible( muonProng, mc_frac) ) {
+            debug()<<"Muon is not plausible"<<endmsg;
+            return false;
+        }*/
+        
+        debug() << " Muon Particle Score: " << muonPart->score() << endmsg;
+        if (muonPart->score() >= m_minMuonScore) {
+            
+            muonProng->filtertaglist()->setOrAddFilterTag( "PrimaryMuon", true );
+            muonPart->filtertaglist()->setOrAddFilterTag( "PrimaryMuon", true );
+            
+            if (muonProng->MinosTrack()) is_minos_track = true;
+            if (muonProng->MinosStub()) is_minos_stub = true;
+            
+            if (is_minos_stub && is_minos_track) counter("MuonHasMinosStubAndTrack")++;
+            else counter("MuonHasMinosStubAndTrack")+=0;
+            if (!is_minos_stub && !is_minos_track) counter("MuonIsNotMinosMatched")++;
+            else counter("MuonIsNotMinosMatched")+=0;
+            
+            event->filtertaglist()->setOrAddFilterTag("isMinosMatchTrack", is_minos_track );
+            event->filtertaglist()->setOrAddFilterTag("isMinosMatchStub", is_minos_stub );
+            if (truth) truth->filtertaglist()->setOrAddFilterTag( "reco_isMinosMatch", true );
+        }
+        else {
+            debug()<<"Muon prong does not pass score cut"<<endmsg;
+            return false;
+        }
+        
+    } 
+    else {
+        debug() << "Did not find a muon prong!" << endmsg;
+        return false;
+    }
+    
+    return true;
+}

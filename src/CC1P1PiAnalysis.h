@@ -3,6 +3,9 @@
 
 #include "AnaUtils/MinervaAnalysisTool.h"
 
+//Forward declarations:
+class IMuonUtils;
+
 class CC1P1PiAnalysis : public MinervaAnalysisTool
 {
 public:
@@ -27,6 +30,14 @@ protected:
     
     
 private:
+    
+    //****** Find Muon ******//
+    bool FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth, SmartRef<Minerva::Prong>& muonProng, SmartRef<Minerva::Particle>& muonPart);
+    IMuonUtils * m_muonUtils;
+    std::string  m_muonUtilsAlias;
+    double m_minMuonScore;
+    //***********************//
+    
        int m_someProperty;
 };
 
