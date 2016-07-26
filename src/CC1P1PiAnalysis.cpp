@@ -36,8 +36,8 @@ StatusCode CC1P1PiAnalysis::initialize()
     //---------------------------------------------------------------------
     // Declare recon vars
     //---------------------------------------------------------------------
-    declareDoubleEventBranch( "time_width", -999.0 ); // Inherited from Template
-    declareIntEventBranch( "n_orig_prongs", -1 ); // Inherited from Template
+    //declareDoubleEventBranch( "time_width", -999.0 ); // Inherited from Template
+    //declareIntEventBranch( "n_orig_prongs", -1 ); // Inherited from Template
     
     declareIntEventBranch( "n_tracks3", -999);
     declareIntEventBranch( "vert_exists", -999);
@@ -65,46 +65,25 @@ StatusCode CC1P1PiAnalysis::initialize()
 
 StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Minerva::GenMinInteraction* truth ) const
 {
-    debug() << "DAVID : : CC1P1PiAnalysis::reconstructEvent" << endmsg;
-   
-    event->setIntData( "n_orig_prongs", event->primaryProngs().size() );
+    debug() << "CC1P1PiAnalysis::reconstructEvent" << endmsg;
     
-    debug() << "n_orig_prongs " << event->primaryProngs().size() << endmsg;
-    
-    // You can also tag the GenMinInteraction with any special truth matching stuff here
-    /*std::vector<int> intData;
-    SmartRefVector<Minerva::TG4Trajectory> truePrimaries = truth->trajectories();
-    for( SmartRefVector<Minerva::TG4Trajectory>::iterator i = truePrimaries.begin(); i != truePrimaries.end(); ++i )
-    {
-        Minerva::TG4PrimaryTrajectory* traj = dynamic_cast<Minerva::TG4PrimaryTrajectory*>( static_cast<Minerva::TG4Trajectory*>(*i) );
-        if( traj )
-        {
-            //if you can find a reconstructed track for this...
-            intData.push_back( 1 );
-            //else
-            //intData.push_back(0);
-        }
-    }
-    truth->setContainerIntData("tracked_FSPart",intData);
-    intData.clear();
-    */
     //*********** 1 : Find vertex              ***********//
     debug()<< "1) Find vertex" << endmsg;
     
     if( !event->hasInteractionVertex() ){
         debug() << "No event vertex. Quitting..." << endmsg;
-        event->setIntData("vert_exists", 0);
-        //return StatusCode::SUCCESS;
+        //event->setIntData("vert_exists", 0);
+        return StatusCode::SUCCESS;
     }
-    else{
+    //else{
         debug() << "Found vertex!" << endmsg;
         event->setIntData("vert_exists", 1);
-    }
+    //}
     
     //*********** 2 : Vertex has only 3 tracks ***********//
     //Only want a total of three outgoing tracks therefore total number of
     //tracks is equal to no. of outgoing tracks.
-/*    debug()<< "2) Three tracks" << endmsg;
+    debug()<< "2) Three tracks" << endmsg;
     SmartRef<Minerva::Vertex> reco_vertex = event->interactionVertex();
     
     unsigned int ntot_tracks = reco_vertex->getNTracks();
@@ -115,7 +94,9 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         return StatusCode::SUCCESS;
     }
     
-    event->setIntData( "n_tracks3", 3);*/
+    debug()<< "Has 3 tracks!" << endmsg;
+    
+    event->setIntData( "n_tracks3", 3);
     
     //*********** 3 : Vertex in active tracker or carbon target ***********//
     
