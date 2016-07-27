@@ -2,10 +2,14 @@
 #include "CC1P1PiAnalysis.h"
 
 #include "Event/TG4PrimaryTrajectory.h"
-#include <AnaUtils/IMuonUtils.h>
 
 //Forward declared headers:
 #include "AnaUtils/IMuonUtils.h"
+#include "GeoUtils/IMinervaCoordSysTool.h"
+#include "GeoUtils/INuclearTargetTool.h"
+
+//Root headers:
+#include <TString.h>
 
 //this command allows other parts of Gaudi to use the tool
 DECLARE_TOOL_FACTORY( CC1P1PiAnalysis );
@@ -21,9 +25,30 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     //m_hypMeths.push_back( "InterpretationB" );
     declareProperty("HypothesisMethods", m_hypMeths);
     
+    //For muon PID:
     // Declare other properties you can set from an options file.
     declareProperty("MuonUtilsAlias", m_muonUtilsAlias = "CC1P1PiMuonUtils");
-    declareProperty("MinMuonScore", m_minMuonScore = 0.9);
+    declareProperty("MinMuonScore",   m_minMuonScore = 0.9);
+    
+    //For Nuclear Target/Scintillator ID:
+    //Taken from CCQE Two Track code
+    declareProperty("default_apothem" m_default_apothem = 850.0*CLHEP::mm); //Taken from CCQETwoTrack
+    declareProperty("default_upZ",    m_default_upZ = 4284.46*CLHEP::mm);//Taken from NukeCCQETwoTrack
+    declareProperty("default_downZ",  m_default_downZ = 8300.00*CLHEP::mm);//Taken from CCQETwoTrack
+    
+    declareProperty("scint_apothem", m_scint_apothem = 850.0*CLHEP::mm);//Taken from CCQETwoTrack
+    declareProperty("scint_upZ" ,    m_scint_upZ = 5990.00*CLHEP::mm);//Taken from CCQETwoTrack
+    declareProperty("scint_downZ" ,  m_scint_downZ = 8300.00*CLHEP::mm);//Taken from CCQETwoTrack
+    
+    //Taken from NukeCQETwoTrack - taken as front/back face nuclear target
+    //May want to change this to Target3 vertex cut in NukeCCQETwoTrack
+    declareProperty("carbon_apothem", m_carbon_apothem = 900.0*CLHEP::mm);
+    declareProperty("carbon_upZ",     m_carbon_upZ = 4815.04*CLHEP::mm);
+    declareProperty("carbon_downZ",   m_carbon_downZ = 5073.59*CLHEP::mm);
+
+    declareProperty("NuclearTargetToolAlias",      m_nuclearTargetToolAlias  = "CC1P1PiTargetTool");
+    
+    
 }
 
 //! Initialize
@@ -43,6 +68,21 @@ StatusCode CC1P1PiAnalysis::initialize()
         return StatusCode::FAILURE;
     }
     
+    try{ m_coordSysTool = tool<IMinervaCoordSysTool>("MinervaCoordSysTool"); }
+    catch( GaudiException& e ) {
+        error() << "Could not obtain MinervaCoordSysTool!" << endmsg;
+        return StatusCode::FAILURE;
+    }
+    
+    try{ m_nuclearTargetTool = tool<INuclearTargetTool>("NuclearTargetTool", m_nuclearTargetToolAlias);
+        m_nuclearTargetTool->m_locked = false;
+        m_nuclearTargetTool->addAllPassiveNuclearTargets();
+        m_nuclearTargetTool->lock();
+    } catch( GaudiException& e ) {
+        error() << "Could not obtain NuclearTargetTool: " << m_nuclearTargetToolAlias << endmsg;
+        return StatusCode::FAILURE;
+    }
+    
     //---------------------------------------------------------------------
     // Declare the Interpretations block branches
     //---------------------------------------------------------------------
@@ -58,11 +98,12 @@ StatusCode CC1P1PiAnalysis::initialize()
     // Declare recon vars
     //---------------------------------------------------------------------
 
-    declareIntEventBranch( "n_tracks3", -999);
-    declareIntEventBranch( "vert_exists", -999);
+    declareIntEventBranch("n_tracks3", -999);
+    declareIntEventBranch("vert_exists", -999);
+    declareIntEventBranch("target_area", -999);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut. 
     //  declareContainerDoubleEventBranch( "shower_momentum", 4, -999. );
-    declareBoolEventBranch( "isMinosMatchTrack");
-    declareBoolEventBranch( "isMinosMatchStub");
+    declareBoolEventBranch("isMinosMatchTrack");
+    declareBoolEventBranch("isMinosMatchStub");
     
     //---------------------------------------------------------------------
     // Declare the Truth block branches.
@@ -70,7 +111,7 @@ StatusCode CC1P1PiAnalysis::initialize()
     //---------------------------------------------------------------------
     
     declareBoolTruthBranch("reco_isMinosMatch");
-    declareIntTruthBranch( "should_be_accepted", 0 ); // Inherited from Template
+    declareIntTruthBranch("should_be_accepted", 0); // Inherited from Template
     
     return sc;
 }
@@ -142,6 +183,16 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     debug()<< "Muon track found!" << endmsg;
     
     //----------- 4 : Vertex in active tracker or carbon target -----------//
+    //Not a cut but an action to determine the location of the vertex.
+    
+    if(VertIsIn("Scint", reco_vertex)){
+        
+    }
+    else if (VertIsIn("Carbon", reco_vertex)){
+        
+    }
+    else return StatusCode::SUCCESS;
+    
     
     //----------- 5 : PID on p/pi+ -----------//
 
@@ -293,4 +344,40 @@ bool CC1P1PiAnalysis::FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInte
     }
     
     return true;
+}
+
+bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* event) const
+{
+    //This function checks if the vertex is in the target region specified by the string and in the fiducial volume. Currently this works for only
+    //carbon and scintillator but can be fixed to work with any target.
+    
+    double apothem = m_default_apothem; //Tracker?
+    double upZ = m_default_upZ;
+    double downZ = m_default_downZ;
+    
+    SmartRef<Minerva::Vertex> vertex = event->interactionVertex();
+    
+    
+    if(targetRegion.Contains("Scint", TString::kIgnoreCase)){
+        apothem = m_scint_apothem;
+        upZ = m_scint_upZ;
+        downZ = m_scint_downZ;
+    }
+    else if(targetRegion.Contains("Carbon", TString::kIgnoreCase)){
+        //Carbon is in target region 3 and has Z == 6.
+        bool incarbon = IsInTargetSection(3, 6, vertex->position().x(), vertex->position().y());
+        if(!incarbon) return false;
+        apothem = m_carbon_apothem;
+        upZ = m_carbon_upZ;
+        downZ = m_carbon_downZ;
+    }
+    else {
+        debug() << "CC1P1PiAnalysis::VertIsIn : Could not determine target name: "
+                << targetRegion.Data() << ". Please check, it may not be implemented." << endmsg;
+        return false;
+    }
+    
+    bool fidVertex = m_coordSysTool->inFiducial( vertex->position().x(), vertex->position().y(), vertex->position().z(), apothem, upZ, downZ );
+    
+    return fidVertex;
 }
