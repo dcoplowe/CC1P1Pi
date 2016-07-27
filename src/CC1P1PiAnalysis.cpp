@@ -33,7 +33,7 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     
     //For Nuclear Target/Scintillator ID:
     //Taken from CCQE Two Track code
-    declareProperty("default_apothem" m_default_apothem = 850.0*CLHEP::mm); //Taken from CCQETwoTrack
+    declareProperty("default_apothem", m_default_apothem = 850.0*CLHEP::mm); //Taken from CCQETwoTrack
     declareProperty("default_upZ",    m_default_upZ = 4284.46*CLHEP::mm);//Taken from NukeCCQETwoTrack
     declareProperty("default_downZ",  m_default_downZ = 8300.00*CLHEP::mm);//Taken from CCQETwoTrack
     
