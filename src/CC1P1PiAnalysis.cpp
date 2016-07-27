@@ -6,6 +6,7 @@
 //Forward declared headers:
 #include "AnaUtils/IMuonUtils.h"
 #include "GeoUtils/IMinervaCoordSysTool.h"
+#include "DetDesc/Material.h"
 #include "GeoUtils/INuclearTargetTool.h"
 
 //Root headers:
@@ -184,15 +185,17 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     //----------- 4 : Vertex in active tracker or carbon target -----------//
     //Not a cut but an action to determine the location of the vertex.
-    
-    if(VertIsIn("Scint", reco_vertex)){
-        
+    debug() << "4) Vertex in Carbon or Scintillator" << endmsg;
+    if(VertIsIn("Scint", event)){
+        debug() << "Yes in SCINTILLATOR" << endmsg;
     }
-    else if (VertIsIn("Carbon", reco_vertex)){
-        
+    else if (VertIsIn("Carbon", event)){
+        debug() << "Yes in CARBON TARGET" << endmsg;
     }
-    else return StatusCode::SUCCESS;
-    
+    else{
+        debug() << "Event not in either..." << endmsg;
+        return StatusCode::SUCCESS;
+    }
     
     //----------- 5 : PID on p/pi+ -----------//
 
@@ -351,12 +354,11 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     //This function checks if the vertex is in the target region specified by the string and in the fiducial volume. Currently this works for only
     //carbon and scintillator but can be fixed to work with any target.
     
-    double apothem = m_default_apothem; //Tracker?
+    double apothem = m_default_apothem;
     double upZ = m_default_upZ;
     double downZ = m_default_downZ;
     
     SmartRef<Minerva::Vertex> vertex = event->interactionVertex();
-    
     
     if(targetRegion.Contains("Scint", TString::kIgnoreCase)){
         apothem = m_scint_apothem;
@@ -364,9 +366,18 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
         downZ = m_scint_downZ;
     }
     else if(targetRegion.Contains("Carbon", TString::kIgnoreCase)){
+        
+        const Gaudi::XYZPoint p_vert = vertex->position();
+        const Material * material = m_nuclearTargetTool->getSectionMaterial(p_vert);
+        int materialZ = -999;
+        
+        if(material){
+            materialZ = (int)(material->Z()+0.5);
+            debug() << "  retrieve the target's section material name = " << material->name() << ", and Z = " << material->Z() << endmsg;
+        }
         //Carbon is in target region 3 and has Z == 6.
-        bool incarbon = IsInTargetSection(3, 6, vertex->position().x(), vertex->position().y());
-        if(!incarbon) return false;
+        
+        if(materialZ == 6) return false;
         apothem = m_carbon_apothem;
         upZ = m_carbon_upZ;
         downZ = m_carbon_downZ;
@@ -378,6 +389,10 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     }
     
     bool fidVertex = m_coordSysTool->inFiducial( vertex->position().x(), vertex->position().y(), vertex->position().z(), apothem, upZ, downZ );
+    
+    if(fidVertex){
+        debug() << "Vertex is in fiducial volume" << endmsg;
+    }
     
     return fidVertex;
 }
