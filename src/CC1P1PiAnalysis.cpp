@@ -244,14 +244,13 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     hypotheses.push_back(Minerva::Particle::Pion);
     hypotheses.push_back(Minerva::Particle::Proton);
     
-    Minerva::ProngVect primaryProngs = event->primaryProngs();
+    HadronSystem hadrons;
     
+    bool tFinPar = FindParticles(event, hadrons, muonProng);
     
-    
-    
-    
-    
-    
+    if(tFinPar){
+        debug() << "Okay" << endmsg;
+    }
     
     
     
@@ -479,15 +478,73 @@ bool CC1P1PiAnalysis::getProton( const Minerva::ProngVect& primaryProngs, SmartR
     return true;
 }
 
-bool CC1P1PiAnalysis::FindParticles(const Minerva::ProngVect& primaryProngs, HadronSystem& hadrons) const
+bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event, HadronSystem& hadrons, SmartRef<Minerva::Prong> muonProng) const
 {
+    debug() << "CC1P1PiAnalysis::FindParticles" << endmsg;
     //Determine which track is most proton like and pion like:
     // 1) Get particle scores and compare which track is has the highest score for the given hypothosis.
     // 2) Look for Michel features.
     //
     //Check that they are contianed in det FV and they are not minos matched.
+   
+    Minerva::ProngVect primaryProngs = event->primaryProngs();
+    Minerva::ProngVect::iterator prong;
     
-    return false;
+    std::vector<double> protonScore;
+    std::vector<double> pionScore;
+    
+    int prong_count = 0;
+    
+    for( prong = prongs.begin(); prong != prongs.end(); prong++ ){
+        
+        prong_count++;
+        debug() << "Checking Prong: " << prong_count << "." << endmsg;
+        
+        //Check prong isn't that of the muon:
+        if(muonProng == (*prong)){
+            debug() << "Prong already determined as muon." << endmsg;
+            continue;
+        }
+        
+        //Check if track is fully contained in detector FV and there are no minos matched tracks:
+        Minerva::TrackVect tracks = (*prong)->minervaTracks();
+        
+        if( tracks.empty() ) {
+            debug() << "  This prong contains an empty vector of tracks, skipping!" << endmsg;
+            continue;
+            //Return false statement if found to minos match.
+        }
+        else if( (*prong)->MinosTrack() || (*prong)->MinosStub() ) {
+            debug() << "  This is a MINOS matched prong, skipping!" << endmsg;
+            continue;
+            //Return false statement if found to minos match.
+        }
+        
+        SmartRef<Minerva::Track> track = tracks[tracks.size() -1];
+        Gaudi::XYZPoint endpoint = track->lastState().position();
+        
+        if(!m_coordSysTool->inFiducial(endpoint.x(), endpoint.y(), endpoint.z(), m_det_apothem, m_det_upZ, m_det_downZ)){
+            debug() << "Track not contained in detector fiducial volume." << endmsg;
+            return false;
+        }
+        
+        //Determine particle scores:
+        double tmp_pr_sc = -999.0;
+        double tmp_pi_sc = -999.0;
+        bool pscores = m_protonUtils->getParticleScores( (*prong), tmp_pr_sc, tmp_pi_sc);
+        if(pscores){
+            debug() << "Particle scores found to be: Proton = " << tmp_pr_sc << " Pion = " << tmp_pi_sc << endmsg;
+            protonScore.push_back(tmp_pr_sc);
+            pionScore.push_back(tmp_pi_sc);
+        }
+        
+        //Look for michels at end of the prong:
+        
+        
+        
+    }
+    
+    return true;
 }
 
 
