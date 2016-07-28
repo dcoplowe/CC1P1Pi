@@ -82,7 +82,7 @@ private:
     double m_protonScoreThreshold;
     
     //Find Proton/Pion:
-    bool FindParticles(Minerva::PhysicsEvent* event, HadronSystem& hadrons, SmartRef<Minerva::Prong> muonProng) const'
+    bool FindParticles(Minerva::PhysicsEvent* event, HadronSystem& hadrons, SmartRef<Minerva::Prong> muonProng) const;
     double m_det_apothem;
     double m_det_upZ;
     double m_det_downZ;
