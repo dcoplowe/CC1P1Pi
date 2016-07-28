@@ -487,7 +487,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event, HadronSystem& 
     //
     //Check that they are contianed in det FV and they are not minos matched.
    
-    Minerva::ProngVect primaryProngs = event->primaryProngs();
+    Minerva::ProngVect prongs = event->primaryProngs();
     Minerva::ProngVect::iterator prong;
     
     std::vector<double> protonScore;
