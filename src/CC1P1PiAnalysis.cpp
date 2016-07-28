@@ -8,6 +8,7 @@
 #include "GeoUtils/IMinervaCoordSysTool.h"
 #include "DetDesc/Material.h"
 #include "GeoUtils/INuclearTargetTool.h"
+#include "AnaUtils/IProtonUtils.h"
 
 //Root headers:
 #include <TString.h>
