@@ -487,6 +487,7 @@ bool CC1P1PiAnalysis::FindParticles(const Minerva::ProngVect& primaryProngs, Had
     //
     //Check that they are contianed in det FV and they are not minos matched.
     
+    return false;
 }
 
 
