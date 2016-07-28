@@ -12,6 +12,15 @@ class IProtonUtils;
 //Test to see if I can forward declare TString if it is being used in a function -- It worked!!
 class TString;
 
+//Struct for the Hadronic system:
+struct HadronSystem{
+    SmartRef<Minerva::Prong> protonProng;
+    SmartRef<Minerva::Particle> protonPart;
+    SmartRef<Minerva::Prong> pionProng;
+    SmartRef<Minerva::Particle> pionPart;
+};
+
+
 class CC1P1PiAnalysis : public MinervaAnalysisTool
 {
 public:
@@ -71,6 +80,12 @@ private:
     IProtonUtils * m_protonUtils;
     std::string    m_protonUtilsAlias;
     double m_protonScoreThreshold;
+    
+    //Find Proton/Pion:
+    bool FindParticles(const Minerva::ProngVect& primaryProngs, HadronSystem hadrons) const;
+    double m_det_apothem;
+    double m_det_upZ;
+    double m_det_downZ;
 
 };
 

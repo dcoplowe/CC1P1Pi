@@ -53,8 +53,11 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     //For Proton PID:
     declareProperty( "ProtonUtilsAlias", m_protonUtilsAlias = "CC1P1PiProtonUtils");
     declareProperty( "ProtonScoreThreshold", m_protonScoreThreshold = 0.0 );
-
     
+    //For hadron PID:
+    declareProperty("det_apothem", m_det_apothem = 1200.0*CLHEP::mm);//Same as Proton utils:
+    declareProperty("det_upZ", m_det_upZ = 4000.0*CLHEP::mm);//Same as Proton utils:
+    declareProperty("det_downZ", m_det_downZ = 10000.0*CLHEP::mm);//Same as Proton utils:
     
 }
 
@@ -236,13 +239,12 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     
     //----------- 5 : PID on p/pi+ -----------//
-    /*debug() << "5) Vertex in Carbon or Scintillator" << endmsg;
+    debug() << "5) PID: p/pi+" << endmsg;
     std::vector<Minerva::Particle::ID> hypotheses;
     hypotheses.push_back(Minerva::Particle::Pion);
     hypotheses.push_back(Minerva::Particle::Proton);
     
     Minerva::ProngVect primaryProngs = event->primaryProngs();
-    */
     
     
     
@@ -455,7 +457,7 @@ bool CC1P1PiAnalysis::getProton( const Minerva::ProngVect& primaryProngs, SmartR
     
     if( m_protonUtils->findProtonProng( primaryProngs, protonProng, protonPart ) ) {
         if( !protonProng ) {
-            warning() << "Identified a proton Prong, but it is NULL in CCQENuTwoTrack::reconstructEvent!" << endmsg;
+            warning() << "Identified a proton Prong, but it is NULL in CC1P1PiAnalysis::reconstructEvent!" << endmsg;
             return false;
         }
         //! Check that the proton particle is well identified. Tag the proton prong
@@ -476,3 +478,15 @@ bool CC1P1PiAnalysis::getProton( const Minerva::ProngVect& primaryProngs, SmartR
     
     return true;
 }
+
+bool CC1P1PiAnalysis::FindParticles(const Minerva::ProngVect& primaryProngs, HadronSystem& hadrons) const
+{
+    //Determine which track is most proton like and pion like:
+    // 1) Get particle scores and compare which track is has the highest score for the given hypothosis.
+    // 2) Look for Michel features.
+    //
+    //Check that they are contianed in det FV and they are not minos matched.
+    
+}
+
+
