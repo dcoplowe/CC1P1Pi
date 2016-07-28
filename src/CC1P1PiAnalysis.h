@@ -82,7 +82,7 @@ private:
     double m_protonScoreThreshold;
     
     //Find Proton/Pion:
-    bool FindParticles(const Minerva::ProngVect& primaryProngs, HadronSystem hadrons) const;
+    bool FindParticles(const Minerva::ProngVect& primaryProngs, HadronSystem& hadrons) const;
     double m_det_apothem;
     double m_det_upZ;
     double m_det_downZ;
