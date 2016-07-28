@@ -7,8 +7,9 @@
 class IMuonUtils;
 class IMinervaCoordSysTool;
 class INuclearTargetTool;
+class IProtonUtils;
 
-//Test to see if I can forward declare TString if it is being used in a function
+//Test to see if I can forward declare TString if it is being used in a function -- It worked!!
 class TString;
 
 class CC1P1PiAnalysis : public MinervaAnalysisTool
@@ -63,9 +64,13 @@ private:
     double m_carbon_apothem;
     double m_carbon_upZ;
     double m_carbon_downZ;
-    
-    
     //-----------------------//
+    
+    //Proton PID:
+    bool getProton( const Minerva::ProngVect& primaryProngs, SmartRef<Minerva::Prong>& protonProng, SmartRef<Minerva::Particle>& protonPart ) const;
+    IProtonUtils * m_protonUtils;
+    std::string    m_protonUtilsAlias;
+    double m_protonScoreThreshold;
 
 };
 

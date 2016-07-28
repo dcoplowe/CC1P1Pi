@@ -47,7 +47,12 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("carbon_upZ",     m_carbon_upZ = 4815.04*CLHEP::mm);
     declareProperty("carbon_downZ",   m_carbon_downZ = 5073.59*CLHEP::mm);
 
-    declareProperty("NuclearTargetToolAlias",      m_nuclearTargetToolAlias  = "CC1P1PiTargetTool");
+    declareProperty("NuclearTargetToolAlias", m_nuclearTargetToolAlias  = "CC1P1PiTargetTool");
+    
+    //For Proton PID:
+    declareProperty( "ProtonUtilsAlias", m_protonUtilsAlias = "CC1P1PiProtonUtils");
+    declareProperty( "ProtonScoreThreshold", m_protonScoreThreshold = 0.0 );
+
     
     
 }
@@ -84,6 +89,12 @@ StatusCode CC1P1PiAnalysis::initialize()
         return StatusCode::FAILURE;
     }
     
+    try{ m_protonUtils = tool<IProtonUtils>("ProtonUtils", m_protonUtilsAlias); }
+    catch( GaudiException& e ){
+        error() << "Could not obtain ProtonUtils: " << m_protonUtilsAlias << endmsg;
+        return StatusCode::FAILURE;
+    }
+    
     //---------------------------------------------------------------------
     // Declare the Interpretations block branches
     //---------------------------------------------------------------------
@@ -101,10 +112,11 @@ StatusCode CC1P1PiAnalysis::initialize()
 
     declareIntEventBranch("n_tracks3", -999);
     declareIntEventBranch("vert_exists", -999);
-    declareIntEventBranch("target_area", -999);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut. 
+    declareIntEventBranch("target_region", -999);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
     //  declareContainerDoubleEventBranch( "shower_momentum", 4, -999. );
     declareBoolEventBranch("isMinosMatchTrack");
     declareBoolEventBranch("isMinosMatchStub");
+    
     
     //---------------------------------------------------------------------
     // Declare the Truth block branches.
@@ -145,6 +157,8 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     //else{
         debug() << "Found vertex!" << endmsg;
         event->setIntData("vert_exists", 1);
+    
+    counter("c_vertex")++;
     //}
     
     //----------- 2 : Vertex has only 3 tracks -----------//
@@ -163,14 +177,27 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     unsigned int ntot_tracks = reco_vertex->getNTracks();
     unsigned int nout_tracks = reco_vertex->getNOutgoingTracks();
     
+    //Check if there are the same number of prongs as tracks:
+    Minerva::ProngVect n_prong_check = event->primaryProngs();
+    unsigned int n_prongs = n_prong_check.size();
+    
+    debug() << "n_tracks = " << ntot_tracks << " n_prongs = " << n_prongs;
+    if(ntot_tracks == n_prongs){
+        debug() << " !! EQUAL !!";
+    }
+    debug() << " " << endmsg;
+    
     if(!(ntot_tracks == nout_tracks && ntot_tracks == 3)){
         debug() << "Event doesn't contain extactly three tracks." << endmsg;
         return StatusCode::SUCCESS;
     }
     
+    counter("c_3tracks")++;
+    
     debug()<< "Has 3 tracks!" << endmsg;
     
-    event->setIntData( "n_tracks3", 3);
+    event->setIntData("n_tracks3", 3);
+    event->setIntData("n_prongs", n_prongs);
     
     //----------- 3 : Muon track coming from common vertex -----------//
     debug()<< "3) Muon Track" << endmsg;
@@ -183,22 +210,46 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     }
     debug()<< "Muon track found!" << endmsg;
     
+    counter("c_muon_trk")++;
+    
     //----------- 4 : Vertex in active tracker or carbon target -----------//
     //Not a cut but an action to determine the location of the vertex.
     debug() << "4) Vertex in Carbon or Scintillator" << endmsg;
     if(VertIsIn("Scint", event)){
         debug() << "Yes in SCINTILLATOR" << endmsg;
+        event->setIntData("target_region", 1);
+        counter("c_tar_scint")++;
+
     }
     else if (VertIsIn("Carbon", event)){
         debug() << "Yes in CARBON TARGET" << endmsg;
+        event->setIntData("target_region", 2);
+        counter("c_tar_carbon")++;
     }
     else{
         debug() << "Event not in either..." << endmsg;
+        event->setIntData("target_region", 3);//Probably don't need this...
+        counter("c_tar_other")++;
         return StatusCode::SUCCESS;
     }
     
+    
     //----------- 5 : PID on p/pi+ -----------//
-
+    /*debug() << "5) Vertex in Carbon or Scintillator" << endmsg;
+    std::vector<Minerva::Particle::ID> hypotheses;
+    hypotheses.push_back(Minerva::Particle::Pion);
+    hypotheses.push_back(Minerva::Particle::Proton);
+    
+    Minerva::ProngVect primaryProngs = event->primaryProngs();
+    */
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -223,7 +274,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
 
 StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *interaction, std::vector<Minerva::NeutrinoInt*>& nuInts ) const
 {
-    debug() << "CC1P1PiAnalysis::interpretEvent" << endmsg;
+    //debug() << "CC1P1PiAnalysis::interpretEvent" << endmsg;
     
     counter("N Primary Prongs") += event->primaryProngs().size();
     // If you decide you want to interpret the event, create a new NeutrinoInt.
@@ -254,7 +305,7 @@ StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, 
 //! Attach information to the GenMinInteraction
 StatusCode CC1P1PiAnalysis::tagTruth( Minerva::GenMinInteraction *truth ) const
 {
-    debug() << "CC1P1PiAnalysis::tagTruth" << endmsg;
+    //debug() << "CC1P1PiAnalysis::tagTruth" << endmsg;
     
     truth->setIntData("should_be_accepted", 1);
     
@@ -281,7 +332,7 @@ StatusCode CC1P1PiAnalysis::finalize()
 bool CC1P1PiAnalysis::truthIsPlausible( const Minerva::PhysicsEvent * event ) const
 {
     
-    debug() << "CC1P1PiAnalysis::truthIsPlausible" << endmsg;
+    //debug() << "CC1P1PiAnalysis::truthIsPlausible" << endmsg;
 
     // Here you need to decide whether the things that you require for the event
     // to pass your signal selection were made up primarily of MC.
@@ -395,4 +446,32 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     }
     
     return fidVertex;
+}
+
+
+bool CC1P1PiAnalysis::getProton( const Minerva::ProngVect& primaryProngs, SmartRef<Minerva::Prong>& protonProng, SmartRef<Minerva::Particle>& protonPart ) const
+{
+    
+    if( m_protonUtils->findProtonProng( primaryProngs, protonProng, protonPart ) ) {
+        if( !protonProng ) {
+            warning() << "Identified a proton Prong, but it is NULL in CCQENuTwoTrack::reconstructEvent!" << endmsg;
+            return false;
+        }
+        //! Check that the proton particle is well identified. Tag the proton prong
+        //! if there is one and only one Proton & it is of sufficient score.
+        debug() << " Proton Particle Score: " << protonPart.data()->score() << endmsg;
+        if( m_protonScoreThreshold < protonPart.data()->score() ) {
+            debug() << "  Tagging the proton Prong" <<  endmsg;
+            protonProng.data()->filtertaglist()->addFilterTag( "PrimaryProton", true );
+        }
+        else {
+            debug() << "Proton Particle Score is below threshold - not tagging prong, proton score :  " << protonPart.data()->score() << endmsg;
+        }
+    }
+    else {
+        debug() << "Did not find a proton prong.  This cannot be a CCQE event." << endmsg;
+        return false;
+    } 
+    
+    return true;
 }
