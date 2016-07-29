@@ -9,6 +9,8 @@
 #include "DetDesc/Material.h"
 #include "GeoUtils/INuclearTargetTool.h"
 #include "AnaUtils/IProtonUtils.h"
+#include "ParticleMaker/IParticleMakerTool.h"
+
 
 //Root headers:
 #include <TString.h>
@@ -59,6 +61,10 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("det_upZ", m_det_upZ = 4000.0*CLHEP::mm);//Same as Proton utils:
     declareProperty("det_downZ", m_det_downZ = 10000.0*CLHEP::mm);//Same as Proton utils:
     
+    declareProperty("ParticleMakerAlias", m_particleMakerAlias = "CC1P1PiParticleMaker");
+    
+    
+    
 }
 
 //! Initialize
@@ -96,6 +102,12 @@ StatusCode CC1P1PiAnalysis::initialize()
     try{ m_protonUtils = tool<IProtonUtils>("ProtonUtils", m_protonUtilsAlias); }
     catch( GaudiException& e ){
         error() << "Could not obtain ProtonUtils: " << m_protonUtilsAlias << endmsg;
+        return StatusCode::FAILURE;
+    }
+    
+    try { m_particleMaker = tool<IParticleMakerTool>("ParticleMakerTool", m_particleMakerAlias); }
+    catch( GaudiException& e){
+        error() << "Could not obtain ParticleMakerTool: " << m_particleMakerAlias << endmsg;
         return StatusCode::FAILURE;
     }
     
@@ -519,7 +531,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             continue;
             //Return false statement if found to minos match.
         }
-        
+     
         SmartRef<Minerva::Track> track = tracks[tracks.size() -1];
         Gaudi::XYZPoint endpoint = track->lastState().position();
         
@@ -528,10 +540,12 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             return false;
         }
         
+        
         std::vector<Minerva::Particle::ID> hypotheses;
         hypotheses.push_back(Minerva::Particle::Pion);
         hypotheses.push_back(Minerva::Particle::Proton);
         
+        m_particleMaker->makeParticle((*prong), hypotheses);
         
         //Determine particle scores:
         double tmp_pr_sc = -999.0;
@@ -544,13 +558,14 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         }
         
         //Look for michels at end of the prong:
-       // m_ProtonParticle;
-       // m_ProtonProng;
-        
-       // m_PionProng;
-        //m_PionParticle;
-        
     }
+    
+    // m_ProtonParticle;
+    // m_ProtonProng;
+    
+    // m_PionProng;
+    //m_PionParticle;
+
     
     return true;
 }

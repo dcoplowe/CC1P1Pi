@@ -8,6 +8,7 @@ class IMuonUtils;
 class IMinervaCoordSysTool;
 class INuclearTargetTool;
 class IProtonUtils;
+class IParticleMakerTool;
 
 //Test to see if I can forward declare TString if it is being used in a function -- It worked!!
 class TString;
@@ -102,6 +103,9 @@ private:
     double m_det_apothem;
     double m_det_upZ;
     double m_det_downZ;
+    
+    IParticleMakerTool * m_particleMaker;
+    std::string          m_particleMakerAlias;
     
 };
 
