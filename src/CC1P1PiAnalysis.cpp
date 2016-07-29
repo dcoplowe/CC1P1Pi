@@ -638,7 +638,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             int found_p_no = 0;
             if(pr_score_N > pi_score_N){
                 
-                for(int hyp_counter = 0; hyp_counter < partHypVec.size(); hyp_counter++){
+                for(int hyp_counter = 0; hyp_counter < (int)partHypVec.size(); hyp_counter++){
                     if( partHypVec[hyp_counter]->idcode() == Minerva::Particle::Proton){
                         found_p_no = hyp_counter;
                     }
