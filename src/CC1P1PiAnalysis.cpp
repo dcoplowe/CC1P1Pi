@@ -678,7 +678,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                 
                 debug() << "        Part_from_Prong1 :: Consistent with " << part_name_check << " Hyp? ";
                 if(Part_from_Prong1->idcode() == part_name_check){
-                    debug() << "YES!!!!"
+                    debug() << "YES!!!!";
                 }
                 else{
                     debug() << "NO ********************** ?!";
@@ -694,7 +694,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                 
                 debug() << "        Part_from_Prong2 :: Consistent with " << part_name_check << " Hyp?";
                 if(Part_from_Prong1->idcode() == part_name_check){
-                    debug() << "YES!!!!"
+                    debug() << "YES!!!!";
                 }
                 else{
                     debug() << "NO ********************** ?!";
