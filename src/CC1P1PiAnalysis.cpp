@@ -790,6 +790,8 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     m_ProtonProng = prongs[pr_prong_no];
     m_PionProng = prongs[pi_prong_no];
     
+    debug() << "Found Proton and Pion Tracks" << endmsg;
+    
     return true;
 }
 
