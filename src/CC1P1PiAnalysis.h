@@ -107,6 +107,12 @@ private:
     IParticleMakerTool * m_particleMaker;
     std::string          m_particleMakerAlias;
     
+    double m_minProtonScore;
+    double m_maxProtonChi2;
+    
+    double m_minPionScore;
+    double m_maxPionChi2;
+    
 };
 
 #endif
