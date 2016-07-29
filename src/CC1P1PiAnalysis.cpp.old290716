@@ -608,6 +608,20 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                     debug() << "Found a Pion particle hypothesis!" << endmsg;
                 }
                 
+               /* if(minPartScore == -999.0 || maxPartChi2 == -999.0){
+                    error() << part_name << " particle requirements not changed from default (-999.0): ";
+                    if(minPartScore == -999.0){
+                        error() << "minPartScore ";
+                    }
+                    else if(maxPartChi2 == -999.0){
+                        if(minPartScore == -999.0){
+                            error() << "and ";
+                        }
+                        error() << "maxPartChi2 ";
+                    }
+                    error() << "unchanged..." << endmsg;
+                }*/
+                
                 //Actual PID bit: Does the particle
                 if( (*part)->methodSignature().find("dEdX") != std::string::npos ) {
                     
@@ -622,8 +636,17 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                     
                     score_den += (*part)->score();
                     
-
+                    /*if ( track->chi2PerDoF() < maxPartChi2 && (*part)->score() > minPartScore ) {
+                        passProtonCut = true;
+                    }
+                    else {
+                        debug() << "Chi2/DoF (" << track->chi2PerDoF() << ") and/or score (" << (*part)->score() << ") is not consistent with a " << part_name << endmsg;
+                        debug() << "Max Chi2/DoF = " << maxPartChi2 << " Min Score = " << minPartScore << endmsg;
+                    }*/
                 }
+                /*else {
+                    debug() << "  Method signature is not consistent with a " << part_name << endmsg;
+                }*/
                 
             }
         
@@ -674,6 +697,15 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             }
         }
     
+        //Determine particle scores:
+        /*double tmp_pr_sc = -999.0;
+        double tmp_pi_sc = -999.0;
+        bool pscores = m_protonUtils->getParticleScores( (*prong), tmp_pr_sc, tmp_pi_sc);
+        if(pscores){
+            debug() << "Particle scores found to be: Proton = " << tmp_pr_sc << " Pion = " << tmp_pi_sc << endmsg;
+            protonScore.push_back(tmp_pr_sc);
+            pionScore.push_back(tmp_pi_sc);
+        }*/
         
         //Look for michels at end of the prong
     }
