@@ -91,12 +91,6 @@ private:
     double m_carbon_downZ;
     //-----------------------//
     
-    //Proton PID:
-    bool getProton( const Minerva::ProngVect& primaryProngs, SmartRef<Minerva::Prong>& protonProng, SmartRef<Minerva::Particle>& protonPart ) const;
-    IProtonUtils * m_protonUtils;
-    std::string    m_protonUtilsAlias;
-    double m_protonScoreThreshold;
-    
     //Find Proton/Pion:
     bool FindParticles(Minerva::PhysicsEvent* event) const;
     double m_det_apothem;
@@ -114,6 +108,9 @@ private:
     
     int m_Proton_PDG;// = 2212;//proton
     int m_Pion_PDG;// = 211;//pi+
+    
+    //Generic Particle information builder:
+    //void SetPartInfo() const;
     
 };
 
