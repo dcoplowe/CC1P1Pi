@@ -704,21 +704,21 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         int Prong1_PDG = -999;
         if(Prong1_Proton > Prong1_Pion){
             Prong1_PDG = Proton_PDG;
-            debug() << "Prong 1 is thought to be a Proton" << debug();
+            debug() << "Prong 1 is thought to be a Proton" << endmsg;
         }
         else{
             Prong1_PDG = Pion_PDG;
-            debug() << "Prong 1 is thought to be a Pion" << debug();
+            debug() << "Prong 1 is thought to be a Pion" << endmsg;
         }
         
         int Prong2_PDG = -999;
         if(Prong2_Proton > Prong2_Pion){
             Prong2_PDG = Proton_PDG;
-            debug() << "Prong 2 is thought to be a Proton" << debug();
+            debug() << "Prong 2 is thought to be a Proton" << endmsg;
         }
         else{
             Prong2_PDG = Pion_PDG;
-            debug() << "Prong 2 is thought to be a Pion" << debug();
+            debug() << "Prong 2 is thought to be a Pion" << endmsg;
         }
         
         if(Prong1_PDG != Prong2_PDG){
