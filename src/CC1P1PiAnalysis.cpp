@@ -545,17 +545,20 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         hypotheses.push_back(Minerva::Particle::Pion);
         hypotheses.push_back(Minerva::Particle::Proton);
         
-        m_particleMaker->makeParticles((*prong), hypotheses);
+        bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses);
         
+        if(found_particle){
+            debug() << "This prong has " << prong->particles().size() << " particles attached." << endmsg;
+        }
         //Determine particle scores:
-        double tmp_pr_sc = -999.0;
+        /*double tmp_pr_sc = -999.0;
         double tmp_pi_sc = -999.0;
         bool pscores = m_protonUtils->getParticleScores( (*prong), tmp_pr_sc, tmp_pi_sc);
         if(pscores){
             debug() << "Particle scores found to be: Proton = " << tmp_pr_sc << " Pion = " << tmp_pi_sc << endmsg;
             protonScore.push_back(tmp_pr_sc);
             pionScore.push_back(tmp_pi_sc);
-        }
+        }*/
         
         //Look for michels at end of the prong:
     }
