@@ -548,7 +548,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses);
         
         if(found_particle){
-            debug() << "This prong has " << (*prong)->particles().size() << " particles attached." << endmsg;
+            debug() << "This prong has " << (*prong)->particles().nParticles() << " particles attached." << endmsg;
         }
         //Determine particle scores:
         /*double tmp_pr_sc = -999.0;
