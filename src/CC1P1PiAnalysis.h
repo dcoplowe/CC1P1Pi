@@ -13,12 +13,12 @@ class IProtonUtils;
 class TString;
 
 //Struct for the Hadronic system:
-struct HadronSystem{
+/*struct HadronSystem{
     SmartRef<Minerva::Prong> protonProng;
     SmartRef<Minerva::Particle> protonPart;
     SmartRef<Minerva::Prong> pionProng;
     SmartRef<Minerva::Particle> pionPart;
-};
+};*/
 
 
 class CC1P1PiAnalysis : public MinervaAnalysisTool
@@ -45,6 +45,22 @@ protected:
     
     
 private:
+    
+    //---------------Particles being passed around for analysis-------------------//
+    //Particles being passed around for analysis:
+    //Making them mutable objects enables them to be changed in const functions -- this coding practice is taken from the CCProtonPi0 analysis
+    mutable SmartRef<Minerva::Prong> m_MuonProng;
+    mutable SmartRef<Minerva::Particle> m_MuonParticle;
+    
+    mutable SmartRef<Minerva::Prong> m_ProtonProng;
+    mutable SmartRef<Minerva::Particle> m_ProtonParticle;
+    
+    mutable SmartRef<Minerva::Prong> m_PionProng;
+    mutable SmartRef<Minerva::Particle> m_PionParticle;
+    
+    void ResetParticles() const;
+    //----------------------------------------------------------------------------//
+
     
     //------ Find Muon ------//
     bool FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth, SmartRef<Minerva::Prong>& muonProng, SmartRef<Minerva::Particle>& muonPart) const;
@@ -82,11 +98,11 @@ private:
     double m_protonScoreThreshold;
     
     //Find Proton/Pion:
-    bool FindParticles(Minerva::PhysicsEvent* event, HadronSystem& hadrons, SmartRef<Minerva::Prong> muonProng) const;
+    bool FindParticles(Minerva::PhysicsEvent* event) const;
     double m_det_apothem;
     double m_det_upZ;
     double m_det_downZ;
-
+    
 };
 
 #endif

@@ -137,6 +137,9 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
 {
     debug() << "CC1P1PiAnalysis::reconstructEvent" << endmsg;
     
+    //Clear Particle Prongs and Particle objects:
+    ResetParticles();
+
     //--------------------------------------------------------------
     // Initialize truth reco booleans
     //--------------------------------------------------------------
@@ -205,10 +208,10 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     //----------- 3 : Muon track coming from common vertex -----------//
     debug()<< "3) Muon Track" << endmsg;
-    SmartRef<Minerva::Prong>    muonProng = (Minerva::Prong*)NULL;
-    SmartRef<Minerva::Particle> muonPart = (Minerva::Particle*)NULL;
+   // SmartRef<Minerva::Prong>    muonProng = (Minerva::Prong*)NULL;
+   // SmartRef<Minerva::Particle> muonPart = (Minerva::Particle*)NULL;
     
-    if(!FindMuon(event, truth, muonProng, muonPart )){
+    if(!FindMuon(event, truth, m_MuonProng, m_MuonParticle)){
         debug() << "Muon not found..." << endmsg;
         return StatusCode::SUCCESS;
     }
@@ -240,13 +243,10 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     //----------- 5 : PID on p/pi+ -----------//
     debug() << "5) PID: p/pi+" << endmsg;
-    std::vector<Minerva::Particle::ID> hypotheses;
-    hypotheses.push_back(Minerva::Particle::Pion);
-    hypotheses.push_back(Minerva::Particle::Proton);
     
-    HadronSystem hadrons;
+    //HadronSystem hadrons;
     
-    bool tFinPar = FindParticles(event, hadrons, muonProng);
+    bool tFinPar = FindParticles(event);
     
     if(tFinPar){
         debug() << "Okay" << endmsg;
@@ -478,7 +478,7 @@ bool CC1P1PiAnalysis::getProton( const Minerva::ProngVect& primaryProngs, SmartR
     return true;
 }
 
-bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event, HadronSystem& hadrons, SmartRef<Minerva::Prong> muonProng) const
+bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
 {
     debug() << "CC1P1PiAnalysis::FindParticles" << endmsg;
     //Determine which track is most proton like and pion like:
@@ -501,7 +501,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event, HadronSystem& 
         debug() << "Checking Prong: " << prong_count << "." << endmsg;
         
         //Check prong isn't that of the muon:
-        if(muonProng == (*prong)){
+        if(m_MuonProng == (*prong)){
             debug() << "Prong already determined as muon." << endmsg;
             continue;
         }
@@ -528,6 +528,11 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event, HadronSystem& 
             return false;
         }
         
+        std::vector<Minerva::Particle::ID> hypotheses;
+        hypotheses.push_back(Minerva::Particle::Pion);
+        hypotheses.push_back(Minerva::Particle::Proton);
+        
+        
         //Determine particle scores:
         double tmp_pr_sc = -999.0;
         double tmp_pi_sc = -999.0;
@@ -539,12 +544,25 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event, HadronSystem& 
         }
         
         //Look for michels at end of the prong:
+       // m_ProtonParticle;
+       // m_ProtonProng;
         
-        
+       // m_PionProng;
+        //m_PionParticle;
         
     }
     
     return true;
 }
 
+void CC1P1PiAnalysis::ResetParticles() const
+{
+    m_MuonProng = NULL;
+    m_MuonParticle = NULL;
 
+    m_ProtonProng = NULL;
+    m_ProtonParticle = NULL;
+
+    m_PionProng = NULL;
+    m_PionParticle = NULL;
+}
