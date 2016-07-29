@@ -545,7 +545,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         hypotheses.push_back(Minerva::Particle::Pion);
         hypotheses.push_back(Minerva::Particle::Proton);
         
-        m_particleMaker->makeParticle((*prong), hypotheses);
+        m_particleMaker->makeParticles((*prong), hypotheses);
         
         //Determine particle scores:
         double tmp_pr_sc = -999.0;
