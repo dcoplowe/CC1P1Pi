@@ -693,12 +693,13 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                 Prong2_PDG = PDGCode;
                 
                 debug() << "        Part_from_Prong2 :: Consistent with " << part_name_check << " Hyp?";
-                if(Part_from_Prong1->idcode() == part_name_check){
+                if(Part_from_Prong2->idcode() == part_name_check){
                     debug() << "YES!!!!";
                 }
                 else{
                     debug() << "NO ********************** ?!";
                 }
+                debug() << " " << endmsg;
                 debug() << "        IDCode: " << Part_from_Prong2->idcode() <<" Score: " << Part_from_Prong2->score() << endmsg;
             }
         }
@@ -788,7 +789,6 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
 
     m_ProtonProng = prongs[pr_prong_no];
     m_PionProng = prongs[pi_prong_no];
-    
     
     return true;
 }
