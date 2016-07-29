@@ -547,7 +547,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         IParticleMakerTool::NameAliasListType toolsToUse;
         toolsToUse.push_back( std::make_pair("dEdXTool","dEdXTool") );
         
-        bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses);
+        bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses, toolsToUse);
         
         if(found_particle){
             debug() << "This prong has " << (*prong)->particles().size() << " particles attached." << endmsg;
