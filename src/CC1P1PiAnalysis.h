@@ -110,7 +110,7 @@ private:
     int m_Pion_PDG;// = 211;//pi+
     
     //Generic Particle information builder:
-    //void SetPartInfo() const;
+    void SetPartInfo(SmartRef<Minerva::Prong>& prong, SmartRef<Minerva::Particle>& particle) const;
     
 };
 
