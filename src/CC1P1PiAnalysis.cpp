@@ -790,6 +790,25 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     m_ProtonProng = prongs[pr_prong_no];
     m_PionProng = prongs[pi_prong_no];
     
+    bool pr_is_correct = false;
+    bool pi_is_correct = false;
+    debug() << "Final Check that the tracks are what we think they are" << endmsg;
+    debug() << "ProtonParticle: " << m_ProtonParticle->idcode();
+    if(m_ProtonParticle->idcode() == Minerva::Particle::Proton){
+        debug() << " YES" << endmsg;
+        pr_is_correct = true;
+    }
+    debug() << "PionParticle: " << m_PionParticle->idcode();
+    if(m_PionParticle->idcode() == Minerva::Particle::Pion){
+        debug() << " YES" << endmsg;
+        pi_is_correct = true;
+    }
+    
+    if(!(pr_is_correct || pi_is_correct)){
+        debug() << "Particles not correct... check code" << endmsg;
+        return false;
+    }
+    
     debug() << "Found Proton and Pion Tracks" << endmsg;
     
     return true;
