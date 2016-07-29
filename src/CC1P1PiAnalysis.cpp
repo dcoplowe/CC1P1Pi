@@ -64,12 +64,12 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("ParticleMakerAlias", m_particleMakerAlias = "CC1P1PiParticleMaker");
     
     //These values are taken from ProtonUtils:
-    declareProperty("minProtonScore", m_minProtonScore = 50.);
-    declareProperty("maxProtonChi2",  m_maxProtonChi2 = 0.05);
+    declareProperty("minProtonScore", m_minProtonScore = 0.05);
+    declareProperty("maxProtonChi2",  m_maxProtonChi2  = 50.);
     
     //Need to determine better scores (currently same as those in ProtonUtils for Proton Hyp:
-    declareProperty("minPionScore", m_minPionScore = 50.);
-    declareProperty("maxPionChi2",  m_maxPionChi2 = 0.05);
+    declareProperty("minPionScore", m_minPionScore = 0.05);
+    declareProperty("maxPionChi2",  m_maxPionChi2  = 50.);
 
     
     
@@ -518,9 +518,12 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     
     std::vector<double> trackChi2NDF;
     
-    //SmartRef<Minerva::Prong>
+    SmartRef<Minerva::Particle> Part_from_Prong1;
+    SmartRef<Minerva::Particle> Part_from_Prong2;
     
     int prong_count = 0;
+    int hadron_counter = 0;
+    //std::vector<Minerva::Particle::ID> hyp_order;
     
     for( prong = prongs.begin(); prong != prongs.end(); prong++ ){
         
@@ -546,6 +549,8 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             continue;
             //Return false statement if found to minos match.
         }
+        
+        hadron_counter++;
      
         SmartRef<Minerva::Track> track = tracks[tracks.size() -1];
         Gaudi::XYZPoint endpoint = track->lastState().position();
@@ -578,6 +583,10 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             Minerva::ParticleVect partHypVec = (*prong)->particles();
             Minerva::ParticleVect::iterator part;
             
+            double pr_score  = 0.0;
+            double pi_score  = 0.0;
+            double score_den = 0.0;
+            
             for(part = partHypVec.begin(); part != partHypVec.end(); part++){
                 debug() << "Found a " << (*part)->idcode() << " with signature: " << (*part)->methodSignature() << " and score: " << (*part)->score() << endmsg;
                 
@@ -590,13 +599,13 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                     part_name = "Proton";
                     minPartScore = m_minProtonScore;
                     maxPartChi2 = m_maxProtonChi2;
-                    debug() << "Found a proton particle hypothesis!" << endmsg;
+                    debug() << "Found a Proton particle hypothesis!" << endmsg;
                 }
                 else if((*part)->idcode() == Minerva::Particle::Pion){
                     part_name = "Pion";
                     minPartScore = m_minPionScore;
                     maxPartChi2 = m_maxPionChi2;
-                    debug() << "Found a pion particle hypothesis!" << endmsg;
+                    debug() << "Found a Pion particle hypothesis!" << endmsg;
                 }
                 
                /* if(minPartScore == -999.0 || maxPartChi2 == -999.0){
@@ -618,10 +627,14 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                     
                     if((*part)->idcode() == Minerva::Particle::Proton){
                         protonScore.push_back((*part)->score());
+                        pr_score = (*part)->score();
                     }
                     else  if((*part)->idcode() == Minerva::Particle::Pion){
                         pionScore.push_back((*part)->score());
+                        pi_score = (*part)->score();
                     }
+                    
+                    score_den += (*part)->score();
                     
                     /*if ( track->chi2PerDoF() < maxPartChi2 && (*part)->score() > minPartScore ) {
                         passProtonCut = true;
@@ -635,7 +648,52 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                     debug() << "  Method signature is not consistent with a " << part_name << endmsg;
                 }*/
                 
+            }
+        
+            //Temp particle:
+            //Add the Norms here:
+            double pr_score_N = pr_score/score_den;
+            double pi_score_N = pi_score/score_den;
+            
+            debug() << "Prong " << hadron_counter <<":" << endmsg;
+            debug() << "        Proton Score " << pr_score << " (" << pr_score_N <<") Pion Score " << pi_score << " (" << pi_score_N <<") Chi2NDF " << track->chi2PerDoF() << endmsg;
+            
+            int found_p_no = 0;
+            if(pr_score_N > pi_score_N){
                 
+                for(int hyp_counter = 0; hyp_counter < partHypVec.size(); hyp_counter++){
+                    if( partHypVec[hyp_counter]->idcode() == Minerva::Particle::Proton){
+                        found_p_no = hyp_counter;
+                    }
+                }
+                
+                debug() << "        Prong believed to be Proton and has found_p_no = " << found_p_no << endmsg;
+                
+            }
+            else if(pr_score_N < pi_score_N){
+                for(int hyp_counter = 0; hyp_counter < partHypVec.size(); hyp_counter++){
+                    if( partHypVec[hyp_counter]->idcode() == Minerva::Particle::Pion){
+                        found_p_no = hyp_counter;
+                    }
+                }
+                
+                debug() << "        Prong believed to be Pion and has found_p_no = " << found_p_no << endmsg;
+
+            }
+            
+            if(hadron_counter == 1){
+                Part_from_Prong1 = partHypVec[found_p_no];
+                
+                debug() << "        Part_from_Prong1 :: Consistent with Proton Hyp?" << endmsg;
+                debug() << "        IDCode: " << Part_from_Prong1->idcode() <<" Score: " << Part_from_Prong1->score() << endmsg;
+                
+            }
+            
+            if(hadron_counter == 2){
+                Part_from_Prong2 = partHypVec[found_p_no];
+                
+                debug() << "        Part_from_Prong2 :: Consistent with Proton Hyp?" << endmsg;
+                debug() << "        IDCode: " << Part_from_Prong2->idcode() <<" Score: " << Part_from_Prong2->score() << endmsg;
             }
         }
     
@@ -653,23 +711,81 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     }
     
     //Given the particle hypotheses, set the candidate tracks:
+    int pr_prong_no = -999;
+    int pi_prong_no = -999;
     
     debug() << "**** Summary ****" << endmsg;
     debug() << "Vector Sizes Consistent: trackChi2NDF N = " << trackChi2NDF.size() << " protonScore N = " << protonScore.size() << " pionScore N = " << pionScore.size();
     if(trackChi2NDF.size() == 2 && protonScore.size()  == 2 && pionScore.size() == 2){
         debug() << " YES." << endmsg;
+        
+        double Prong1_Proton = protonScore[0]/(protonScore[0] + pionScore[0]);
+        double Prong1_Pion = pionScore[0]/(protonScore[0] + pionScore[0]);
+        
+        double Prong2_Proton = protonScore[1]/(protonScore[1] + pionScore[1]);
+        double Prong2_Pion = pionScore[1]/(protonScore[1] + pionScore[1]);
     
-        debug() <<"Prong 1:" << endmsg;
-        debug() <<"        Proton Score " << protonScore[0] << " Pion Score " << pionScore[0] << " Chi2NDF " << trackChi2NDF[0] << endmsg;
-        debug() <<"Prong 2:" << endmsg;
-        debug() <<"        Proton Score " << protonScore[1] << " Pion Score " << pionScore[1] << " Chi2NDF " << trackChi2NDF[1] << endmsg;
+        debug() << "Prong 1:" << endmsg;
+        debug() << "        Proton Score " << protonScore[0] << " (" << Prong1_Proton <<") Pion Score " << pionScore[0] << " (" << Prong1_Pion <<") Chi2NDF " << trackChi2NDF[0] << endmsg;
+        debug() << "Prong 2:" << endmsg;
+        debug() << "        Proton Score " << protonScore[1] << " (" << Prong2_Proton <<") Pion Score " << pionScore[1] << " (" << Prong2_Pion <<") Chi2NDF " << trackChi2NDF[1] << endmsg;
+    
+        int Proton_PDG = 2212;//proton
+        int Pion_PDG = 211;//pi+
+        
+        int Prong1_PDG = -999;
+        if(Prong1_Proton > Prong1_Pion){
+            Prong1_PDG = Proton_PDG;
+            debug() << "Prong 1 is thought to be a Proton" << debug();
+        }
+        else{
+            Prong1_PDG = Pion_PDG;
+            debug() << "Prong 1 is thought to be a Pion" << debug();
+        }
+        
+        int Prong2_PDG = -999;
+        if(Prong2_Proton > Prong2_Pion){
+            Prong2_PDG = Proton_PDG;
+            debug() << "Prong 2 is thought to be a Proton" << debug();
+        }
+        else{
+            Prong2_PDG = Pion_PDG;
+            debug() << "Prong 2 is thought to be a Pion" << debug();
+        }
+        
+        if(Prong1_PDG != Prong2_PDG){
+            if(Prong1_PDG == 2212){
+                pr_prong_no = 0;
+                pi_prong_no = 1;
+                
+                m_ProtonParticle = Part_from_Prong1;
+                m_PionParticle = Part_from_Prong2;
+            }
+            else{
+                pr_prong_no = 1;
+                pi_prong_no = 0;
+                
+                m_ProtonParticle = Part_from_Prong2;
+                m_PionParticle = Part_from_Prong1;
+            }
+        }
+        else if(Prong1_PDG == 2212){
+            debug() << "Found two protons..." << endmsg;
+            return false;
+        }
+        else{
+            debug() << "Found two pions..." << endmsg;
+            return false;
+        }
     }
-    // m_ProtonParticle;
-    // m_ProtonProng;
-    
-    // m_PionProng;
-    //m_PionParticle;
+    else{
+        debug() << " No... Check this out!!!!" << endmsg;
+        return false;
+    }
 
+    m_ProtonProng = prongs[pr_prong_no];
+    m_PionProng = prongs[pi_prong_no];
+    
     
     return true;
 }
