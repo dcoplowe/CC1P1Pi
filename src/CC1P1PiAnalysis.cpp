@@ -8,7 +8,6 @@
 #include "GeoUtils/IMinervaCoordSysTool.h"
 #include "DetDesc/Material.h"
 #include "GeoUtils/INuclearTargetTool.h"
-#include "AnaUtils/IProtonUtils.h"
 #include "ParticleMaker/IParticleMakerTool.h"
 
 
@@ -51,10 +50,6 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("carbon_downZ",   m_carbon_downZ = 5073.59*CLHEP::mm);
 
     declareProperty("NuclearTargetToolAlias", m_nuclearTargetToolAlias  = "CC1P1PiTargetTool");
-    
-    //For Proton PID:
-    declareProperty( "ProtonUtilsAlias", m_protonUtilsAlias = "CC1P1PiProtonUtils");
-    declareProperty( "ProtonScoreThreshold", m_protonScoreThreshold = 0.0 );
     
     //For hadron PID:
     declareProperty("det_apothem", m_det_apothem = 1200.0*CLHEP::mm);//Same as Proton utils:
@@ -105,12 +100,6 @@ StatusCode CC1P1PiAnalysis::initialize()
         m_nuclearTargetTool->lock();
     } catch( GaudiException& e ) {
         error() << "Could not obtain NuclearTargetTool: " << m_nuclearTargetToolAlias << endmsg;
-        return StatusCode::FAILURE;
-    }
-    
-    try{ m_protonUtils = tool<IProtonUtils>("ProtonUtils", m_protonUtilsAlias); }
-    catch( GaudiException& e ){
-        error() << "Could not obtain ProtonUtils: " << m_protonUtilsAlias << endmsg;
         return StatusCode::FAILURE;
     }
     
@@ -270,12 +259,8 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     bool tFinPar = FindParticles(event);
     
     if(tFinPar){
-        debug() << "Okay" << endmsg;
+        debug() << "Finished Selection Successfully. Pheeewwww ;)" << endmsg;
     }
-    
-    
-    
-    
     
     // Set the PhysicsEvent reconstructionSignature to m_anaSignature, so I know that this tool reconstructed this event.
     // If you mark the event it will go to your analysis DST.  If you don't want it to go there, don't mark it!
@@ -469,34 +454,6 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     }
     
     return fidVertex;
-}
-
-//May not need this:
-bool CC1P1PiAnalysis::getProton( const Minerva::ProngVect& primaryProngs, SmartRef<Minerva::Prong>& protonProng, SmartRef<Minerva::Particle>& protonPart ) const
-{
-    
-    if( m_protonUtils->findProtonProng( primaryProngs, protonProng, protonPart ) ) {
-        if( !protonProng ) {
-            warning() << "Identified a proton Prong, but it is NULL in CC1P1PiAnalysis::reconstructEvent!" << endmsg;
-            return false;
-        }
-        //! Check that the proton particle is well identified. Tag the proton prong
-        //! if there is one and only one Proton & it is of sufficient score.
-        debug() << " Proton Particle Score: " << protonPart.data()->score() << endmsg;
-        if( m_protonScoreThreshold < protonPart.data()->score() ) {
-            debug() << "  Tagging the proton Prong" <<  endmsg;
-            protonProng.data()->filtertaglist()->addFilterTag( "PrimaryProton", true );
-        }
-        else {
-            debug() << "Proton Particle Score is below threshold - not tagging prong, proton score :  " << protonPart.data()->score() << endmsg;
-        }
-    }
-    else {
-        debug() << "Did not find a proton prong.  This cannot be a CCQE event." << endmsg;
-        return false;
-    } 
-    
-    return true;
 }
 
 bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
@@ -754,6 +711,11 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         debug() << "Checking PDG Codes:" << endmsg;
         debug() << "Prong 1: Pre:" << Prong1_PDG << " Post " << Prong1a_PDG;
         if(Prong1_PDG == Prong1a_PDG) debug() << ". They are the same!!!";
+        else debug() << ". Close but no cigar... :-(";
+        debug() << " " << endmsg;
+        
+        debug() << "Prong 2: Pre:" << Prong2_PDG << " Post " << Prong2a_PDG;
+        if(Prong2_PDG == Prong2a_PDG) debug() << ". They are the same!!!";
         else debug() << ". Close but no cigar... :-(";
         debug() << " " << endmsg;
         

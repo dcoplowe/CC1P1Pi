@@ -7,7 +7,6 @@
 class IMuonUtils;
 class IMinervaCoordSysTool;
 class INuclearTargetTool;
-class IProtonUtils;
 class IParticleMakerTool;
 
 //Test to see if I can forward declare TString if it is being used in a function -- It worked!!
