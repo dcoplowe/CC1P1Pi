@@ -62,7 +62,7 @@ private:
     void ResetParticles() const;
     //----------------------------------------------------------------------------//
 
-    
+
     //------ Find Muon ------//
     bool FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth, SmartRef<Minerva::Prong>& muonProng, SmartRef<Minerva::Particle>& muonPart) const;
     IMuonUtils * m_muonUtils;
@@ -112,6 +112,9 @@ private:
     
     double m_minPionScore;
     double m_maxPionChi2;
+    
+    int m_Proton_PDG;// = 2212;//proton
+    int m_Pion_PDG;// = 211;//pi+
     
 };
 

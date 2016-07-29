@@ -71,8 +71,8 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("minPionScore", m_minPionScore = 0.05);
     declareProperty("maxPionChi2",  m_maxPionChi2  = 50.);
 
-    
-    
+    declareProperty("Proton_PDG", m_Proton_PDG = 2212);//proton
+    declareProperty("Pion_PDG", m_Pion_PDG = 211);//pi+
     
 }
 
@@ -528,6 +528,9 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     std::vector<double> pr_score_N_Vec;
     std::vector<double> pi_score_N_Vec;
     
+    int Prong1_PDG = -999;
+    int Prong2_PDG = -999;
+    
     for( prong = prongs.begin(); prong != prongs.end(); prong++ ){
         
         prong_count++;
@@ -640,7 +643,8 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             debug() << "        Proton Score " << pr_score << " (" << pr_score_N <<") Pion Score " << pi_score << " (" << pi_score_N <<") Chi2NDF " << track->chi2PerDoF() << endmsg;
             
             int found_p_no = 0;
-            std::string part_name_check;
+            Minerva::Particle::ID part_name_check;
+            int PDGCode = -999;
             
             if(pr_score_N > pi_score_N){
                 
@@ -650,7 +654,8 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                     }
                 }
                 
-                part_name_check = "Proton";
+                part_name_check = Minerva::Particle::Proton;
+                PDGCode = m_Proton_PDG;
                 
             }
             else if(pr_score_N < pi_score_N){
@@ -660,8 +665,8 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                     }
                 }
                 
-                part_name_check = "Proton";
-
+                part_name_check = Minerva::Particle::Pion;
+                PDGCode = m_Pion_PDG;
             }
             
             debug() << "        Prong " << hadron_counter << " believed to be " << part_name_check << " and has found_p_no = " << found_p_no << endmsg;
@@ -669,16 +674,31 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             
             if(hadron_counter == 1){
                 Part_from_Prong1 = partHypVec[found_p_no];
+                Prong1_PDG = PDGCode;
                 
-                debug() << "        Part_from_Prong1 :: Consistent with " << part_name_check << " Hyp?" << endmsg;
+                debug() << "        Part_from_Prong1 :: Consistent with " << part_name_check << " Hyp? ";
+                if(Part_from_Prong1->idcode() == part_name_check){
+                    debug() << "YES!!!!"
+                }
+                else{
+                    debug() << "NO ********************** ?!";
+                }
+                debug() << " " << endmsg;
                 debug() << "        IDCode: " << Part_from_Prong1->idcode() <<" Score: " << Part_from_Prong1->score() << endmsg;
                 
             }
             
             if(hadron_counter == 2){
                 Part_from_Prong2 = partHypVec[found_p_no];
+                Prong2_PDG = PDGCode;
                 
-                debug() << "        Part_from_Prong2 :: Consistent with " << part_name_check << " Hyp?" << endmsg;
+                debug() << "        Part_from_Prong2 :: Consistent with " << part_name_check << " Hyp?";
+                if(Part_from_Prong1->idcode() == part_name_check){
+                    debug() << "YES!!!!"
+                }
+                else{
+                    debug() << "NO ********************** ?!";
+                }
                 debug() << "        IDCode: " << Part_from_Prong2->idcode() <<" Score: " << Part_from_Prong2->score() << endmsg;
             }
         }
@@ -690,7 +710,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     int pr_prong_no = -999;
     int pi_prong_no = -999;
     
-    debug() << "**** Summary ****" << endmsg;
+    debug() << "******************************** Summary ********************************" << endmsg;
     debug() << "Vector Sizes Consistent: trackChi2NDF N = " << trackChi2NDF.size() << " protonScore N = " << protonScore.size() << " pionScore N = " << pionScore.size();
     if(trackChi2NDF.size() == 2 && protonScore.size()  == 2 && pionScore.size() == 2){
         debug() << " YES." << endmsg;
@@ -703,34 +723,41 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     
         debug() << "Prong 1:" << endmsg;
         debug() << "        Proton Score " << protonScore[0] << " (" << Prong1_Proton <<") Pion Score " << pionScore[0] << " (" << Prong1_Pion <<") Chi2NDF " << trackChi2NDF[0] << endmsg;
+        debug() << "        PreCal Pr Sc N " << pr_score_N_Vec[0] << " PreCal Pi Sc N " << pi_score_N_Vec[0] << endmsg;
         debug() << "Prong 2:" << endmsg;
         debug() << "        Proton Score " << protonScore[1] << " (" << Prong2_Proton <<") Pion Score " << pionScore[1] << " (" << Prong2_Pion <<") Chi2NDF " << trackChi2NDF[1] << endmsg;
-    
-        int Proton_PDG = 2212;//proton
-        int Pion_PDG = 211;//pi+
+        debug() << "        PreCal Pr Sc N " << pr_score_N_Vec[1] << " PreCal Pi Sc N " << pi_score_N_Vec[1] << endmsg;
         
-        int Prong1_PDG = -999;
+        debug() << "*************************************************************************" << endmsg;
+        
+        int Prong1a_PDG = -999;
         if(Prong1_Proton > Prong1_Pion){
-            Prong1_PDG = Proton_PDG;
-            debug() << "Prong 1 is thought to be a Proton" << endmsg;
+            Prong1a_PDG = m_Proton_PDG;
+            //debug() << "Prong 1 is thought to be a Proton" << endmsg;
         }
         else{
-            Prong1_PDG = Pion_PDG;
-            debug() << "Prong 1 is thought to be a Pion" << endmsg;
+            Prong1a_PDG = m_Pion_PDG;
+            //debug() << "Prong 1 is thought to be a Pion" << endmsg;
         }
         
-        int Prong2_PDG = -999;
+        int Prong2b_PDG = -999;
         if(Prong2_Proton > Prong2_Pion){
-            Prong2_PDG = Proton_PDG;
-            debug() << "Prong 2 is thought to be a Proton" << endmsg;
+            Prong2b_PDG = m_Proton_PDG;
+            //debug() << "Prong 2 is thought to be a Proton" << endmsg;
         }
         else{
-            Prong2_PDG = Pion_PDG;
-            debug() << "Prong 2 is thought to be a Pion" << endmsg;
+            Prong2b_PDG = m_Pion_PDG;
+            //debug() << "Prong 2 is thought to be a Pion" << endmsg;
         }
+        
+        debug() << "Checking PDG Codes:" << endmsg;
+        debug() << "Prong 1: Pre:" << Prong1_PDG << " Post " << Prong1a_PDG;
+        if(Prong1_PDG == Prong1a_PDG) debug() << ". They are the same!!!";
+        else debug() << ". Close but no cigar... :-(";
+        debug() << " " << endmsg;
         
         if(Prong1_PDG != Prong2_PDG){
-            if(Prong1_PDG == 2212){
+            if(Prong1_PDG == m_Proton_PDG){
                 pr_prong_no = 0;
                 pi_prong_no = 1;
                 
@@ -745,7 +772,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                 m_PionParticle = Part_from_Prong1;
             }
         }
-        else if(Prong1_PDG == 2212){
+        else if(Prong1_PDG == m_Proton_PDG){
             debug() << "Found two protons..." << endmsg;
             return false;
         }
