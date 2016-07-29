@@ -544,11 +544,13 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         std::vector<Minerva::Particle::ID> hypotheses;
         hypotheses.push_back(Minerva::Particle::Pion);
         hypotheses.push_back(Minerva::Particle::Proton);
+        IParticleMakerTool::NameAliasListType toolsToUse;
+        toolsToUse.push_back( std::make_pair("dEdXTool","dEdXTool") );
         
         bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses);
         
         if(found_particle){
-            debug() << "This prong has " << (*prong)->particles()->nParticles() << " particles attached." << endmsg;
+            debug() << "This prong has " << (*prong)->particles().size() << " particles attached." << endmsg;
         }
         //Determine particle scores:
         /*double tmp_pr_sc = -999.0;
