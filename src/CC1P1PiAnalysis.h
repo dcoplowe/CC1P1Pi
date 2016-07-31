@@ -108,7 +108,7 @@ private:
     void SetAccumLevel(int cut);
     void ResetAccumLevel();
     int m_ncuts;// = 5;
-    int * m_accum_level; = new int [ m_ncuts ];
+    int * m_accum_level;// = new int [ m_ncuts ];
     
 };
 
