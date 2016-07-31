@@ -826,7 +826,7 @@ void CC1P1PiAnalysis::SetAccumLevel(int cut) const
     m_accum_level[ cut - 1 ] = 1;
 }
 
-void CC1P1PiAnalysis::ResetAccumLevel()
+void CC1P1PiAnalysis::ResetAccumLevel() const
 {
     for(int i = 0; i < m_ncuts; i++){
         m_accum_level[i] = 0;
