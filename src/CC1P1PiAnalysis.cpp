@@ -792,13 +792,13 @@ void CC1P1PiAnalysis::ResetParticles() const
 }
 
 //Generic Particle information builder:
-void CC1P1PiAnalysis::SetPartInfo(std::string name) const
+void CC1P1PiAnalysis::SetPartInfo(std::string name)
 {
     declareDoubleBranch(m_hypMeths, (name + "_score").c_str() , -999.);
 }
 
 
-void CC1P1PiAnalysis::FillPartInfo(SmartRef<Minerva::Prong> prong, SmartRef<Minerva::Particle> particle) const
+void CC1P1PiAnalysis::FillPartInfo(SmartRef<Minerva::Prong> prong, SmartRef<Minerva::Particle> particle)
 {
     
 }
