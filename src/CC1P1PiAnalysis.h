@@ -107,8 +107,8 @@ private:
     
     void SetAccumLevel(int cut);
     void ResetAccumLevel();
-    mutable int m_ncuts;
-    mutable int * m_accum_level = new int[m_ncuts];
+    const int m_ncuts = 5;
+    int * m_accum_level = new int [ m_ncuts ];
     
 };
 
