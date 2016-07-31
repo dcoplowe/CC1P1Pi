@@ -71,6 +71,9 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     
     declareProperty("n_cuts", m_ncuts = 5);
     
+    //int m_ncuts;// = 5;
+    m_accum_level = new int [ m_ncuts ];
+    
 }
 
 //! Initialize
