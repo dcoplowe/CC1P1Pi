@@ -12,15 +12,6 @@ class IParticleMakerTool;
 //Test to see if I can forward declare TString if it is being used in a function -- It worked!!
 class TString;
 
-//Struct for the Hadronic system:
-/*struct HadronSystem{
-    SmartRef<Minerva::Prong> protonProng;
-    SmartRef<Minerva::Particle> protonPart;
-    SmartRef<Minerva::Prong> pionProng;
-    SmartRef<Minerva::Particle> pionPart;
-};*/
-
-
 class CC1P1PiAnalysis : public MinervaAnalysisTool
 {
 public:
@@ -110,7 +101,8 @@ private:
     int m_Pion_PDG;// = 211;//pi+
     
     //Generic Particle information builder:
-    //void SetPartInfo(SmartRef<Minerva::Prong>& prong, SmartRef<Minerva::Particle>& particle) const;
+    void SetPartInfo(std::string) const;
+    void FillPartInfo(SmartRef<Minerva::Prong> prong, SmartRef<Minerva::Particle> particle) const;
     
 };
 

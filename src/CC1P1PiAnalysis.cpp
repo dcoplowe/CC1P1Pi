@@ -130,8 +130,11 @@ StatusCode CC1P1PiAnalysis::initialize()
     //  declareContainerDoubleEventBranch( "shower_momentum", 4, -999. );
     declareBoolEventBranch("isMinosMatchTrack");
     declareBoolEventBranch("isMinosMatchStub");
-    
-    
+
+    SetPartInfo("mu");
+    SetPartInfo("pi");
+    SetPartInfo("pr");
+
     //---------------------------------------------------------------------
     // Declare the Truth block branches.
     // Truth branches contain information matched to a GenMinInteraction
@@ -787,3 +790,17 @@ void CC1P1PiAnalysis::ResetParticles() const
     m_PionProng = NULL;
     m_PionParticle = NULL;
 }
+
+//Generic Particle information builder:
+void CC1P1PiAnalysis::SetPartInfo(std::string name) const
+{
+    declareDoubleBranch(m_hypMeths, (name + "_score").c_str() , -999.);
+}
+
+
+void CC1P1PiAnalysis::FillPartInfo(SmartRef<Minerva::Prong> prong, SmartRef<Minerva::Particle> particle) const
+{
+    
+}
+
+
