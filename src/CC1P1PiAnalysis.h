@@ -105,6 +105,11 @@ private:
     
     void FillPartInfo(SmartRef<Minerva::Prong> prong, SmartRef<Minerva::Particle> particle);
     
+    void SetAccumLevel(int cut);
+    void ResetAccumLevel();
+    int m_ncuts;
+    int * m_accum_level = new int[m_ncuts];
+    
 };
 
 #endif

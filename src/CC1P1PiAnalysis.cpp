@@ -69,6 +69,8 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("Proton_PDG", m_Proton_PDG = 2212);//proton
     declareProperty("Pion_PDG", m_Pion_PDG = 211);//pi+
     
+    declareProperty("n_cuts", m_ncuts = 5);
+    
 }
 
 //! Initialize
@@ -152,6 +154,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     //Clear Particle Prongs and Particle objects:
     ResetParticles();
+    ResetAccumLevel();
 
     //--------------------------------------------------------------
     // Initialize truth reco booleans
@@ -179,6 +182,8 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         event->setIntData("vert_exists", 1);
     
     counter("c_vertex")++;
+    SetAccumLevel(1);
+    
     //}
     
     //----------- 2 : Vertex has only 3 tracks -----------//
@@ -213,6 +218,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     }
     
     counter("c_3tracks")++;
+    SetAccumLevel(2);
     
     debug()<< "Has 3 tracks!" << endmsg;
     
@@ -231,6 +237,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     debug()<< "Muon track found!" << endmsg;
     
     counter("c_muon_trk")++;
+    SetAccumLevel(3);
     
     //----------- 4 : Vertex in active tracker or carbon target -----------//
     //Not a cut but an action to determine the location of the vertex.
@@ -252,6 +259,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         counter("c_tar_other")++;
         return StatusCode::SUCCESS;
     }
+    SetAccumLevel(4);
     
     
     //----------- 5 : PID on p/pi+ -----------//
@@ -264,6 +272,8 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     if(tFinPar){
         debug() << "Finished Selection Successfully. Pheeewwww ;)" << endmsg;
     }
+    
+    SetAccumLevel(5);
     
     // Set the PhysicsEvent reconstructionSignature to m_anaSignature, so I know that this tool reconstructed this event.
     // If you mark the event it will go to your analysis DST.  If you don't want it to go there, don't mark it!
@@ -795,6 +805,11 @@ void CC1P1PiAnalysis::ResetParticles() const
 void CC1P1PiAnalysis::SetPartInfo(std::string name)
 {
     declareDoubleBranch(m_hypMeths, (name + "_score").c_str() , -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_chi2ndf").c_str(), -999.);
+    
+    //mom., energy, sel. pdg, true pdg.
+    
+    
 }
 
 
@@ -803,4 +818,15 @@ void CC1P1PiAnalysis::FillPartInfo(SmartRef<Minerva::Prong> prong, SmartRef<Mine
     
 }
 
+void CC1P1PiAnalysis::SetAccumLevel(int cut)
+{
+    m_accum_level[ cut - 1 ] = 1;
+}
+
+void CC1P1PiAnalysis::ResetAccumLevel()
+{
+    for(int i = 0; i < m_ncuts; i++){
+        m_accum_level[i] = 0;
+    }
+}
 
