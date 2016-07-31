@@ -107,7 +107,7 @@ private:
     
     void SetAccumLevel(int cut);
     void ResetAccumLevel();
-    const int m_ncuts = 5;
+    static const int m_ncuts = 5;
     int * m_accum_level = new int [ m_ncuts ];
     
 };
