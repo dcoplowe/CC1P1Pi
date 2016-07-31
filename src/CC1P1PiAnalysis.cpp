@@ -821,7 +821,7 @@ void CC1P1PiAnalysis::FillPartInfo(SmartRef<Minerva::Prong> prong, SmartRef<Mine
     
 }
 
-void CC1P1PiAnalysis::SetAccumLevel(int cut)
+void CC1P1PiAnalysis::SetAccumLevel(int cut) const
 {
     m_accum_level[ cut - 1 ] = 1;
 }
