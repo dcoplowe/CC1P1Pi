@@ -962,12 +962,17 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     double mom = sqrt( pow( four_vec.E(), 2 ) - pow( mass, 2 ) );
     cc1p1piHyp->setDoubleData( (name + "_mom").c_str(), mom);
     
-    double sel4mom[4] = {four_vec.E(), four_vec.px(), four_vec.py(), four_vec.pz()};
+    std::vector<double> sel4mom;
+    sel4mom.push_back(four_vec.E());
+    sel4mom.push_back(four_vec.px());
+    sel4mom.push_back(four_vec.py());
+    sel4mom.push_back(four_vec.pz());
+    
     Rotate2BeamCoords(sel4mom);
 
     cc1p1piHyp->setContainerDoubleData( (name + "_4mom").c_str(), sel4mom);
 
-    double pTMag = -999.;
+   /* double pTMag = -999.;
     cc1p1piHyp->setDoubleData( (name + "_pTMag").c_str(), pTMag);
 
     double selpT[3] = {-999.};
@@ -1032,7 +1037,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         double tru_end_xyz[3] = {-999.};
         cc1p1piHyp->setContainerDoubleData( (name + "_trueendpos_xyz").c_str(), tru_end_xyz);
         
-    }
+    }*/
     
 }
 
@@ -1048,11 +1053,15 @@ void CC1P1PiAnalysis::ResetAccumLevel() const
     }
 }
 
-void CC1P1PiAnalysis::Rotate2BeamCoords(double val[]) const
+void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
 {
     //Determine size of 4 vec at some point...
-    
     debug() << "CC1P1PiAnalysis::Rotate2BeamCoords" << endmsg;
+
+    if((int)val.size() == 4){
+        debug() << "Warning : Not a 4 vector! Vector has dimension " << val.size() << endmsg;
+    }
+    
     debug() << "Initial 4Vec: P_E " << val[0] << " P_X " << val[1] << " P_Y " << val[2] << " P_Z "<< val[3] << endmsg;
     
     double py = val[2];

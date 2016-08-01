@@ -115,7 +115,7 @@ private:
     
     void FillCommonBranches(const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const;
     
-    void Rotate2BeamCoords(double val[]) const;
+    void Rotate2BeamCoords(std::vector<double> val) const;
     
     int m_ncuts;// = 5;
     int * m_accum_level;
