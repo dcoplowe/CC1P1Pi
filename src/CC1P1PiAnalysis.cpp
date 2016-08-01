@@ -867,7 +867,7 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
     declareContainerDoubleBranch(m_hypMeths, (name + "_trueendpos_xyz").c_str(), 3, -999.);
     
     if(name == "pr" || name == "pi"){
-        declarIntBranch(m_hypMeths, (name + "_FSI").c_str(), -999);
+        declareIntBranch(m_hypMeths, (name + "_FSI").c_str(), -999);
     }
     
 }
@@ -940,7 +940,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         cc1p1piHyp->setDoubleData( (name + "_piscore").c_str(), piscore);
         
         double hasFSI = -999;
-        cc1p1piHyp-setIntData( (name + "_FSI").c_str(), hasFSI);
+        cc1p1piHyp->setIntData( (name + "_FSI").c_str(), hasFSI);
         
     }
     else{
@@ -1048,7 +1048,7 @@ void CC1P1PiAnalysis::ResetAccumLevel() const
     }
 }
 
-void CC1P1PiAnalysis::Rotate2BeamCoords(double * val[]) const
+void CC1P1PiAnalysis::Rotate2BeamCoords(double val[]) const
 {
     //Determine size of 4 vec at some point...
     
