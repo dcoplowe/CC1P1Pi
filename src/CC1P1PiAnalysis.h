@@ -42,12 +42,18 @@ private:
     //Making them mutable objects enables them to be changed in const functions -- this coding practice is taken from the CCProtonPi0 analysis
     mutable SmartRef<Minerva::Prong> m_MuonProng;
     mutable SmartRef<Minerva::Particle> m_MuonParticle;
+    mutable Gaudi::XYZPoint m_Muon3Mom;
+    mutable Gaudi::XYZPoint m_Muon3trueMom;
     
     mutable SmartRef<Minerva::Prong> m_ProtonProng;
     mutable SmartRef<Minerva::Particle> m_ProtonParticle;
+    mutable Gaudi::XYZPoint m_Proton3Mom;
+    mutable Gaudi::XYZPoint m_Protontrue3Mom;
     
     mutable SmartRef<Minerva::Prong> m_PionProng;
     mutable SmartRef<Minerva::Particle> m_PionParticle;
+    mutable Gaudi::XYZPoint m_Pion3Mom;
+    mutable Gaudi::XYZPoint m_Piontrue3Mom;
     
     void ResetParticles() const;
     //----------------------------------------------------------------------------//
@@ -103,10 +109,16 @@ private:
     //Generic Particle information builder:
     void SetPartInfo(std::string name);
     
-    void FillPartInfo(SmartRef<Minerva::Prong> prong, SmartRef<Minerva::Particle> particle);
+    void FillPartInfo(std::string name, const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const;
+    
+    void SetCommonBranches();// const;
+    
+    void FillCommonBranches(const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const;
+    
+    void Rotate2BeamCoords(double * val[]) const;
     
     int m_ncuts;// = 5;
-    int * m_accum_level;// = new int [ m_ncuts ];
+    int * m_accum_level;
     void SetAccumLevel(int cut) const;
     void ResetAccumLevel() const;
     

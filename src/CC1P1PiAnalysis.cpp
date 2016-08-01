@@ -135,7 +135,11 @@ StatusCode CC1P1PiAnalysis::initialize()
     //  declareContainerDoubleEventBranch( "shower_momentum", 4, -999. );
     declareBoolEventBranch("isMinosMatchTrack");
     declareBoolEventBranch("isMinosMatchStub");
+    
+    declareContainerIntEventBranch( "accum_level", m_ncuts, -999);
 
+    SetCommonBranches();
+    
     SetPartInfo("mu");
     SetPartInfo("pi");
     SetPartInfo("pr");
@@ -298,11 +302,17 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
 
 StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *interaction, std::vector<Minerva::NeutrinoInt*>& nuInts ) const
 {
+    
+    
     //debug() << "CC1P1PiAnalysis::interpretEvent" << endmsg;
     
-    counter("N Primary Prongs") += event->primaryProngs().size();
+    //counter("N Primary Prongs") += event->primaryProngs().size();
     // If you decide you want to interpret the event, create a new NeutrinoInt.
-    Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( "InterpretationA" );
+    
+    //Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( "InterpretationA" );
+    Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
+    
+    
     
     // Add the NeutrinoInt to the vector in return value
     nuInts.push_back( nuInt );
@@ -796,34 +806,239 @@ void CC1P1PiAnalysis::ResetParticles() const
 {
     m_MuonProng = NULL;
     m_MuonParticle = NULL;
+    m_Muon3Mom = NULL;
 
     m_ProtonProng = NULL;
     m_ProtonParticle = NULL;
-
+    m_Proton3Mom = NULL;
+    
     m_PionProng = NULL;
     m_PionParticle = NULL;
+    m_Pion3Mom = NULL;
 }
 
 //Generic Particle information builder:
 void CC1P1PiAnalysis::SetPartInfo(std::string name)
 {
-    declareDoubleBranch(m_hypMeths, (name + "_score").c_str() , -999.);
+    
+    if(name == "pr" || name == "pi"){
+        declareDoubleBranch(m_hypMeths, (name + "_prscore").c_str() , -999.);
+        declareDoubleBranch(m_hypMeths, (name + "_piscore").c_str() , -999.);
+    }
+    else{
+        declareDoubleBranch(m_hypMeths, (name + "_score").c_str() , -999.);
+    }
+    
     declareDoubleBranch(m_hypMeths, (name + "_chi2ndf").c_str(), -999.);
+
+    declareDoubleBranch(m_hypMeths, (name + "_E").c_str() , -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_trueE").c_str(), -999.);
+
+    declareDoubleBranch(m_hypMeths, (name + "_mom").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_truemom").c_str(), -999.);
     
-    //mom., energy, sel. pdg, true pdg.
+    declareContainerDoubleBranch(m_hypMeths, (name + "_4mom").c_str(), 4, -999.);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_true4mom").c_str(), 4, -999.);
     
+    declareDoubleBranch(m_hypMeths, (name + "_pTMag").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_truepTMag").c_str(), -999.);
+    
+    declareContainerDoubleBranch(m_hypMeths, (name + "_pT").c_str(), 3, -999.);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_truepT").c_str(), 3, -999.);
+    
+    declareDoubleBranch(m_hypMeths, (name + "_pTT").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_truepTT").c_str(), -999.);
+    
+    declareIntBranch(m_hypMeths, (name + "_PDG").c_str(), -999);
+    declareIntBranch(m_hypMeths, (name + "_truePDG").c_str(), -999);
+    
+    declareDoubleBranch(m_hypMeths, (name + "_Phi").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_truePhi").c_str(), -999.);
+    
+    declareDoubleBranch(m_hypMeths, (name + "_Theta").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_trueTheta").c_str(), -999.);
+    
+    declareDoubleBranch(m_hypMeths, (name + "_KE").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_trueKE").c_str(), -999.);
+    
+    declareContainerDoubleBranch(m_hypMeths, (name + "_startpos_xyz").c_str(), 3, -999.);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_truestartpos_xyz").c_str(), 3, -999.);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_endpos_xyz").c_str(), 3, -999.);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_trueendpos_xyz").c_str(), 3, -999.);
+    
+    if(name == "pr" || name == "pi"){
+        declarIntBranch(m_hypMeths, (name + "_FSI").c_str(), -999);
+    }
     
 }
 
-
-void CC1P1PiAnalysis::FillPartInfo(SmartRef<Minerva::Prong> prong, SmartRef<Minerva::Particle> particle)
+void CC1P1PiAnalysis::SetCommonBranches()
 {
+    declareDoubleBranch(m_hypMeths, "Enu", -999.);
+    declareDoubleBranch(m_hypMeths, "trueEnu", -999.);
+    
+    declareDoubleBranch(m_hypMeths, "Q2", -999.0);
+    declareDoubleBranch(m_hypMeths, "trueQ2", -999.0);
+
+    declareDoubleBranch(m_hypMeths, "dpTT", -999.0);
+    declareDoubleBranch(m_hypMeths, "truedpTT", -999.0);
+
+    declareDoubleBranch(m_hypMeths, "dpT", -999.0);
+    declareDoubleBranch(m_hypMeths, "truedpT", -999.0);
+
+    declareDoubleBranch(m_hypMeths, "dalphaT", -999.0);
+    declareDoubleBranch(m_hypMeths, "truedalphaT", -999.0);
+
+    declareDoubleBranch(m_hypMeths, "dphiT", -999.0);
+    declareDoubleBranch(m_hypMeths, "truedphiT", -999.0);
+    
+    //declareDoubleBranch(m_hypMeths, "", -999.0);
+    
+}
+
+void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
+{
+    
+}
+
+void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
+{
+    
+    SmartRef<Minerva::Prong> prong;
+    SmartRef<Minerva::Particle> particle;
+    double mass = 0.0;
+    
+    if(name == "mu"){
+        prong = m_MuonProng;
+        particle = m_MuonParticle;
+        mass = MinervaUnits::M_mu;
+    }
+    else if(name == "pr"){
+        prong = m_ProtonProng;
+        particle = m_ProtonParticle;
+        mass = MinervaUnits::M_p;
+    }
+    else if(name == "pi"){
+        prong = m_PionProng;
+        particle = m_PionParticle;
+        mass = MinervaUnits::M_pion;
+    }
+    else{
+        error() << "CC1P1PiAnalysis::FillPartInfo :: Could not find determine name \"" << name << "\". Please check";
+    }
+    
+    if(mass == 0.0){
+        warning() << "CC1P1PiAnalysis::FillPartInfo :: " << name << " mass is zero!!!" << endmsg;
+    }
+    
+    
+    if(name == "pr" || name == "pi"){
+        double prscore = -999.;
+        double piscore = -999.;
+        
+        cc1p1piHyp->setDoubleData( (name + "_prscore").c_str(), prscore);
+        cc1p1piHyp->setDoubleData( (name + "_piscore").c_str(), piscore);
+        
+        double hasFSI = -999;
+        cc1p1piHyp-setIntData( (name + "_FSI").c_str(), hasFSI);
+        
+    }
+    else{
+        double score = -999.;
+        cc1p1piHyp->setDoubleData( (name + "_score").c_str(), score);
+    }
+    
+    double ch2ndf = -999.;
+    
+    cc1p1piHyp->setDoubleData( (name + "_chi2ndf").c_str(), ch2ndf);
+    
+    //Reco vars:
+    
+    Gaudi::LorentzVector four_vec = particle->momentumVec();
+    
+    double Energy = four_vec.E();
+    cc1p1piHyp->setDoubleData( (name + "_E").c_str(), Energy);
+    
+    double mom = sqrt( pow( four_vec.E(), 2 ) - pow( mass, 2 ) );
+    cc1p1piHyp->setDoubleData( (name + "_mom").c_str(), mom);
+    
+    double sel4mom[4] = {four_vec.E(), four_vec.px(), four_vec.py(), four_vec.pz()};
+    Rotate2BeamCoords(sel4mom);
+
+    cc1p1piHyp->setContainerDoubleData( (name + "_4mom").c_str(), sel4mom);
+
+    double pTMag = -999.;
+    cc1p1piHyp->setDoubleData( (name + "_pTMag").c_str(), pTMag);
+
+    double selpT[3] = {-999.};
+    cc1p1piHyp->setContainerDoubleData( (name + "_pT").c_str(), selpT);
+
+    double pTT = -999.;
+    cc1p1piHyp->setDoubleData( (name + "_pTT").c_str(), pTT);
+    
+    int PDG = -999;
+    cc1p1piHyp->setIntData( (name + "_PDG").c_str(), PDG);
+    
+    double Phi = m_coordSysTool->phiWRTBeam( four_vec );
+    cc1p1piHyp->setDoubleData( (name + "_Phi").c_str(), Phi);
+    
+    double Theta = m_coordSysTool->thetaWRTBeam( four_vec );
+    cc1p1piHyp->setDoubleData( (name + "_Theta").c_str(), Theta);
+    
+    double KE = four_vec.E() - mass;
+    cc1p1piHyp->setDoubleData( (name + "_KE").c_str(), KE);
+    
+    double sel_start_xyz[3] = {-999.};
+    cc1p1piHyp->setContainerDoubleData( (name + "_startpos_xyz").c_str(), sel_start_xyz);
+    
+    double sel_end_xyz[3] = {-999.};
+    cc1p1piHyp->setContainerDoubleData( (name + "_endpos_xyz").c_str(), sel_end_xyz);
+    
+    //True vars:
+    if(truth){
+        double trueEnergy = -999.;
+        cc1p1piHyp->setDoubleData( (name + "_trueE").c_str(), trueEnergy);
+        
+        double truemom = -999.;
+        cc1p1piHyp->setDoubleData( (name + "_truemom").c_str(), truemom);
+        
+        double true4mom[4] = {-999.};
+        cc1p1piHyp->setContainerDoubleData( (name + "_true4mom").c_str(), true4mom);
+        
+        double truepTMag = -999.;
+        cc1p1piHyp->setDoubleData( (name + "_truepTMag").c_str(), truepTMag);
+        
+        double truepT[3] = {-999.0};
+        cc1p1piHyp->setContainerDoubleData( (name + "_truepT").c_str(), truepT);
+        
+        double truepTT = -999.;
+        cc1p1piHyp->setDoubleData( (name + "_truepTT").c_str(), truepTT);
+        
+        int truePDG = -999;
+        cc1p1piHyp->setIntData( (name + "_truePDG").c_str(), truePDG);
+
+        double truePhi = -999.;
+        cc1p1piHyp->setDoubleData( (name + "_truePhi").c_str(), truePhi);
+        
+        double trueTheta = -999.;
+        cc1p1piHyp->setDoubleData( (name + "_trueTheta").c_str(), trueTheta);
+     
+        double trueKE = -999.;
+        cc1p1piHyp->setDoubleData( (name + "_trueKE").c_str(), trueKE);
+    
+        double tru_start_xyz[3] = {-999.};
+        cc1p1piHyp->setContainerDoubleData( (name + "_truestartpos_xyz").c_str(), tru_start_xyz);
+
+        double tru_end_xyz[3] = {-999.};
+        cc1p1piHyp->setContainerDoubleData( (name + "_trueendpos_xyz").c_str(), tru_end_xyz);
+        
+    }
     
 }
 
 void CC1P1PiAnalysis::SetAccumLevel(int cut) const
 {
-    m_accum_level[ cut - 1 ] = 1;
+    m_accum_level[ cut - 1 ] = cut;
 }
 
 void CC1P1PiAnalysis::ResetAccumLevel() const
@@ -832,4 +1047,25 @@ void CC1P1PiAnalysis::ResetAccumLevel() const
         m_accum_level[i] = 0;
     }
 }
+
+void CC1P1PiAnalysis::Rotate2BeamCoords(double * val[]) const
+{
+    //Determine size of 4 vec at some point...
+    
+    debug() << "CC1P1PiAnalysis::Rotate2BeamCoords" << endmsg;
+    debug() << "Initial 4Vec: P_E " << val[0] << " P_X " << val[1] << " P_Y " << val[2] << " P_Z "<< val[3] << endmsg;
+    
+    double py = val[2];
+    double pz = val[3];
+    //! momentum rotated to beam coordinate system
+    double py_prime = -1.0 *sin( MinervaUnits::numi_beam_angle_rad )*pz + cos( MinervaUnits::numi_beam_angle_rad )*py;
+    double pz_prime = cos( MinervaUnits::numi_beam_angle_rad )*pz + sin( MinervaUnits::numi_beam_angle_rad )*py;
+    
+    val[2] = py_prime;
+    val[3] = pz_prime;
+    
+    debug() << "Rotated 4Vec: P_E " << val[0] << " P_X " << val[1] << " P_Y " << val[2] << " P_Z "<< val[3] << endmsg;
+    
+}
+
 
