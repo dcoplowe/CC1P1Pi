@@ -806,15 +806,15 @@ void CC1P1PiAnalysis::ResetParticles() const
 {
     m_MuonProng = NULL;
     m_MuonParticle = NULL;
-    m_Muon3Mom = NULL;
+   // m_Muon3Mom = NULL;
 
     m_ProtonProng = NULL;
     m_ProtonParticle = NULL;
-    m_Proton3Mom = NULL;
+   // m_Proton3Mom = NULL;
     
     m_PionProng = NULL;
     m_PionParticle = NULL;
-    m_Pion3Mom = NULL;
+   // m_Pion3Mom = NULL;
 }
 
 //Generic Particle information builder:
