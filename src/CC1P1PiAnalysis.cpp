@@ -972,10 +972,14 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
 
     cc1p1piHyp->setContainerDoubleData( (name + "_4mom").c_str(), sel4mom);
 
-   /* double pTMag = -999.;
+    double pTMag = -999.;
     cc1p1piHyp->setDoubleData( (name + "_pTMag").c_str(), pTMag);
 
-    double selpT[3] = {-999.};
+    std::vector<double> selpT;
+    selpT.push_back(-999.);
+    selpT.push_back(-999.);
+    selpT.push_back(-999.);
+    
     cc1p1piHyp->setContainerDoubleData( (name + "_pT").c_str(), selpT);
 
     double pTT = -999.;
@@ -993,10 +997,18 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     double KE = four_vec.E() - mass;
     cc1p1piHyp->setDoubleData( (name + "_KE").c_str(), KE);
     
-    double sel_start_xyz[3] = {-999.};
+    std::vector<double> sel_start_xyz;
+    sel_start_xyz.push_back(-999.);
+    sel_start_xyz.push_back(-999.);
+    sel_start_xyz.push_back(-999.);
+
     cc1p1piHyp->setContainerDoubleData( (name + "_startpos_xyz").c_str(), sel_start_xyz);
     
-    double sel_end_xyz[3] = {-999.};
+    std::vector<double> sel_end_xyz;
+    sel_end_xyz.push_back(-999.);
+    sel_end_xyz.push_back(-999.);
+    sel_end_xyz.push_back(-999.);
+
     cc1p1piHyp->setContainerDoubleData( (name + "_endpos_xyz").c_str(), sel_end_xyz);
     
     //True vars:
@@ -1007,13 +1019,22 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         double truemom = -999.;
         cc1p1piHyp->setDoubleData( (name + "_truemom").c_str(), truemom);
         
-        double true4mom[4] = {-999.};
+        std::vector<double> true4mom;
+        true4mom.push_back(-999.);
+        true4mom.push_back(-999.);
+        true4mom.push_back(-999.);
+        true4mom.push_back(-999.);
+
         cc1p1piHyp->setContainerDoubleData( (name + "_true4mom").c_str(), true4mom);
         
         double truepTMag = -999.;
         cc1p1piHyp->setDoubleData( (name + "_truepTMag").c_str(), truepTMag);
         
-        double truepT[3] = {-999.0};
+        std::vector<double> truepT;
+        truepT.push_back(-999.0);
+        truepT.push_back(-999.0);
+        truepT.push_back(-999.0);
+
         cc1p1piHyp->setContainerDoubleData( (name + "_truepT").c_str(), truepT);
         
         double truepTT = -999.;
@@ -1031,13 +1052,21 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         double trueKE = -999.;
         cc1p1piHyp->setDoubleData( (name + "_trueKE").c_str(), trueKE);
     
-        double tru_start_xyz[3] = {-999.};
+        std::vector<double> tru_start_xyz;
+        tru_start_xyz.push_back(-999.);
+        tru_start_xyz.push_back(-999.);
+        tru_start_xyz.push_back(-999.);
+
         cc1p1piHyp->setContainerDoubleData( (name + "_truestartpos_xyz").c_str(), tru_start_xyz);
 
-        double tru_end_xyz[3] = {-999.};
+        std::vector<double> tru_end_xyz;
+        tru_end_xyz.push_back(-999.);
+        tru_end_xyz.push_back(-999.);
+        tru_end_xyz.push_back(-999.);
+
         cc1p1piHyp->setContainerDoubleData( (name + "_trueendpos_xyz").c_str(), tru_end_xyz);
         
-    }*/
+    }
     
 }
 
