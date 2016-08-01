@@ -997,6 +997,10 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     double KE = four_vec.E() - mass;
     cc1p1piHyp->setDoubleData( (name + "_KE").c_str(), KE);
     
+    
+    Gaudi::XYZPoint upstream = (*prong->minervaTracks().front() ).upstreamState().position();
+    Gaudi::XYZPoint downstream = (*prong->minervaTracks().front() ).downstreamState().position();
+    
     std::vector<double> sel_start_xyz;
     sel_start_xyz.push_back(-999.);
     sel_start_xyz.push_back(-999.);
