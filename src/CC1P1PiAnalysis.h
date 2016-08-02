@@ -43,18 +43,18 @@ private:
     //Making them mutable objects enables them to be changed in const functions -- this coding practice is taken from the CCProtonPi0 analysis
     mutable SmartRef<Minerva::Prong> m_MuonProng;
     mutable SmartRef<Minerva::Particle> m_MuonParticle;
-    mutable Gaudi::XYZPoint m_Muon3Mom;
-    mutable Gaudi::XYZPoint m_Muon3trueMom;
+    mutable Gaudi::LorentzVector m_Muon4Mom;
+    mutable Gaudi::LorentzVector m_Muontrue4Mom;
     
     mutable SmartRef<Minerva::Prong> m_ProtonProng;
     mutable SmartRef<Minerva::Particle> m_ProtonParticle;
-    mutable Gaudi::XYZPoint m_Proton3Mom;
-    mutable Gaudi::XYZPoint m_Protontrue3Mom;
+    mutable Gaudi::LorentzVector m_Proton4Mom;
+    mutable Gaudi::LorentzVector m_Protontrue4Mom;
     
     mutable SmartRef<Minerva::Prong> m_PionProng;
     mutable SmartRef<Minerva::Particle> m_PionParticle;
-    mutable Gaudi::XYZPoint m_Pion3Mom;
-    mutable Gaudi::XYZPoint m_Piontrue3Mom;
+    mutable Gaudi::LorentzVector m_Pion4Mom;
+    mutable Gaudi::LorentzVector m_Piontrue4Mom;
     
     void ResetParticles() const;
     //----------------------------------------------------------------------------//

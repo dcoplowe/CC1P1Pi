@@ -839,6 +839,7 @@ void CC1P1PiAnalysis::ResetParticles() const
     m_MuonProng = NULL;
     m_MuonParticle = NULL;
    // m_Muon3Mom = NULL;
+    m_Muon4Mom = 0x0;
 
     m_ProtonProng = NULL;
     m_ProtonParticle = NULL;
@@ -919,7 +920,7 @@ void CC1P1PiAnalysis::SetCommonBranches()
     
     declareDoubleBranch(m_hypMeths, "Q2", -999.0);
     declareDoubleBranch(m_hypMeths, "trueQ2", -999.0);
-
+    
     declareDoubleBranch(m_hypMeths, "dpTT", -999.0);
     declareDoubleBranch(m_hypMeths, "truedpTT", -999.0);
     
@@ -1154,7 +1155,6 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::GenMinIntera
         tru_end_xyz.push_back(finpos.y());
         tru_end_xyz.push_back(finpos.z());
         cc1p1piHyp->setContainerDoubleData( (name + "_trueendpos_xyz").c_str(), tru_end_xyz);
-    
     }
     
 }
