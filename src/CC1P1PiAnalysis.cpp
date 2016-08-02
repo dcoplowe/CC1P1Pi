@@ -1065,10 +1065,6 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         
         const Minerva::TG4Trajectory* traj = trajectories[0];
         Gaudi::LorentzVector traj_4p = traj->GetInitialMomentum();
-        double tj_p     = sqrt( traj_4p.px()*traj_4p.px() + traj_4p.py()*traj_4p.py() + traj_4p.pz()*traj_4p.pz() );
-        double tj_theta = traj->GetInitialMomentum().Theta();
-        double tj_phi   = traj->GetInitialMomentum().Phi();
-
     
         double trueEnergy = traj_4p.E();
         cc1p1piHyp->setDoubleData( (name + "_trueE").c_str(), trueEnergy);
@@ -1108,16 +1104,16 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
      
         double trueMass = 0.;
         switch (TMath::Abs(PDG)) {
-            case 11:    trueMass = MinervaUnits::M_e;           break;
-            case 13:    trueMass = MinervaUnits::M_mu;          break;
-            case 15:    trueMass = MinervaUnits::M_tau;         break;
-            case 2212:  trueMass = Minerva::MinervaUnits::M_p;  break;
-            case 2112:  trueMass = MinervaUnits::M_n;           break;
-            case 211:   trueMass = MinervaUnits::M_pion;        break;
-            case 111:   trueMass = MinervaUnits::M_pi0;         break;
-            case 321:   trueMass = MinervaUnits::M_kaon;        break;
-            case 311:   trueMass = MinervaUnits::M_k0;          break;
-            default:    trueMass = 0.;                          break;
+            case 11:    trueMass = MinervaUnits::M_e;       break;
+            case 13:    trueMass = MinervaUnits::M_mu;      break;
+            case 15:    trueMass = MinervaUnits::M_tau;     break;
+            case 2212:  trueMass = MinervaUnits::M_p;       break;
+            case 2112:  trueMass = MinervaUnits::M_n;       break;
+            case 211:   trueMass = MinervaUnits::M_pion;    break;
+            case 111:   trueMass = MinervaUnits::M_pi0;     break;
+            case 321:   trueMass = MinervaUnits::M_kaon;    break;
+            case 311:   trueMass = MinervaUnits::M_k0;      break;
+            default:    trueMass = 0.;                      break;
         }
         
         if(trueMass == 0. && PDG != 22){//Photons are massless so that would be okay but if it's not... Well oh noooo.
