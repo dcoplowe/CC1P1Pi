@@ -9,7 +9,7 @@
 #include "DetDesc/Material.h"
 #include "GeoUtils/INuclearTargetTool.h"
 #include "ParticleMaker/IParticleMakerTool.h"
-
+#include "TruthMatcher/ITruthMatcher.h"
 
 //Root headers:
 #include <TString.h>
@@ -115,6 +115,12 @@ StatusCode CC1P1PiAnalysis::initialize()
     try { m_particleMaker = tool<IParticleMakerTool>("ParticleMakerTool", m_particleMakerAlias); }
     catch( GaudiException& e){
         error() << "Could not obtain ParticleMakerTool: " << m_particleMakerAlias << endmsg;
+        return StatusCode::FAILURE;
+    }
+    
+    try { m_truthMatcher = tool<ITruthMatcher>("ParticleMakerTool"); }
+    catch( GaudiException& e){
+        error() << "Could not obtain TruthMather! " << endmsg;
         return StatusCode::FAILURE;
     }
     
@@ -866,7 +872,6 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
     declareDoubleBranch(m_hypMeths, (name + "_truepTT").c_str(), -999.);
     
     declareIntBranch(m_hypMeths, (name + "_PDG").c_str(), -999);
-    declareIntBranch(m_hypMeths, (name + "_truePDG").c_str(), -999);
     
     declareDoubleBranch(m_hypMeths, (name + "_Phi").c_str(), -999.);
     declareDoubleBranch(m_hypMeths, (name + "_truePhi").c_str(), -999.);
@@ -976,7 +981,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     else{
         double score = particle->score();
         cc1p1piHyp->setDoubleData( (name + "_score").c_str(), score );
-        ch2ndf = 99.;
+        ch2ndf = -999.;
     }
     
     cc1p1piHyp->setDoubleData( (name + "_chi2ndf").c_str(), ch2ndf);
@@ -1039,6 +1044,24 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     
     //True vars:
     if(truth){
+        
+        std::vector<const Minerva::TG4Trajectory*> trajectories;
+        
+        const Minerva::TG4Trajectory* tj = NULL;
+        double frac_energy = 0.0;
+        double other_energy = 0.0;
+        std::map<const Minerva::TG4Trajectory*,double>::iterator it;
+        std::map<const Minerva::TG4Trajectory*,double> trajMap = m_truthMatcher->getTG4Trajectories(prong, other_energy);
+        if( !(trajMap.empty()) ){
+            for(it = trajMap.begin(); it != trajMap.end(); it++) {
+                tj = (*it).first;
+                trajectories.push_back(tj);
+            }
+        }
+            
+
+    
+    
         double trueEnergy = -999.;
         cc1p1piHyp->setDoubleData( (name + "_trueE").c_str(), trueEnergy);
         

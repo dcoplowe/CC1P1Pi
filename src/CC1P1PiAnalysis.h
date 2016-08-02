@@ -8,6 +8,7 @@ class IMuonUtils;
 class IMinervaCoordSysTool;
 class INuclearTargetTool;
 class IParticleMakerTool;
+class ITruthMatcher;
 
 //Test to see if I can forward declare TString if it is being used in a function -- It worked!!
 class TString;
@@ -125,6 +126,9 @@ private:
     int * m_accum_level;
     void SetAccumLevel(int cut) const;
     void ResetAccumLevel() const;
+    
+    //Determine the truth information from the track:
+    ITruthMatcher * m_truthMatcher;
     
 };
 
