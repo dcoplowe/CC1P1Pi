@@ -132,7 +132,7 @@ private:
     ITruthMatcher * m_truthMatcher;
     
     //Set four vecs for the final state 'name' particle:
-    SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, bool truth = false) const;
+    void SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, bool truth = false) const;
     
     //Transverse variables:
     TVector3 * GetTransverseVars(double vtx[], TVector3 mumom, TVector3 prmom, TVector3 pimom, double dpTT, double dpTMag, double dalphaT, double dphiT, bool is_truth = false);
