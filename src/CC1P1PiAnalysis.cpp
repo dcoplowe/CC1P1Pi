@@ -13,6 +13,7 @@
 
 //Root headers:
 #include <TString.h>
+#include <TMath.h>
 
 //this command allows other parts of Gaudi to use the tool
 DECLARE_TOOL_FACTORY( CC1P1PiAnalysis );
@@ -1048,7 +1049,6 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         std::vector<const Minerva::TG4Trajectory*> trajectories;
         
         const Minerva::TG4Trajectory* tj = NULL;
-        double frac_energy = 0.0;
         double other_energy = 0.0;
         std::map<const Minerva::TG4Trajectory*,double>::iterator it;
         std::map<const Minerva::TG4Trajectory*,double> trajMap = m_truthMatcher->getTG4Trajectories(prong, other_energy);
@@ -1058,21 +1058,29 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
                 trajectories.push_back(tj);
             }
         }
-            
+        
+        if(trajectories.size() == 1){
+            debug() << "Prong has one tragectory!" << endmsg;
+        }
+        
+        const Minerva::TG4Trajectory* traj = trajectories[0];
+        Gaudi::LorentzVector traj_4p = traj->GetInitialMomentum();
+        double tj_p     = sqrt( traj_4p.px()*traj_4p.px() + traj_4p.py()*traj_4p.py() + traj_4p.pz()*traj_4p.pz() );
+        double tj_theta = traj->GetInitialMomentum().Theta();
+        double tj_phi   = traj->GetInitialMomentum().Phi();
 
     
-    
-        double trueEnergy = -999.;
+        double trueEnergy = traj_4p.E();
         cc1p1piHyp->setDoubleData( (name + "_trueE").c_str(), trueEnergy);
         
-        double truemom = -999.;
+        double truemom = sqrt( traj_4p.px()*traj_4p.px() + traj_4p.py()*traj_4p.py() + traj_4p.pz()*traj_4p.pz() );
         cc1p1piHyp->setDoubleData( (name + "_truemom").c_str(), truemom);
         
         std::vector<double> true4mom;
-        true4mom.push_back(-999.);
-        true4mom.push_back(-999.);
-        true4mom.push_back(-999.);
-        true4mom.push_back(-999.);
+        true4mom.push_back(traj_4p.E());
+        true4mom.push_back(traj_4p.px());
+        true4mom.push_back(traj_4p.py());
+        true4mom.push_back(traj_4p.pz());
 
         cc1p1piHyp->setContainerDoubleData( (name + "_true4mom").c_str(), true4mom);
         
@@ -1089,31 +1097,50 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         double truepTT = -999.;
         cc1p1piHyp->setDoubleData( (name + "_truepTT").c_str(), truepTT);
         
-        int PDG = -999;
+        int PDG = traj->GetPDGCode();
         cc1p1piHyp->setIntData( (name + "_PDG").c_str(), PDG);
 
-        double truePhi = -999.;
+        double truePhi = traj->GetInitialMomentum().Phi();
         cc1p1piHyp->setDoubleData( (name + "_truePhi").c_str(), truePhi);
         
-        double trueTheta = -999.;
+        double trueTheta = traj->GetInitialMomentum().Theta();
         cc1p1piHyp->setDoubleData( (name + "_trueTheta").c_str(), trueTheta);
      
-        double trueKE = -999.;
+        double trueMass = 0.;
+        switch (TMath::Abs(PDG)) {
+            case 11:    trueMass = MinervaUnits::M_e;           break;
+            case 13:    trueMass = MinervaUnits::M_mu;          break;
+            case 15:    trueMass = MinervaUnits::M_tau;         break;
+            case 2212:  trueMass = Minerva::MinervaUnits::M_p;  break;
+            case 2112:  trueMass = MinervaUnits::M_n;           break;
+            case 211:   trueMass = MinervaUnits::M_pion;        break;
+            case 111:   trueMass = MinervaUnits::M_pi0;         break;
+            case 321:   trueMass = MinervaUnits::M_kaon;        break;
+            case 311:   trueMass = MinervaUnits::M_k0;          break;
+            default:    trueMass = 0.;                          break;
+        }
+        
+        if(trueMass == 0. && PDG != 22){//Photons are massless so that would be okay but if it's not... Well oh noooo.
+            warning() << "CC1P1PiAnalysis::FillPartInfo :: True Mass is Zero." << endmsg;
+        }
+        
+        double trueKE = traj_4p.E() - trueMass;
         cc1p1piHyp->setDoubleData( (name + "_trueKE").c_str(), trueKE);
-    
+        
+        Gaudi::LorentzVector inipos = traj->GetInitialPosition();
         std::vector<double> tru_start_xyz;
-        tru_start_xyz.push_back(-999.);
-        tru_start_xyz.push_back(-999.);
-        tru_start_xyz.push_back(-999.);
-
+        tru_start_xyz.push_back(inipos.x());
+        tru_start_xyz.push_back(inipos.y());
+        tru_start_xyz.push_back(inipos.z());
         cc1p1piHyp->setContainerDoubleData( (name + "_truestartpos_xyz").c_str(), tru_start_xyz);
 
+        Gaudi::LorentzVector finpos = traj->GetFinalPosition();
         std::vector<double> tru_end_xyz;
-        tru_end_xyz.push_back(-999.);
-        tru_end_xyz.push_back(-999.);
-        tru_end_xyz.push_back(-999.);
-
+        tru_end_xyz.push_back(finpos.x());
+        tru_end_xyz.push_back(finpos.y());
+        tru_end_xyz.push_back(finpos.z());
         cc1p1piHyp->setContainerDoubleData( (name + "_trueendpos_xyz").c_str(), tru_end_xyz);
+    
     }
     
 }
