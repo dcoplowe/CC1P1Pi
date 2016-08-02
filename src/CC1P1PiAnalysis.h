@@ -121,7 +121,8 @@ private:
     void FillCommonBranches(const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const;
     
     void Rotate2BeamCoords(std::vector<double> val) const;
-    
+
+    //Accumulation level counter:
     int m_ncuts;// = 5;
     int * m_accum_level;
     void SetAccumLevel(int cut) const;

@@ -1171,7 +1171,7 @@ void CC1P1PiAnalysis::ResetAccumLevel() const
     }
 }
 
-void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event) const;
+void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event) const
 {
     std::vector<int> tmp_vec;
     for(int i = 0; i < m_ncuts; i++){
