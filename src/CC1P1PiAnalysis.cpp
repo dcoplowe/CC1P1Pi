@@ -323,9 +323,9 @@ StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, 
     //Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( "InterpretationA" );
     Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
     
-    FillPartInfo("mu", event, interaction, nuInt);
-    FillPartInfo("pr", event, interaction, nuInt);
-    FillPartInfo("pi", event, interaction, nuInt);
+    FillPartInfo("mu", interaction, nuInt);
+    FillPartInfo("pr", interaction, nuInt);
+    FillPartInfo("pi", interaction, nuInt);
     
     // Add the NeutrinoInt to the vector in return value
     nuInts.push_back( nuInt );
