@@ -838,16 +838,17 @@ void CC1P1PiAnalysis::ResetParticles() const
 {
     m_MuonProng = NULL;
     m_MuonParticle = NULL;
-   // m_Muon3Mom = NULL;
-    m_Muon4Mom = 0x0;
+    
+    if(m_Muon4Mom){
+        delete m_Muon4Mom;
+        Gaudi::LorentzVector m_Muon4Mom;
+    }
 
     m_ProtonProng = NULL;
     m_ProtonParticle = NULL;
-   // m_Proton3Mom = NULL;
     
     m_PionProng = NULL;
     m_PionParticle = NULL;
-   // m_Pion3Mom = NULL;
     
     m_ProtonScore[0] = -999.;
     m_ProtonScore[1] = -999.;
