@@ -312,7 +312,9 @@ StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, 
     //Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( "InterpretationA" );
     Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
     
-    
+    FillPartInfo("mu", event, truth, nuInt);
+    FillPartInfo("pr", event, truth, nuInt);
+    FillPartInfo("pi", event, truth, nuInt);
     
     // Add the NeutrinoInt to the vector in return value
     nuInts.push_back( nuInt );
@@ -541,7 +543,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         
         hadron_counter++;
      
-        SmartRef<Minerva::Track> track = tracks[tracks.size() -1];
+        SmartRef<Minerva::Track> track = tracks[tracks.size() - 1];
         Gaudi::XYZPoint endpoint = track->lastState().position();
         
         if(!m_coordSysTool->inFiducial(endpoint.x(), endpoint.y(), endpoint.z(), m_det_apothem, m_det_upZ, m_det_downZ)){
@@ -882,6 +884,12 @@ void CC1P1PiAnalysis::SetCommonBranches()
 
     declareDoubleBranch(m_hypMeths, "dpTT", -999.0);
     declareDoubleBranch(m_hypMeths, "truedpTT", -999.0);
+    
+    declareDoubleBranch(m_hypMeths, "dpTT_pi", -999.0);
+    declareDoubleBranch(m_hypMeths, "truedpTT_pi", -999.0);
+    
+    declareDoubleBranch(m_hypMeths, "dpTT_pr", -999.0);
+    declareDoubleBranch(m_hypMeths, "truedpTT_pr", -999.0);
 
     declareDoubleBranch(m_hypMeths, "dpT", -999.0);
     declareDoubleBranch(m_hypMeths, "truedpT", -999.0);
@@ -945,7 +953,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     }
     else{
         double score = -999.;
-        cc1p1piHyp->setDoubleData( (name + "_score").c_str(), score);
+        cc1p1piHyp->setDoubleData( (name + "_score").c_str(), particle.score());
     }
     
     double ch2ndf = -999.;
@@ -985,9 +993,6 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     double pTT = -999.;
     cc1p1piHyp->setDoubleData( (name + "_pTT").c_str(), pTT);
     
-    int PDG = -999;
-    cc1p1piHyp->setIntData( (name + "_PDG").c_str(), PDG);
-    
     double Phi = m_coordSysTool->phiWRTBeam( four_vec );
     cc1p1piHyp->setDoubleData( (name + "_Phi").c_str(), Phi);
     
@@ -997,22 +1002,18 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     double KE = four_vec.E() - mass;
     cc1p1piHyp->setDoubleData( (name + "_KE").c_str(), KE);
     
-    
     Gaudi::XYZPoint upstream = (*prong->minervaTracks().front() ).upstreamState().position();
-    Gaudi::XYZPoint downstream = (*prong->minervaTracks().front() ).downstreamState().position();
-    
     std::vector<double> sel_start_xyz;
-    sel_start_xyz.push_back(-999.);
-    sel_start_xyz.push_back(-999.);
-    sel_start_xyz.push_back(-999.);
-
+    sel_start_xyz.push_back(upstream.x());
+    sel_start_xyz.push_back(upstream.y());
+    sel_start_xyz.push_back(upstream.z());
     cc1p1piHyp->setContainerDoubleData( (name + "_startpos_xyz").c_str(), sel_start_xyz);
     
+    Gaudi::XYZPoint downstream = (*prong->minervaTracks().front() ).downstreamState().position();
     std::vector<double> sel_end_xyz;
-    sel_end_xyz.push_back(-999.);
-    sel_end_xyz.push_back(-999.);
-    sel_end_xyz.push_back(-999.);
-
+    sel_end_xyz.push_back(downstream.x());
+    sel_end_xyz.push_back(downstream.y());
+    sel_end_xyz.push_back(downstream.z());
     cc1p1piHyp->setContainerDoubleData( (name + "_endpos_xyz").c_str(), sel_end_xyz);
     
     //True vars:
@@ -1044,8 +1045,8 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         double truepTT = -999.;
         cc1p1piHyp->setDoubleData( (name + "_truepTT").c_str(), truepTT);
         
-        int truePDG = -999;
-        cc1p1piHyp->setIntData( (name + "_truePDG").c_str(), truePDG);
+        int PDG = -999;
+        cc1p1piHyp->setIntData( (name + "_PDG").c_str(), PDG);
 
         double truePhi = -999.;
         cc1p1piHyp->setDoubleData( (name + "_truePhi").c_str(), truePhi);
@@ -1069,7 +1070,6 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         tru_end_xyz.push_back(-999.);
 
         cc1p1piHyp->setContainerDoubleData( (name + "_trueendpos_xyz").c_str(), tru_end_xyz);
-        
     }
     
 }
