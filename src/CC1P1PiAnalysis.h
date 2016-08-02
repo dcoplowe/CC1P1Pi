@@ -126,6 +126,7 @@ private:
     int * m_accum_level;
     void SetAccumLevel(int cut) const;
     void ResetAccumLevel() const;
+    void SaveAccumLevel(Minerva::PhysicsEvent * event) const;
     
     //Determine the truth information from the track:
     ITruthMatcher * m_truthMatcher;

@@ -193,6 +193,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     if( !event->hasInteractionVertex() ){
         debug() << "No event vertex. Quitting..." << endmsg;
         //event->setIntData("vert_exists", 0);
+        SaveAccumLevel(event);
         return StatusCode::SUCCESS;
     }
     //else{
@@ -232,6 +233,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     if(!(ntot_tracks == nout_tracks && ntot_tracks == 3)){
         debug() << "Event doesn't contain extactly three tracks." << endmsg;
+        SaveAccumLevel(event);
         return StatusCode::SUCCESS;
     }
     
@@ -250,6 +252,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     if(!FindMuon(event, truth, m_MuonProng, m_MuonParticle)){
         debug() << "Muon not found..." << endmsg;
+        SaveAccumLevel(event);
         return StatusCode::SUCCESS;
     }
     debug()<< "Muon track found!" << endmsg;
@@ -275,6 +278,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         debug() << "Event not in either..." << endmsg;
         event->setIntData("target_region", 3);//Probably don't need this...
         counter("c_tar_other")++;
+        SaveAccumLevel(event);
         return StatusCode::SUCCESS;
     }
     SetAccumLevel(4);
@@ -287,11 +291,18 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     bool tFinPar = FindParticles(event);
     
-    if(tFinPar){
+    if(!tFinPar){
+        debug() << "Failed to identify particles..." << endmsg;
+        SaveAccumLevel(event);
+        return StatusCode::SUCCESS;
+    }
+    else{
         debug() << "Finished Selection Successfully. Pheeewwww ;)" << endmsg;
     }
     
     SetAccumLevel(5);
+    
+    SaveAccumLevel(event);
     
     // Set the PhysicsEvent reconstructionSignature to m_anaSignature, so I know that this tool reconstructed this event.
     // If you mark the event it will go to your analysis DST.  If you don't want it to go there, don't mark it!
@@ -313,8 +324,6 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
 
 StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *interaction, std::vector<Minerva::NeutrinoInt*>& nuInts ) const
 {
-    
-    
     //debug() << "CC1P1PiAnalysis::interpretEvent" << endmsg;
     
     //counter("N Primary Prongs") += event->primaryProngs().size();
@@ -838,6 +847,15 @@ void CC1P1PiAnalysis::ResetParticles() const
     m_PionProng = NULL;
     m_PionParticle = NULL;
    // m_Pion3Mom = NULL;
+    
+    m_ProtonScore[0] = -999.;
+    m_ProtonScore[1] = -999.;
+    
+    m_PionScore[0] = -999.;
+    m_PionScore[1] = -999.;
+    
+    m_Chi2NDF[0] = -999.;
+    m_Chi2NDF[1] = -999.;
 }
 
 //Generic Particle information builder:
@@ -1151,6 +1169,17 @@ void CC1P1PiAnalysis::ResetAccumLevel() const
     for(int i = 0; i < m_ncuts; i++){
         m_accum_level[i] = 0;
     }
+}
+
+void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event) const;
+{
+    std::vector<int> tmp_vec;
+    for(int i = 0; i < m_ncuts; i++){
+        tmp_vec.push_back(m_accum_level[i]);
+    }
+    
+    event->setIntData("accum_level",tmp_vec);
+    
 }
 
 void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
