@@ -952,8 +952,8 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         
     }
     else{
-        double score = -999.;
-        cc1p1piHyp->setDoubleData( (name + "_score").c_str(), particle->score());
+        double score = particle->score();
+        cc1p1piHyp->setDoubleData( (name + "_score").c_str(), score );
     }
     
     double ch2ndf = -999.;
