@@ -1178,7 +1178,7 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event) const
         tmp_vec.push_back(m_accum_level[i]);
     }
     
-    event->setCounterIntData("accum_level",tmp_vec);
+    event->setContainerIntData("accum_level",tmp_vec);
     
 }
 
