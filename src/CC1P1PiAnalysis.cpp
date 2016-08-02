@@ -74,6 +74,10 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     //int m_ncuts;// = 5;
     m_accum_level = new int [ m_ncuts ];
     
+    m_ProtonScore = new double [2];
+    m_PionScore = new double [2];
+    m_Chi2NDF = new double [2];
+    
 }
 
 //! Initialize
@@ -747,6 +751,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         else debug() << ". Close but no cigar... :-(";
         debug() << " " << endmsg;
         
+        
         if(Prong1_PDG != Prong2_PDG){
             if(Prong1_PDG == m_Proton_PDG){
                 pr_prong_no = 0;
@@ -779,6 +784,15 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
 
     m_ProtonProng = prongs[pr_prong_no];
     m_PionProng = prongs[pi_prong_no];
+    
+    m_ProtonScore[0] = protonScore[pr_prong_no];
+    m_ProtonScore[1] = pionScore[pr_prong_no];
+    
+    m_PionScore[0] = protonScore[pi_prong_no];
+    m_PionScore[1] = pionScore[pi_prong_no];
+    
+    m_Chi2NDF[0] = trackChi2NDF[pr_prong_no];
+    m_Chi2NDF[1] = trackChi2NDF[pi_prong_no];
     
     bool pr_is_correct = false;
     bool pi_is_correct = false;
@@ -915,6 +929,8 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     SmartRef<Minerva::Prong> prong;
     SmartRef<Minerva::Particle> particle;
     double mass = 0.0;
+    int ch2_vec_no = 0;
+    double tmp_scores[2] = {-999.};
     
     if(name == "mu"){
         prong = m_MuonProng;
@@ -925,11 +941,17 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         prong = m_ProtonProng;
         particle = m_ProtonParticle;
         mass = MinervaUnits::M_p;
+        ch2_vec_no = 0;
+        tmp_scores[0] = m_ProtonScore[0];
+        tmp_scores[1] = m_ProtonScore[1];
     }
     else if(name == "pi"){
         prong = m_PionProng;
         particle = m_PionParticle;
         mass = MinervaUnits::M_pion;
+        ch2_vec_no = 1;
+        tmp_scores[0] = m_PionScore[0];
+        tmp_scores[1] = m_PionScore[1];
     }
     else{
         error() << "CC1P1PiAnalysis::FillPartInfo :: Could not find determine name \"" << name << "\". Please check";
@@ -938,25 +960,24 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     if(mass == 0.0){
         warning() << "CC1P1PiAnalysis::FillPartInfo :: " << name << " mass is zero!!!" << endmsg;
     }
-    
+
+    double ch2ndf = -999.;
     
     if(name == "pr" || name == "pi"){
-        double prscore = -999.;
-        double piscore = -999.;
-        
-        cc1p1piHyp->setDoubleData( (name + "_prscore").c_str(), prscore);
-        cc1p1piHyp->setDoubleData( (name + "_piscore").c_str(), piscore);
+        cc1p1piHyp->setDoubleData( (name + "_prscore").c_str(), tmp_scores[0]);
+        cc1p1piHyp->setDoubleData( (name + "_piscore").c_str(), tmp_scores[1]);
         
         double hasFSI = -999;
         cc1p1piHyp->setIntData( (name + "_FSI").c_str(), hasFSI);
-        
+
+        ch2ndf = m_Chi2NDF[ch2_vec_no];
+
     }
     else{
         double score = particle->score();
         cc1p1piHyp->setDoubleData( (name + "_score").c_str(), score );
+        ch2ndf = 99.;
     }
-    
-    double ch2ndf = -999.;
     
     cc1p1piHyp->setDoubleData( (name + "_chi2ndf").c_str(), ch2ndf);
     
@@ -1091,7 +1112,7 @@ void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
     //Determine size of 4 vec at some point...
     debug() << "CC1P1PiAnalysis::Rotate2BeamCoords" << endmsg;
 
-    if((int)val.size() == 4){
+    if(!((int)val.size() == 4)){
         debug() << "Warning : Not a 4 vector! Vector has dimension " << val.size() << endmsg;
     }
     

@@ -103,6 +103,10 @@ private:
     double m_minPionScore;
     double m_maxPionChi2;
     
+    double * m_ProtonScore; //[0] - Proton score, [1] - Pion score
+    double * m_PionScore; //[0] - Proton score, [1] - Pion score
+    double * m_Chi2NDF; //[0] - Proton Chi2, [1] - Pion Chi2
+    
     int m_Proton_PDG;// = 2212;//proton
     int m_Pion_PDG;// = 211;//pi+
     
