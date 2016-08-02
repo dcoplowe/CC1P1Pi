@@ -9,9 +9,8 @@ class IMinervaCoordSysTool;
 class INuclearTargetTool;
 class IParticleMakerTool;
 class ITruthMatcher;
-
-//Test to see if I can forward declare TString if it is being used in a function -- It worked!!
 class TString;
+class TVector3;
 
 class CC1P1PiAnalysis : public MinervaAnalysisTool
 {
@@ -43,18 +42,18 @@ private:
     //Making them mutable objects enables them to be changed in const functions -- this coding practice is taken from the CCProtonPi0 analysis
     mutable SmartRef<Minerva::Prong> m_MuonProng;
     mutable SmartRef<Minerva::Particle> m_MuonParticle;
-    mutable Gaudi::LorentzVector m_Muon4Mom;
-    mutable Gaudi::LorentzVector m_Muontrue4Mom;
+    double * m_Muon4Mom;
+    double * m_Muontrue4Mom;
     
     mutable SmartRef<Minerva::Prong> m_ProtonProng;
     mutable SmartRef<Minerva::Particle> m_ProtonParticle;
-    mutable Gaudi::LorentzVector m_Proton4Mom;
-    mutable Gaudi::LorentzVector m_Protontrue4Mom;
+    double * m_Proton4Mom;
+    double * m_Protontrue4Mom;
     
     mutable SmartRef<Minerva::Prong> m_PionProng;
     mutable SmartRef<Minerva::Particle> m_PionParticle;
-    mutable Gaudi::LorentzVector m_Pion4Mom;
-    mutable Gaudi::LorentzVector m_Piontrue4Mom;
+    double * m_Pion4Mom;
+    double * m_Piontrue4Mom;
     
     void ResetParticles() const;
     //----------------------------------------------------------------------------//
@@ -131,6 +130,16 @@ private:
     
     //Determine the truth information from the track:
     ITruthMatcher * m_truthMatcher;
+    
+    //Set four vecs for the final state 'name' particle:
+    SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, bool truth = false) const;
+    
+    //Transverse variables:
+    TVector3 * GetTransverseVars(double vtx[], TVector3 mumom, TVector3 prmom, TVector3 pimom, double dpTT, double dpTMag, double dalphaT, double dphiT, bool is_truth = false);
+    TVector3 * GetPT(double vtx[], TVector3 mom, bool is_truth = false);
+    void SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * ptproton, TVector3 * ptpion);
+    TVector3 * GetVecT(TVector3 * refdir, TVector3 * mom);
+    double GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom, TVector3 * pimom, bool is_truth = false);
     
 };
 

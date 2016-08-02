@@ -3,6 +3,9 @@
 
 #include "Event/TG4PrimaryTrajectory.h"
 
+//For transverse calcs:
+#include "MINERVAUtils.h"
+
 //Forward declared headers:
 #include "AnaUtils/IMuonUtils.h"
 #include "GeoUtils/IMinervaCoordSysTool.h"
@@ -14,6 +17,7 @@
 //Root headers:
 #include <TString.h>
 #include <TMath.h>
+#include <TVector3.h>
 
 //this command allows other parts of Gaudi to use the tool
 DECLARE_TOOL_FACTORY( CC1P1PiAnalysis );
@@ -78,6 +82,16 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     m_ProtonScore = new double [2];
     m_PionScore = new double [2];
     m_Chi2NDF = new double [2];
+    
+    //Want to pass 4-mom vectors in order to produce Q2, Enu and transverse variables:
+    m_Pion4Mom = new double [4];//TXYZ
+    m_Piontrue4Mom = new double [4];
+    
+    m_Proton4Mom = new double [4];
+    m_Protontrue4Mom = new double [4];
+    
+    m_Muon4Mom = new double [4];
+    m_Muontrue4Mom = new double [4];
     
 }
 
@@ -326,10 +340,6 @@ StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, 
 {
     //debug() << "CC1P1PiAnalysis::interpretEvent" << endmsg;
     
-    //counter("N Primary Prongs") += event->primaryProngs().size();
-    // If you decide you want to interpret the event, create a new NeutrinoInt.
-    
-    //Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( "InterpretationA" );
     Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
     
     FillPartInfo("mu", interaction, nuInt);
@@ -338,17 +348,6 @@ StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, 
     
     // Add the NeutrinoInt to the vector in return value
     nuInts.push_back( nuInt );
-    
-    // Set the NeutrinoInt data
-    nuInt->setEnergy( 5.5 );
-    
-    // Add your own extra data to the NeutrinoInt.  Remember that you declared branches so that extra data could be written to an analysis DST...
-    std::vector<double> isoEnergyVec;
-    isoEnergyVec.push_back( 1.2 );
-    isoEnergyVec.push_back( 5.5 );
-    isoEnergyVec.push_back( 3.6 );
-    nuInt->setContainerDoubleData( "iso_blob_energy", isoEnergyVec );
-    
     
     if( interaction )
     {
@@ -838,11 +837,6 @@ void CC1P1PiAnalysis::ResetParticles() const
 {
     m_MuonProng = NULL;
     m_MuonParticle = NULL;
-    
-    if(m_Muon4Mom){
-        delete m_Muon4Mom;
-        Gaudi::LorentzVector m_Muon4Mom;
-    }
 
     m_ProtonProng = NULL;
     m_ProtonParticle = NULL;
@@ -858,6 +852,18 @@ void CC1P1PiAnalysis::ResetParticles() const
     
     m_Chi2NDF[0] = -999.;
     m_Chi2NDF[1] = -999.;
+    
+    for(int i = 0; i < 4; i++){
+        m_Pion4Mom[i] = -999.;//TXYZ
+        m_Piontrue4Mom[i] = -999.;
+        
+        m_Proton4Mom[i] = -999.;
+        m_Protontrue4Mom[i] = -999.;
+        
+        m_Muon4Mom[i] = -999.;
+        m_Muontrue4Mom[i] = -999.;
+    }
+    
 }
 
 //Generic Particle information builder:
@@ -933,20 +939,84 @@ void CC1P1PiAnalysis::SetCommonBranches()
 
     declareDoubleBranch(m_hypMeths, "dpT", -999.0);
     declareDoubleBranch(m_hypMeths, "truedpT", -999.0);
+    
+    declareContainerDoubleBranch(m_hypMeths, "dpT_vec", 3, -999.0);
+    declareContainerDoubleBranch(m_hypMeths, "truedpT_vec", 3, -999.0);
 
     declareDoubleBranch(m_hypMeths, "dalphaT", -999.0);
     declareDoubleBranch(m_hypMeths, "truedalphaT", -999.0);
 
     declareDoubleBranch(m_hypMeths, "dphiT", -999.0);
     declareDoubleBranch(m_hypMeths, "truedphiT", -999.0);
-    
-    //declareDoubleBranch(m_hypMeths, "", -999.0);
-    
+
 }
 
 void CC1P1PiAnalysis::FillCommonBranches(const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
 {
     
+    double Enu = m_Muon4Mom[0] + m_Proton4Mom[0] + m_Pion4Mom[0];
+    cc1p1piHyp->setDoubleData("Enu", Enu);
+    
+    double Q2 = -999.;
+    cc1p1piHyp->setDoubleData("Q2", Q2);
+    
+    TVector3 mu_p(m_Muon4Mom[1], m_Muon4Mom[2], m_Muon4Mom[3]);
+    TVector3 pr_p(m_Proton4Mom[1], m_Proton4Mom[2], m_Proton4Mom[3]);
+    TVector3 pi_p(m_Pion4Mom[1], m_Pion4Mom[2], m_Pion4Mom[3]);
+    double vertex[3] = {0.};
+    
+    double dpTT = -999.;
+    double dpTMag = -999.;
+    double dalphaT = -999.;
+    double dphiT = -999.;
+    
+    TVector3 * dpT_3mom = GetTransverseVars(vertex, mu_p, pr_p, pi_p, dpTT, dpTMag, dalphaT, dphiT);
+    
+    cc1p1piHyp->setDoubleData("dpTT", dpTT);
+    cc1p1piHyp->setDoubleData("dpT", dpTMag);
+    cc1p1piHyp->setDoubleData("dalphaT", dalphaT);
+    cc1p1piHyp->setDoubleData("dphiT", dphiT);
+   
+    double dpTT_pi = GetDPTT(vertex, pi_p, mu_p, pr_p);
+    
+    cc1p1piHyp->setDoubleData("dpTT_pi", dpTT_pi);
+    
+    double dpTT_pr = GetDPTT(vertex, pr_p, pi_p, mu_p);
+    cc1p1piHyp->setDoubleData("dpTT_pr", dpTT_pr);
+    
+    
+    if(truth){
+        
+        double trueEnu = -999.;
+        cc1p1piHyp->setDoubleData("trueEnu", trueEnu);
+        
+        double trueQ2 = -999.;
+        cc1p1piHyp->setDoubleData("trueQ2", trueQ2);
+        
+        TVector3 truemu_p(m_Muontrue4Mom[1], m_Muontrue4Mom[2], m_Muontrue4Mom[3]);
+        TVector3 truepr_p(m_Protontrue4Mom[1], m_Protontrue4Mom[2], m_Protontrue4Mom[3]);
+        TVector3 truepi_p(m_Piontrue4Mom[1], m_Piontrue4Mom[2], m_Piontrue4Mom[3]);
+        double vertex_true[3] = {0.};
+        
+        double truedpTT = -999.;
+        double truedpT = -999.;
+        double truedalphaT = -999.;
+        double truedphiT = -999.;
+        
+        TVector3 * dpT_3mom_true = GetTransverseVars(vertex_true, mu_p, pr_p, pi_p, dpTT, dpTMag, dalphaT, dphiT, true);
+        
+        cc1p1piHyp->setDoubleData("truedpTT", truedpTT);
+        cc1p1piHyp->setDoubleData("truedpT", truedpT);
+        cc1p1piHyp->setDoubleData("truedalphaT", truedalphaT);
+        cc1p1piHyp->setDoubleData("truedphiT", truedphiT);
+        
+        double truedpTT_pi = GetDPTT(vertex_true, truepi_p, truemu_p, truepr_p, true);
+        cc1p1piHyp->setDoubleData("truedpTT_pi", truedpTT_pi);
+        
+        double truedpTT_pr = GetDPTT(vertex_true, truepr_p, truepi_p, truemu_p, true);
+        cc1p1piHyp->setDoubleData("truedpTT_pr", truedpTT_pr);
+        
+    }
 }
 
 void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
@@ -1024,6 +1094,8 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::GenMinIntera
     sel4mom.push_back(four_vec.pz());
     
     Rotate2BeamCoords(sel4mom);
+    
+    SetGlobal4Vec(name, four_vec);
 
     cc1p1piHyp->setContainerDoubleData( (name + "_4mom").c_str(), sel4mom);
 
@@ -1098,6 +1170,8 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::GenMinIntera
         true4mom.push_back(traj_4p.py());
         true4mom.push_back(traj_4p.pz());
 
+        SetGlobal4Vec(name, traj_4p);
+        
         cc1p1piHyp->setContainerDoubleData( (name + "_true4mom").c_str(), true4mom);
         
         double truepTMag = -999.;
@@ -1207,4 +1281,152 @@ void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
     
 }
 
+void CC1P1PiAnalysis::SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, bool truth) const
+{
+    if(truth){
+        if(name == "mu"){
+            m_Muontrue4Mom[0] = vec.E();
+            m_Muontrue4Mom[1] = vec.px();
+            m_Muontrue4Mom[2] = vec.py();
+            m_Muontrue4Mom[3] = vec.pz();
+        }
+        else if(name == "pr"){
+            m_Protontrue4Mom[0] = vec.E();
+            m_Protontrue4Mom[1] = vec.px();
+            m_Protontrue4Mom[2] = vec.py();
+            m_Protontrue4Mom[3] = vec.pz();
+        }
+        else if(name == "pi"){
+            m_Piontrue4Mom[0] = vec.E();
+            m_Piontrue4Mom[1] = vec.px();
+            m_Piontrue4Mom[2] = vec.py();
+            m_Piontrue4Mom[3] = vec.pz();
+        }
+        else{
+            error() << "SetGlobal4Vec::FillPartInfo :: Could not determine particle hyp. Please check" << endmsg;
+        }
+    }
+    else{
+        if(name == "mu"){
+            m_Muon4Mom[0] = vec.E();
+            m_Muon4Mom[1] = vec.px();
+            m_Muon4Mom[2] = vec.py();
+            m_Muon4Mom[3] = vec.pz();
+        }
+        else if(name == "pr"){
+            m_Proton4Mom[0] = vec.E();
+            m_Proton4Mom[1] = vec.px();
+            m_Proton4Mom[2] = vec.py();
+            m_Proton4Mom[3] = vec.pz();
+        }
+        else if(name == "pi"){
+            m_Pion4Mom[0] = vec.E();
+            m_Pion4Mom[1] = vec.px();
+            m_Pion4Mom[2] = vec.py();
+            m_Pion4Mom[3] = vec.pz();
+        }
+        else{
+            error() << "SetGlobal4Vec::FillPartInfo :: Could not determine particle hyp. Please check" << endmsg;
+        }
 
+    }
+}
+
+
+//Transverse variables:
+//If is_truth the vtx becomes the true neutrino direction.
+
+TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], TVector3 mumom, TVector3 prmom, TVector3 pimom, double dpTT, double dpTMag, double dalphaT, double dphiT, bool is_truth)// const;
+{
+    TVector3 * nudir = new TVector3();
+    
+    if(is_truth){
+        nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
+    }
+    else{
+        const TVector3 * tmp_vec = MINERVAUtils::GetNuDirRec(vtx);
+        nudir->SetXYZ(tmp_vec.X(),tmp_vec.Y(),tmp_vec.Z());
+    }
+    
+    TVector3 * mupT = GetVecT(nudir, mumom);
+    TVector3 * prpT = GetVecT(nudir, prmom);
+    TVector3 * pipT = GetVecT(nudir, pimom);
+    
+    TVector3 * deltapt;
+    SetDPT(deltapt, mupT, prpT, pipT);
+    
+    dpTMag  = deltapt->Mag();
+    dalphaT = (deltapt->Theta())*TMath::RadToDeg();
+    dphiT   = (deltapt->Phi())*TMath::RadToDeg();
+    dpTT    = GetDPTT(vtx, mumom, prmom, pimom, is_truth);
+    
+    return deltapt;
+}
+
+TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], TVector3 mom, bool is_truth)// const;
+{
+    TVector3 * nudir = new TVector3();
+    
+    if(is_truth){
+        nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
+    }
+    else{
+        const TVector3 * tmp_vec = MINERVAUtils::GetNuDirRec(vtx);
+        nudir->SetXYZ(tmp_vec.X(),tmp_vec.Y(),tmp_vec.Z());
+    }
+    
+    TVector3 pT = GetVecT(nudir, mom);
+    
+    return pT;
+}
+
+void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * ptproton, TVector3 * ptpion)
+{
+    //ptmuon and ptproton already in the same plain which is perpendicular to the neutrino and already in a near back-to-back configuration
+    TVector3 tmpd = (*ptmuon) + (*ptproton) + (*ptpion);
+    TVector3 tmp_had = (*ptproton) + (*ptpion);
+
+    double phi = TMath::ACos( ptmuon->Dot(tmp_had)*(-1)/(ptmuon->Mag()*tmp_had.Mag()) );
+    
+    double theta = TMath::ACos( tmpd.Dot(*ptmuon)*(-1)/tmpd.Mag()/ptmuon->Mag()  );
+    
+    deltapt->SetMagThetaPhi(tmpd.Mag(),theta, phi);
+}
+
+TVector3 * CC1P1PiAnalysis::GetVecT(TVector3 * refdir, TVector3 * mom)
+{
+    //
+    //w.r.t. beam direction
+    //
+    if(!refdir){
+        printf("CC1P1PiAnalysis::GetVecT refdir null\n"); exit(1);
+    }
+    
+    
+    TVector3 vRotated(*mom);
+    vRotated.Rotate(TMath::Pi(), refdir->Vect());
+    
+    TVector3 *vt = new TVector3( (*mom - vRotated)*0.5 );
+    
+    return vt;
+}
+
+double CC1P1PiAnalysis::GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom, TVector3 * pimom, bool is_truth)
+{
+    TVector3 * nudir = new TVector3();
+    
+    if(is_truth){
+        nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
+    }
+    else{
+        const TVector3 * tmp_vec = MINERVAUtils::GetNuDirRec(vtx);
+        nudir->SetXYZ(tmp_vec.X(),tmp_vec.Y(),tmp_vec.Z());
+    }
+    
+    TVector3 tmp_vec = nudir->Cross(*mumom);
+    tmp_vec /= tmp_vec.Mag();
+    
+    TVector3 sum_vec = *prmom + *pimom;
+    
+    return sum_vec.Dot(tmp_vec);
+}
