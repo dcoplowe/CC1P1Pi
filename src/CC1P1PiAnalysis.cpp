@@ -119,7 +119,7 @@ StatusCode CC1P1PiAnalysis::initialize()
         return StatusCode::FAILURE;
     }
     
-    try { m_truthMatcher = tool<ITruthMatcher>("ParticleMakerTool"); }
+    try { m_truthMatcher = tool<ITruthMatcher>("TruthMatcher"); }
     catch( GaudiException& e){
         error() << "Could not obtain TruthMather! " << endmsg;
         return StatusCode::FAILURE;
@@ -924,12 +924,12 @@ void CC1P1PiAnalysis::SetCommonBranches()
     
 }
 
-void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
+void CC1P1PiAnalysis::FillCommonBranches(const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
 {
     
 }
 
-void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
+void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
 {
     
     SmartRef<Minerva::Prong> prong;
