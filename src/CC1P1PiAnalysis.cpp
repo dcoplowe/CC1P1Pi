@@ -958,9 +958,9 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::GenMinInteraction *truth
     double Q2 = -999.;
     cc1p1piHyp->setDoubleData("Q2", Q2);
     
-    TVector3 mu_p(m_Muon4Mom[1], m_Muon4Mom[2], m_Muon4Mom[3]);
-    TVector3 pr_p(m_Proton4Mom[1], m_Proton4Mom[2], m_Proton4Mom[3]);
-    TVector3 pi_p(m_Pion4Mom[1], m_Pion4Mom[2], m_Pion4Mom[3]);
+    const TVector3 * mu_p = new TVector3(m_Muon4Mom[1], m_Muon4Mom[2], m_Muon4Mom[3]);
+    const TVector3 * pr_p = new TVector3(m_Proton4Mom[1], m_Proton4Mom[2], m_Proton4Mom[3]);
+    const TVector3 * pi_p = new TVector3(m_Pion4Mom[1], m_Pion4Mom[2], m_Pion4Mom[3]);
     double vertex[3] = {0.};
     
     double dpTT = -999.;
