@@ -1346,10 +1346,12 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], TVector3 mumom, TVec
     }
     else{
         const TVector3 * tmp_vec = new TVector3(0.,0.,0.);//MINERVAUtils::GetNuDirRec(vtx);
-        //nudir->SetXYZ(tmp_vec.X(),tmp_vec.Y(),tmp_vec.Z());
+        nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
     }
     
-    const TVector3 * mupT = GetVecT(nudir, mumom);
+    const TVector3 * neutrino_dir = new TVector3(nudir->X(),nudir->Y(), nudir->Z());
+    
+    const TVector3 * mupT = GetVecT(&neutrino_dir, &mumom);
     
     /*TVector3 * prpT = GetVecT(nudir, prmom);
     TVector3 * pipT = GetVecT(nudir, pimom);
@@ -1397,7 +1399,7 @@ void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * p
     deltapt->SetMagThetaPhi(tmpd.Mag(),theta, phi);
 }*/
 
-const TVector3 * CC1P1PiAnalysis::GetVecT(TVector3 *& refdir, TVector3 *& mom)
+const TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 * refdir, const TVector3 * mom)
 {
     //
     //w.r.t. beam direction
