@@ -1399,7 +1399,7 @@ void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * p
     deltapt->SetMagThetaPhi(tmpd.Mag(),theta, phi);
 }*/
 
-/*const TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 * refdir, const TVector3 * mom)
+TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 *& refdir, const TVector3 *& mom) const
 {
     //
     //w.r.t. beam direction
@@ -1415,7 +1415,7 @@ void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * p
     TVector3 *vt = new TVector3( (*mom - vRotated)*0.5 );
     
     return vt;
-}*/
+}
 
 
 /*double CC1P1PiAnalysis::GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom, TVector3 * pimom, bool is_truth) const
