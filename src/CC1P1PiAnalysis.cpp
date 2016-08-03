@@ -1337,7 +1337,7 @@ void CC1P1PiAnalysis::SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, 
 //Transverse variables:
 //If is_truth the vtx becomes the true neutrino direction.
 
-TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], TVector3 mumom, TVector3 prmom, TVector3 pimom, double dpTT, double dpTMag, double dalphaT, double dphiT, bool is_truth)// const;
+TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], TVector3 mumom, TVector3 prmom, TVector3 pimom, double dpTT, double dpTMag, double dalphaT, double dphiT, bool is_truth) const;
 {
     TVector3 * nudir = new TVector3();
     
@@ -1381,7 +1381,7 @@ TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], TVector3 mom, bool is_truth)// c
     return pT;
 }
 
-void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * ptproton, TVector3 * ptpion)
+void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * ptproton, TVector3 * ptpion) const
 {
     //ptmuon and ptproton already in the same plain which is perpendicular to the neutrino and already in a near back-to-back configuration
     TVector3 tmpd = (*ptmuon) + (*ptproton) + (*ptpion);
@@ -1412,7 +1412,7 @@ TVector3 * CC1P1PiAnalysis::GetVecT(TVector3 * refdir, TVector3 * mom)
     return vt;
 }
 
-double CC1P1PiAnalysis::GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom, TVector3 * pimom, bool is_truth)
+double CC1P1PiAnalysis::GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom, TVector3 * pimom, bool is_truth) const
 {
     TVector3 * nudir = new TVector3();
     
