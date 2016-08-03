@@ -19,6 +19,10 @@
 #include <TMath.h>
 #include <TVector3.h>
 
+#ifndef EPSILON
+#define EPSILON  1e-10
+#endif
+
 //this command allows other parts of Gaudi to use the tool
 DECLARE_TOOL_FACTORY( CC1P1PiAnalysis );
 
@@ -75,6 +79,13 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("Pion_PDG", m_Pion_PDG = 211);//pi+
     
     declareProperty("n_cuts", m_ncuts = 5);
+    
+    //Mean Parent Decay Point
+    declareProperty("PDP_X", m_PDP_X = 0.231135);
+    declareProperty("PDP_Y", m_PDP_Y = 45.368069);
+    declareProperty("PDP_Z", m_PDP_Z = 766.384058);
+
+    m_PDP = new TVector3(m_PDP_X, m_PDP_Y, m_PDP_X);
     
     //int m_ncuts;// = 5;
     m_accum_level = new int [ m_ncuts ];
@@ -986,7 +997,6 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::GenMinInteraction *truth
     double dpTT_pr = GetDPTT(vertex, pr_p, pi_p, mu_p);
     cc1p1piHyp->setDoubleData("dpTT_pr", dpTT_pr);
     
-    
     if(truth){
         
         double trueEnu = -999.;
@@ -1444,3 +1454,28 @@ double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVe
     
     return sum_vec.Dot(tmp1_vec);
 }
+
+TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
+{
+    const TVector3 * nup1local = new TVector3(vtx[0],vtx[1],vtx[2]);
+    (*nup1Local) *= 0.001; //default mm
+    //nup0Local == m_PDP;
+    
+    if( m_PDP->Mag()<EPSILON || nup1Local->Mag()<EPSILON ){
+        debug() << "MINERVAUtils::CalcNuDir bad input " << m_PDP->Mag() << " " << nup1Local->Mag()) << endmsg;
+        return 0x0;
+    }
+    
+    TVector3 *nuDirCalc = new TVector3( (*nup1Local) - (*m_PDP) );
+    (*nuDirCalc) *= 1./nuDirCalc->Mag();
+        
+        return nuDirCalc;
+    }
+}
+
+
+
+
+
+
+

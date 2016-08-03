@@ -134,7 +134,17 @@ private:
     //Set four vecs for the final state 'name' particle:
     void SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, bool truth = false) const;
     
+    
+    
     //Transverse variables:
+    //Parent Decay Point Var:
+    double m_PDP_X;
+    double m_PDP_Y;
+    double m_PDP_Z;
+    
+    TVector3 * m_PDP;
+    TVector3 * GetNuDirRec(double vtx[]) const;
+    
     TVector3 * GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false) const;
     TVector3 * GetPT(double vtx[], const TVector3 *& mom, bool is_truth) const;
     void SetDPT(TVector3 * deltapt, const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion) const;
