@@ -1001,7 +1001,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::GenMinInteraction *truth
         double truedalphaT = -999.;
         double truedphiT = -999.;
         
-        TVector3 * dpT_3mom_true = GetTransverseVars(vertex_true, truemu_p, truepr_p, truepi_p, truedpTT, truedpT, truedalphaT, truedphiT, true);
+        //TVector3 * dpT_3mom_true = GetTransverseVars(vertex_true, truemu_p, truepr_p, truepi_p, truedpTT, truedpT, truedalphaT, truedphiT, true);
         
         cc1p1piHyp->setDoubleData("truedpTT", truedpTT);
         cc1p1piHyp->setDoubleData("truedpT", truedpT);
@@ -1337,7 +1337,7 @@ void CC1P1PiAnalysis::SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, 
 //Transverse variables:
 //If is_truth the vtx becomes the true neutrino direction.
 
-TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], TVector3 mumom, TVector3 prmom, TVector3 pimom, double dpTT, double dpTMag, double dalphaT, double dphiT, bool is_truth) const
+TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 * mumom, const TVector3 * prmom, const TVector3 * pimom, double dpTT, double dpTMag, double dalphaT, double dphiT, bool is_truth) const
 {
     TVector3 * nudir = new TVector3();
     
