@@ -1350,7 +1350,8 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], TVector3 mumom, TVec
     }
     
     TVector3 * mupT = GetVecT(nudir, mumom);
-    TVector3 * prpT = GetVecT(nudir, prmom);
+    
+    /*TVector3 * prpT = GetVecT(nudir, prmom);
     TVector3 * pipT = GetVecT(nudir, pimom);
     
     TVector3 * deltapt;
@@ -1360,10 +1361,11 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], TVector3 mumom, TVec
     dalphaT = (deltapt->Theta())*TMath::RadToDeg();
     dphiT   = (deltapt->Phi())*TMath::RadToDeg();
     //dpTT    = GetDPTT(vtx, mumom, prmom, pimom, is_truth);
-    
-    return deltapt;
+    */
+    return nudir;//deltapt;
 }
 
+/*
 TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], TVector3 mom, bool is_truth) const
 {
     TVector3 * nudir = new TVector3();
@@ -1379,7 +1381,7 @@ TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], TVector3 mom, bool is_truth) con
     TVector3 pT = GetVecT(nudir, mom);
     
     return pT;
-}
+}*/
 
 void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * ptproton, TVector3 * ptpion) const
 {
