@@ -1352,10 +1352,9 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 *& mu
     const TVector3 * neutrino_dir = new TVector3(nudir->X(),nudir->Y(), nudir->Z());
     
     const TVector3 * mupT = GetVecT(neutrino_dir, mumom);
-    
-    /*TVector3 * prpT = GetVecT(nudir, prmom);
-    TVector3 * pipT = GetVecT(nudir, pimom);
-    
+    const TVector3 * prpT = GetVecT(neutrino_dir, prmom);
+    const TVector3 * pipT = GetVecT(neutrino_dir, pimom);
+    /*
     TVector3 * deltapt;
     SetDPT(deltapt, mupT, prpT, pipT);
     
