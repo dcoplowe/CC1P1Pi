@@ -1351,7 +1351,7 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 * mum
     
     const TVector3 * neutrino_dir = new TVector3(nudir->X(),nudir->Y(), nudir->Z());
     
-    const TVector3 * mupT = GetVecT(&neutrino_dir, &mumom);
+    //const TVector3 * mupT = GetVecT(&neutrino_dir, &mumom);
     
     /*TVector3 * prpT = GetVecT(nudir, prmom);
     TVector3 * pipT = GetVecT(nudir, pimom);
@@ -1399,7 +1399,7 @@ void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * p
     deltapt->SetMagThetaPhi(tmpd.Mag(),theta, phi);
 }*/
 
-const TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 * refdir, const TVector3 * mom)
+/*const TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 * refdir, const TVector3 * mom)
 {
     //
     //w.r.t. beam direction
@@ -1415,7 +1415,7 @@ const TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 * refdir, const TVector
     TVector3 *vt = new TVector3( (*mom - vRotated)*0.5 );
     
     return vt;
-}
+}*/
 
 
 /*double CC1P1PiAnalysis::GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom, TVector3 * pimom, bool is_truth) const

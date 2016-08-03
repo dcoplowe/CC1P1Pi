@@ -136,9 +136,9 @@ private:
     
     //Transverse variables:
     TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 * mumom, const TVector3 * prmom, const TVector3 * pimom, double dpTT, double dpTMag, double dalphaT, double dphiT, bool is_truth) const;
-    TVector3 * GetPT(double vtx[], TVector3 mom, bool is_truth = false) const;
+    //TVector3 * GetPT(double vtx[], TVector3 mom, bool is_truth = false) const;
     //void SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * ptproton, TVector3 * ptpion) const;
-    static const TVector3 * GetVecT(const TVector3 * refdir, const TVector3 * mom);
+    //static const TVector3 * GetVecT(const TVector3 * refdir, const TVector3 * mom);
     //double GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom, TVector3 * pimom, bool is_truth = false) const;
     
 };
