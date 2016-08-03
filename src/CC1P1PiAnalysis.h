@@ -137,7 +137,7 @@ private:
     //Transverse variables:
     TVector3 * GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false) const;
     //TVector3 * GetPT(double vtx[], TVector3 mom, bool is_truth = false) const;
-    //void SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * ptproton, TVector3 * ptpion) const;
+    void SetDPT(TVector3 * deltapt, const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion) const
     TVector3 * GetVecT(const TVector3 *& refdir, const TVector3 *& mom) const;
     //double GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom, TVector3 * pimom, bool is_truth = false) const;
     
