@@ -968,7 +968,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::GenMinInteraction *truth
     double dalphaT = -999.;
     double dphiT = -999.;
     
-    TVector3 * dpT_3mom = GetTransverseVars(vertex, mu_p, pr_p, pi_p, dpTT, dpTMag, dalphaT, dphiT);
+    TVector3 * dpT_3mom = GetTransverseVars(vertex, *mu_p, *pr_p, *pi_p, dpTT, dpTMag, dalphaT, dphiT);
     
     cc1p1piHyp->setDoubleData("dpTT", dpTT);
     cc1p1piHyp->setDoubleData("dpT", dpTMag);
