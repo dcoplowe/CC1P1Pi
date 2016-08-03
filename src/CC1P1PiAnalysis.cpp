@@ -1356,7 +1356,7 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 *& mu
     const TVector3 * pipT = GetVecT(neutrino_dir, pimom);
     
     TVector3 * deltapt;
-    SetDPT(&deltapt, mupT, prpT, pipT);
+    SetDPT(deltapt, mupT, prpT, pipT);
     
     dpTMag  = deltapt->Mag();
     dalphaT = (deltapt->Theta())*TMath::RadToDeg();
