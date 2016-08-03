@@ -135,7 +135,7 @@ private:
     void SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, bool truth = false) const;
     
     //Transverse variables:
-    TVector3 * GetTransverseVars(double &vtx[3], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false) const;
+    TVector3 * GetTransverseVars(double vtx[3], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false) const;
     //TVector3 * GetPT(double vtx[], TVector3 mom, bool is_truth = false) const;
     //void SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * ptproton, TVector3 * ptpion) const;
     //static const TVector3 * GetVecT(const TVector3 * refdir, const TVector3 * mom);
