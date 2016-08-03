@@ -1468,7 +1468,7 @@ TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
         return 0x0;
     }
     
-    TVector3 *nuDirCalc = new TVector3( (nup1Local) - (*m_PDP) );
+    TVector3 *nuDirCalc = new TVector3( (*test_ve) - (*m_PDP) );
     (*nuDirCalc) *= 1./nuDirCalc->Mag();
     
     return nuDirCalc;
