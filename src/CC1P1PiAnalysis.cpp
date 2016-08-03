@@ -975,11 +975,11 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::GenMinInteraction *truth
     cc1p1piHyp->setDoubleData("dalphaT", dalphaT);
     cc1p1piHyp->setDoubleData("dphiT", dphiT);
    
-    double dpTT_pi = -999.;// GetDPTT(vertex, pi_p, mu_p, pr_p);
+    double dpTT_pi = GetDPTT(vertex, pi_p, mu_p, pr_p);
     
     cc1p1piHyp->setDoubleData("dpTT_pi", dpTT_pi);
     
-    double dpTT_pr = -999.;// GetDPTT(vertex, pr_p, pi_p, mu_p);
+    double dpTT_pr = GetDPTT(vertex, pr_p, pi_p, mu_p);
     cc1p1piHyp->setDoubleData("dpTT_pr", dpTT_pr);
     
     
@@ -991,9 +991,9 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::GenMinInteraction *truth
         double trueQ2 = -999.;
         cc1p1piHyp->setDoubleData("trueQ2", trueQ2);
         
-        TVector3 truemu_p(m_Muontrue4Mom[1], m_Muontrue4Mom[2], m_Muontrue4Mom[3]);
-        TVector3 truepr_p(m_Protontrue4Mom[1], m_Protontrue4Mom[2], m_Protontrue4Mom[3]);
-        TVector3 truepi_p(m_Piontrue4Mom[1], m_Piontrue4Mom[2], m_Piontrue4Mom[3]);
+        const TVector3 * truemu_p = new TVector3(m_Muontrue4Mom[1], m_Muontrue4Mom[2], m_Muontrue4Mom[3]);
+        const TVector3 * truepr_p = new TVector3(m_Protontrue4Mom[1], m_Protontrue4Mom[2], m_Protontrue4Mom[3]);
+        const TVector3 * truepi_p = new TVector3(m_Piontrue4Mom[1], m_Piontrue4Mom[2], m_Piontrue4Mom[3]);
         double vertex_true[3] = {0.};
         
         double truedpTT = -999.;
@@ -1001,17 +1001,17 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::GenMinInteraction *truth
         double truedalphaT = -999.;
         double truedphiT = -999.;
         
-        //TVector3 * dpT_3mom_true = GetTransverseVars(vertex_true, truemu_p, truepr_p, truepi_p, truedpTT, truedpT, truedalphaT, truedphiT, true);
+        TVector3 * dpT_3mom_true = GetTransverseVars(vertex_true, truemu_p, truepr_p, truepi_p, truedpTT, truedpT, truedalphaT, truedphiT, true);
         
         cc1p1piHyp->setDoubleData("truedpTT", truedpTT);
         cc1p1piHyp->setDoubleData("truedpT", truedpT);
         cc1p1piHyp->setDoubleData("truedalphaT", truedalphaT);
         cc1p1piHyp->setDoubleData("truedphiT", truedphiT);
         
-        double truedpTT_pi = -999.;// GetDPTT(vertex_true, truepi_p, truemu_p, truepr_p, true);
+        double truedpTT_pi = GetDPTT(vertex_true, truepi_p, truemu_p, truepr_p, true);
         cc1p1piHyp->setDoubleData("truedpTT_pi", truedpTT_pi);
         
-        double truedpTT_pr = -999.;// GetDPTT(vertex_true, truepr_p, truepi_p, truemu_p, true);
+        double truedpTT_pr = GetDPTT(vertex_true, truepr_p, truepi_p, truemu_p, true);
         cc1p1piHyp->setDoubleData("truedpTT_pr", truedpTT_pr);
         
     }
@@ -1363,7 +1363,7 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 *& mu
     dphiT   = (deltapt->Phi())*TMath::RadToDeg();
     dpTT    = GetDPTT(vtx, mumom, prmom, pimom, is_truth);
     
-    return nudir;//deltapt;
+    return deltapt;
 }
 
 
@@ -1385,7 +1385,6 @@ TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], const TVector3 *& mom, bool is_t
     
     return pT;
 }
-
 
 void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion) const
 {
@@ -1417,7 +1416,6 @@ TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 *& refdir, const TVector3 *& 
     
     return vt;
 }
-
 
 double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const
 {
