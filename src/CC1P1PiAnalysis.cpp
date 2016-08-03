@@ -1417,7 +1417,7 @@ TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 *& refdir, const TVector3 *& 
 }
 
 
-/*double CC1P1PiAnalysis::GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom, TVector3 * pimom, bool is_truth) const
+double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const
 {
     TVector3 * nudir = new TVector3();
     
@@ -1435,4 +1435,4 @@ TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 *& refdir, const TVector3 *& 
     TVector3 sum_vec = *prmom + *pimom;
     
     return sum_vec.Dot(tmp_vec);
-}*/
+}
