@@ -1429,10 +1429,10 @@ double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVe
         nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
     }
     
-    TVector3 tmp_vec = nudir->Cross(*mumom);
-    tmp_vec /= tmp_vec.Mag();
+    TVector3 tmp1_vec = nudir->Cross(*mumom);
+    tmp1_vec *= 1/tmp1_vec.Mag();
     
     TVector3 sum_vec = *prmom + *pimom;
     
-    return sum_vec.Dot(tmp_vec);
+    return sum_vec.Dot(tmp1_vec);
 }
