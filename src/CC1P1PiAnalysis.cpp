@@ -1426,7 +1426,7 @@ double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVe
     }
     else{
         const TVector3 * tmp_vec = new TVector3(0.,0.,0.);// MINERVAUtils::GetNuDirRec(vtx);
-        nudir->SetXYZ(tmp_vec.X(),tmp_vec.Y(),tmp_vec.Z());
+        nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
     }
     
     TVector3 tmp_vec = nudir->Cross(*mumom);
