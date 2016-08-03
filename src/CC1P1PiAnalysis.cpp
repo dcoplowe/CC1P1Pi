@@ -1364,7 +1364,7 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], TVector3 mumom, TVec
     return deltapt;
 }
 
-TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], TVector3 mom, bool is_truth) const;
+TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], TVector3 mom, bool is_truth) const
 {
     TVector3 * nudir = new TVector3();
     
@@ -1373,7 +1373,7 @@ TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], TVector3 mom, bool is_truth) con
     }
     else{
         const TVector3 * tmp_vec = new TVector3(0.,0.,0.);//MINERVAUtils::GetNuDirRec(vtx);
-        nudir->SetXYZ(tmp_vec.X(),tmp_vec.Y(),tmp_vec.Z());
+        //nudir->SetXYZ(tmp_vec.X(),tmp_vec.Y(),tmp_vec.Z());
     }
     
     TVector3 pT = GetVecT(nudir, mom);
