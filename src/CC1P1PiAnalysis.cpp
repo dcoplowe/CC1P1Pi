@@ -1349,7 +1349,7 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], TVector3 mumom, TVec
         //nudir->SetXYZ(tmp_vec.X(),tmp_vec.Y(),tmp_vec.Z());
     }
     
-    TVector3 * mupT = GetVecT(nudir, mumom);
+    const TVector3 * mupT = GetVecT(nudir, mumom);
     
     /*TVector3 * prpT = GetVecT(nudir, prmom);
     TVector3 * pipT = GetVecT(nudir, pimom);
