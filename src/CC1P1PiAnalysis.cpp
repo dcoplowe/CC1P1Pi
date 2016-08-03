@@ -1361,7 +1361,7 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 *& mu
     dpTMag  = deltapt->Mag();
     dalphaT = (deltapt->Theta())*TMath::RadToDeg();
     dphiT   = (deltapt->Phi())*TMath::RadToDeg();
-    //dpTT    = GetDPTT(vtx, mumom, prmom, pimom, is_truth);
+    dpTT    = GetDPTT(vtx, mumom, prmom, pimom, is_truth);
     
     return nudir;//deltapt;
 }
