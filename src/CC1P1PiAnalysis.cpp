@@ -1457,7 +1457,7 @@ double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVe
 
 TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
 {
-    TVector3 * nup1local = new TVector3(vtx[0],vtx[1],vtx[2]);
+    TVector3 * nup1local = new TVector3(vtx[0], vtx[1], vtx[2]);
     (*nup1Local) *= 0.001; //default mm
     //nup0Local == m_PDP;
     
