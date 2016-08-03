@@ -1359,12 +1359,12 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], TVector3 mumom, TVec
     dpTMag  = deltapt->Mag();
     dalphaT = (deltapt->Theta())*TMath::RadToDeg();
     dphiT   = (deltapt->Phi())*TMath::RadToDeg();
-    dpTT    = GetDPTT(vtx, mumom, prmom, pimom, is_truth);
+    //dpTT    = GetDPTT(vtx, mumom, prmom, pimom, is_truth);
     
     return deltapt;
 }
 
-TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], TVector3 mom, bool is_truth)// const;
+TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], TVector3 mom, bool is_truth) const;
 {
     TVector3 * nudir = new TVector3();
     
@@ -1394,7 +1394,7 @@ void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * p
     deltapt->SetMagThetaPhi(tmpd.Mag(),theta, phi);
 }
 
-TVector3 * CC1P1PiAnalysis::GetVecT(TVector3 * refdir, TVector3 * mom)
+TVector3 * CC1P1PiAnalysis::GetVecT(TVector3 * refdir, TVector3 * mom) const
 {
     //
     //w.r.t. beam direction
@@ -1412,7 +1412,8 @@ TVector3 * CC1P1PiAnalysis::GetVecT(TVector3 * refdir, TVector3 * mom)
     return vt;
 }
 
-double CC1P1PiAnalysis::GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom, TVector3 * pimom, bool is_truth) const
+
+/*double CC1P1PiAnalysis::GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom, TVector3 * pimom, bool is_truth) const
 {
     TVector3 * nudir = new TVector3();
     
@@ -1430,4 +1431,4 @@ double CC1P1PiAnalysis::GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom
     TVector3 sum_vec = *prmom + *pimom;
     
     return sum_vec.Dot(tmp_vec);
-}
+}*/
