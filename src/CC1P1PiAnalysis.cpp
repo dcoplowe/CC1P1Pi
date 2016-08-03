@@ -1381,7 +1381,7 @@ TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], const TVector3 *& mom, bool is_t
     
     const TVector3 * neutrino_dir = new TVector3(nudir->X(),nudir->Y(), nudir->Z());
     
-    TVector3 pT = GetVecT(neutrino_dir, mom);
+    TVector3 * pT = GetVecT(neutrino_dir, mom);
     
     return pT;
 }
