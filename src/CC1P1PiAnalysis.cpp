@@ -1462,6 +1462,7 @@ TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
     //TVector3 * nup1local = new TVector3(tmp_vec);
     
     TVector3 * test_ve = new TVector3(0., 0., 0.);
+    (*test_ve) *= 0.001;
     
     if( m_PDP->Mag() < EPSILON || test_ve->Mag() < EPSILON ){
         debug() << "MINERVAUtils::CalcNuDir bad input " << m_PDP->Mag() << " " << test_ve->Mag() << endmsg;
