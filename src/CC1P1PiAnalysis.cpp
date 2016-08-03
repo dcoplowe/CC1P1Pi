@@ -1410,7 +1410,7 @@ const TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 * refdir, const TVector
     
     
     TVector3 vRotated(*mom);
-    vRotated.Rotate(TMath::Pi(), (*refdir)->Vect());
+    vRotated.Rotate(TMath::Pi(), *refdir);
     
     TVector3 *vt = new TVector3( (*mom - vRotated)*0.5 );
     
