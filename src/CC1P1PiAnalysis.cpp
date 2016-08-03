@@ -1354,15 +1354,15 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 *& mu
     const TVector3 * mupT = GetVecT(neutrino_dir, mumom);
     const TVector3 * prpT = GetVecT(neutrino_dir, prmom);
     const TVector3 * pipT = GetVecT(neutrino_dir, pimom);
-    /*
+    
     TVector3 * deltapt;
-    SetDPT(deltapt, mupT, prpT, pipT);
+    SetDPT(&deltapt, mupT, prpT, pipT);
     
     dpTMag  = deltapt->Mag();
     dalphaT = (deltapt->Theta())*TMath::RadToDeg();
     dphiT   = (deltapt->Phi())*TMath::RadToDeg();
     //dpTT    = GetDPTT(vtx, mumom, prmom, pimom, is_truth);
-    */
+    
     return nudir;//deltapt;
 }
 
@@ -1384,8 +1384,8 @@ TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], TVector3 mom, bool is_truth) con
     return pT;
 }*/
 
-/*
-void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * ptproton, TVector3 * ptpion) const
+
+void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion) const
 {
     //ptmuon and ptproton already in the same plain which is perpendicular to the neutrino and already in a near back-to-back configuration
     TVector3 tmpd = (*ptmuon) + (*ptproton) + (*ptpion);
@@ -1396,7 +1396,7 @@ void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, TVector3 * ptmuon, TVector3 * p
     double theta = TMath::ACos( tmpd.Dot(*ptmuon)*(-1)/tmpd.Mag()/ptmuon->Mag()  );
     
     deltapt->SetMagThetaPhi(tmpd.Mag(),theta, phi);
-}*/
+}
 
 TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 *& refdir, const TVector3 *& mom) const
 {
