@@ -4,7 +4,7 @@
 #include "Event/TG4PrimaryTrajectory.h"
 
 //For transverse calcs:
-#include "MINERVAUtils.h"
+//#include "MINERVAUtils.h"
 
 //Forward declared headers:
 #include "AnaUtils/IMuonUtils.h"
@@ -483,7 +483,8 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
         }
         //Carbon is in target region 3 and has Z == 6.
         
-        if(materialZ == 6) return false;
+        if(materialZ != 6) return false;
+        
         apothem = m_carbon_apothem;
         upZ = m_carbon_upZ;
         downZ = m_carbon_downZ;
@@ -516,10 +517,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     Minerva::ProngVect::iterator prong;
     
     std::vector<double> protonScore;
-    std::vector<double> protonChi2NDF;//May not need.
     std::vector<double> pionScore;
-    std::vector<double> pionChi2NDF;//May not need.
-    
     std::vector<double> trackChi2NDF;
     
     SmartRef<Minerva::Particle> Part_from_Prong1;
@@ -1154,6 +1152,9 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::GenMinIntera
         if(trajectories.size() == 1){
             debug() << "Prong has one tragectory!" << endmsg;
         }
+        else{
+            debug() << "Prong has " << trajectories.size() << " trajectories!" << endmsg;
+        }
         
         const Minerva::TG4Trajectory* traj = trajectories[0];
         Gaudi::LorentzVector traj_4p = traj->GetInitialMomentum();
@@ -1344,7 +1345,7 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], TVector3 mumom, TVec
         nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
     }
     else{
-        const TVector3 * tmp_vec = MINERVAUtils::GetNuDirRec(vtx);
+        const TVector3 * tmp_vec = TVector3(0.,0.,0.);//MINERVAUtils::GetNuDirRec(vtx);
         nudir->SetXYZ(tmp_vec.X(),tmp_vec.Y(),tmp_vec.Z());
     }
     
@@ -1371,7 +1372,7 @@ TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], TVector3 mom, bool is_truth)// c
         nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
     }
     else{
-        const TVector3 * tmp_vec = MINERVAUtils::GetNuDirRec(vtx);
+        const TVector3 * tmp_vec = TVector3(0.,0.,0.);//MINERVAUtils::GetNuDirRec(vtx);
         nudir->SetXYZ(tmp_vec.X(),tmp_vec.Y(),tmp_vec.Z());
     }
     
@@ -1419,7 +1420,7 @@ double CC1P1PiAnalysis::GetDPTT(double vtx[], TVector3 * mumom, TVector3 * prmom
         nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
     }
     else{
-        const TVector3 * tmp_vec = MINERVAUtils::GetNuDirRec(vtx);
+        const TVector3 * tmp_vec = TVector3(0.,0.,0.);// MINERVAUtils::GetNuDirRec(vtx);
         nudir->SetXYZ(tmp_vec.X(),tmp_vec.Y(),tmp_vec.Z());
     }
     

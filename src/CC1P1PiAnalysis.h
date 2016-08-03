@@ -1,4 +1,4 @@
-#ifndef CC1P1PIANALYSIS_H
+!#ifndef CC1P1PIANALYSIS_H
 #define CC1P1PIANALYSIS_H 1
 
 #include "AnaUtils/MinervaAnalysisTool.h"
