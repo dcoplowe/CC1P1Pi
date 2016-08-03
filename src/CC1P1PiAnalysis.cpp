@@ -975,11 +975,11 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::GenMinInteraction *truth
     cc1p1piHyp->setDoubleData("dalphaT", dalphaT);
     cc1p1piHyp->setDoubleData("dphiT", dphiT);
    
-    double dpTT_pi = GetDPTT(vertex, pi_p, mu_p, pr_p);
+    double dpTT_pi = -999.;// GetDPTT(vertex, pi_p, mu_p, pr_p);
     
     cc1p1piHyp->setDoubleData("dpTT_pi", dpTT_pi);
     
-    double dpTT_pr = GetDPTT(vertex, pr_p, pi_p, mu_p);
+    double dpTT_pr = -999.;// GetDPTT(vertex, pr_p, pi_p, mu_p);
     cc1p1piHyp->setDoubleData("dpTT_pr", dpTT_pr);
     
     
@@ -1001,7 +1001,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::GenMinInteraction *truth
         double truedalphaT = -999.;
         double truedphiT = -999.;
         
-        TVector3 * dpT_3mom_true = GetTransverseVars(vertex_true, mu_p, pr_p, pi_p, dpTT, dpTMag, dalphaT, dphiT, true);
+        TVector3 * dpT_3mom_true = GetTransverseVars(vertex_true, truemu_p, truepr_p, truepi_p, truedpTT, truedpT, truedalphaT, truedphiT, true);
         
         cc1p1piHyp->setDoubleData("truedpTT", truedpTT);
         cc1p1piHyp->setDoubleData("truedpT", truedpT);
