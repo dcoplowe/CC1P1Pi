@@ -1128,7 +1128,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     double vtx[3] = {0.};//{vert_3vec.x(), vert_3vec.y(), vert_3vec.z()};
     
     const TVector3 * mom_vec = new TVector3(sel4mom[1], sel4mom[2], sel4mom[3]);
-    const TVector3 * pT = new TVector3(0., 0., 0.); //GetPT(vtx, mom_vec);
+    const TVector3 * pT = GetPT(vtx, mom_vec);
     
     cc1p1piHyp->setDoubleData( (name + "_pTMag").c_str(), pT->Mag());
 
