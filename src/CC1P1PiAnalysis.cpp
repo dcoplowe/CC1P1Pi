@@ -1457,19 +1457,16 @@ double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVe
 
 TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
 {
-    TVector3 nup1local(vtx[0], vtx[1], vtx[2]);
-    nup1local *= 0.001;
-    //TVector3 * nup1local = new TVector3(tmp_vec);
     
-    TVector3 * test_ve = new TVector3(0., 0., 0.);
-    (*test_ve) *= 0.001;
+    TVector3 * nup1local = new TVector3(vtx[0], vtx[1], vtx[2]);
+    (*nup1local) *= 0.001;
     
-    if( m_PDP->Mag() < EPSILON || test_ve->Mag() < EPSILON ){
-        debug() << "MINERVAUtils::CalcNuDir bad input " << m_PDP->Mag() << " " << test_ve->Mag() << endmsg;
+    if( m_PDP->Mag() < EPSILON || nup1local->Mag() < EPSILON ){
+        debug() << "CC1P1PiAnalysis::CalcNuDir bad input " << m_PDP->Mag() << " " << nup1local->Mag() << endmsg;
         return 0x0;
     }
     
-    TVector3 *nuDirCalc = new TVector3( (*test_ve) - (*m_PDP) );
+    TVector3 *nuDirCalc = new TVector3( (*nup1local) - (*m_PDP) );
     (*nuDirCalc) *= 1./nuDirCalc->Mag();
     
     return nuDirCalc;
