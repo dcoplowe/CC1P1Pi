@@ -113,11 +113,11 @@ private:
     //Generic Particle information builder:
     void SetPartInfo(std::string name);
     
-    void FillPartInfo(std::string name, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const;
+    void FillPartInfo(std::string name, const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const;
     
     void SetCommonBranches();// const;
     
-    void FillCommonBranches(const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const;
+    void FillCommonBranches(const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const;
     
     void Rotate2BeamCoords(std::vector<double> val) const;
 
