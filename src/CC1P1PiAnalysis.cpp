@@ -357,6 +357,8 @@ StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, 
     FillPartInfo("pr", event, interaction, nuInt);
     FillPartInfo("pi", event, interaction, nuInt);
     
+    FillCommonBranches(event, interaction, nuInt);
+    
     // Add the NeutrinoInt to the vector in return value
     nuInts.push_back( nuInt );
     
