@@ -353,9 +353,9 @@ StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, 
     
     Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
     
-    FillPartInfo("mu", interaction, nuInt);
-    FillPartInfo("pr", interaction, nuInt);
-    FillPartInfo("pi", interaction, nuInt);
+    FillPartInfo("mu", event, interaction, nuInt);
+    FillPartInfo("pr", event, interaction, nuInt);
+    FillPartInfo("pi", event, interaction, nuInt);
     
     // Add the NeutrinoInt to the vector in return value
     nuInts.push_back( nuInt );
@@ -1217,9 +1217,9 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             
             cc1p1piHyp->setContainerDoubleData( (name + "_true4mom").c_str(), true4mom);
             
-            const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
+            /*const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
             double nu_3vec[3] = { nu_4vec->X(), nu_4vec->Y() nu_4vec->Z() };
-            
+            */
             double truepTMag = -999.;
             cc1p1piHyp->setDoubleData( (name + "_truepTMag").c_str(), truepTMag);
             
