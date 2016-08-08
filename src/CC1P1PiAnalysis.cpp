@@ -1363,7 +1363,7 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 *& mu
         nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
     }
     else{
-        const TVector3 * tmp_vec = new TVector3(0.,0.,0.);//MINERVAUtils::GetNuDirRec(vtx);
+        const TVector3 * tmp_vec = GetNuDirRec(vtx);
         nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
     }
     
@@ -1393,7 +1393,7 @@ TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], const TVector3 *& mom, bool is_t
         nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
     }
     else{
-        const TVector3 * tmp_vec = new TVector3(0.,0.,0.);//MINERVAUtils::GetNuDirRec(vtx);
+        const TVector3 * tmp_vec = GetNuDirRec(vtx);
         nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
     }
     
@@ -1443,7 +1443,7 @@ double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVe
         nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
     }
     else{
-        const TVector3 * tmp_vec = new TVector3(0.,0.,0.);// MINERVAUtils::GetNuDirRec(vtx);
+        const TVector3 * tmp_vec = GetNuDirRec(vtx);
         nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
     }
     
