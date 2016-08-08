@@ -1355,7 +1355,7 @@ void CC1P1PiAnalysis::SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, 
 
 void CC1P1PiAnalysis::SetGlobal4Vec(std::string name, std::vector<double> vec, bool truth) const
 {
-    debug() << "CC1P1PiAnalysis::SetGlobal4Vec(std::string name, std::vector<double> vec, bool truth)" endmsg;
+    debug() << "CC1P1PiAnalysis::SetGlobal4Vec(std::string name, std::vector<double> vec, bool truth)" << endmsg;
     debug() << "         Note: Vector must have form: vev[4] = {E, PX, PY, PZ}" << endmsg;
     
     Gaudi::LorentzVector lvec(vec[1], vec[2], vec[3], vec[0]);
