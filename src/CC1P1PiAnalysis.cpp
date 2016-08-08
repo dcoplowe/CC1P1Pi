@@ -1222,17 +1222,18 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             
             const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
             
-            double nu_3vec[3] = { nu_4vec->X(), nu_4vec->Y() nu_4vec->Z() };
+            double nu_3vec_mag = sqrt(nu_4vec.px()*nu_4vec.px() + nu_4vec.py()*nu_4vec.py() + nu_4vec.pz()*nu_4vec.pz());
+            double nu_3vec[3] = { nu_4vec.px()/nu_3vec_mag, nu_4vec.py()/nu_3vec_mag, nu_4vec.pz()/nu_3vec_mag };
             
-            
-            
-            double truepTMag = -999.;
-            cc1p1piHyp->setDoubleData( (name + "_truepTMag").c_str(), truepTMag);
+            const TVector3 * true_mom_vec = new TVector3(true4mom[1], true4mom[2], true4mom[3]);
+            const TVector3 * truepT_3vec = GetPT(nu_3vec, true_mom_vec);
+
+            cc1p1piHyp->setDoubleData( (name + "_truepTMag").c_str(), truepT_3vec->Mag());
             
             std::vector<double> truepT;
-            truepT.push_back(-999.);
-            truepT.push_back(-999.);
-            truepT.push_back(-999.);
+            truepT.push_back(truepT_3vec->X());
+            truepT.push_back(truepT_3vec->Y());
+            truepT.push_back(truepT_3vec->Z());
             
             cc1p1piHyp->setContainerDoubleData( (name + "_truepT").c_str(), truepT);
             
