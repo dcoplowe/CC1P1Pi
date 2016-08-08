@@ -1125,7 +1125,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     
     SmartRef<Minerva::Vertex> vertex = event->interactionVertex();
     const Gaudi::XYZPoint vert_3vec = vertex->position();
-    double vtx[3] = {0.};//{vert_3vec.x(), vert_3vec.y(), vert_3vec.z()};
+    double vtx[3] = {vert_3vec.x(), vert_3vec.y(), vert_3vec.z()};
     
     const TVector3 * mom_vec = new TVector3(sel4mom[1], sel4mom[2], sel4mom[3]);
     const TVector3 * pT = GetPT(vtx, mom_vec);
@@ -1220,9 +1220,12 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             
             cc1p1piHyp->setContainerDoubleData( (name + "_true4mom").c_str(), true4mom);
             
-            /*const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
+            const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
+            
             double nu_3vec[3] = { nu_4vec->X(), nu_4vec->Y() nu_4vec->Z() };
-            */
+            
+            
+            
             double truepTMag = -999.;
             cc1p1piHyp->setDoubleData( (name + "_truepTMag").c_str(), truepTMag);
             
