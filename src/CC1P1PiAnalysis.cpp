@@ -517,6 +517,8 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
 
 bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
 {
+    //This code is currently a little messy and needs cleaning up. There are currently lots of cross checks in the code here.
+    
     debug() << "CC1P1PiAnalysis::FindParticles" << endmsg;
     //Determine which track is most proton like and pion like:
     // 1) Get particle scores and compare which track is has the highest score for the given hypothosis.
@@ -1111,7 +1113,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::GenMinIntera
     
     Rotate2BeamCoords(sel4mom);
     
-    SetGlobal4Vec(name, four_vec);
+    SetGlobal4Vec(name, sel4mom);
 
     cc1p1piHyp->setContainerDoubleData( (name + "_4mom").c_str(), sel4mom);
 
@@ -1189,7 +1191,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::GenMinIntera
         true4mom.push_back(traj_4p.py());
         true4mom.push_back(traj_4p.pz());
 
-        SetGlobal4Vec(name, traj_4p);
+        SetGlobal4Vec(name, true4mom, true);
         
         cc1p1piHyp->setContainerDoubleData( (name + "_true4mom").c_str(), true4mom);
         
