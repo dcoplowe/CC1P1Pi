@@ -977,7 +977,10 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
     const TVector3 * mu_p = new TVector3(m_Muon4Mom[1], m_Muon4Mom[2], m_Muon4Mom[3]);
     const TVector3 * pr_p = new TVector3(m_Proton4Mom[1], m_Proton4Mom[2], m_Proton4Mom[3]);
     const TVector3 * pi_p = new TVector3(m_Pion4Mom[1], m_Pion4Mom[2], m_Pion4Mom[3]);
-    double vertex[3] = {0.};
+    
+    SmartRef<Minerva::Vertex> int_vert = event->interactionVertex();
+    const Gaudi::XYZPoint vert_3vec = int_vert->position();
+    double vertex[3] = {vert_3vec.x(), vert_3vec.y(), vert_3vec.z()};//{0.};
     
     double dpTT = -999.;
     double dpTMag = -999.;
