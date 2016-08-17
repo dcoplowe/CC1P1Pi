@@ -124,6 +124,7 @@ private:
     //Accumulation level counter:
     int m_ncuts;// = 5;
     mutable int m_accum_level;
+    int m_accum_level_to_save;
     void SetAccumLevel() const;
     void ResetAccumLevel() const;
     void SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::GenMinInteraction* truth) const;

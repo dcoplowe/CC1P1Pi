@@ -85,6 +85,8 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("PDP_X", m_PDP_X = 0.231135);
     declareProperty("PDP_Y", m_PDP_Y = 45.368069);
     declareProperty("PDP_Z", m_PDP_Z = 766.384058);
+    
+    declareProperty("accum_level_to_save", m_accum_level_to_save = 5);//Defualt to no of cuts so that we only save interesting events.
 
     m_PDP = new TVector3(m_PDP_X, m_PDP_Y, m_PDP_X);
     
@@ -1309,8 +1311,16 @@ void CC1P1PiAnalysis::ResetAccumLevel() const
 
 void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::GenMinInteraction* truth) const
 {
-    event->setIntData("accum_level", m_accum_level);
-    truth->setIntData("accum_level", m_accum_level);
+    debug() << "Call to save accum_level" << endmsg;
+    if(m_accum_level >= m_accum_level_to_save){
+        debug() << "Passed save requirement" << endmsg;
+        event->setIntData("accum_level", m_accum_level);
+        truth->setIntData("accum_level", m_accum_level);
+        markEvent(event);
+        debug() << "Should have saved event" << endmsg;
+    }
+    else debug() << "Failed to reach accum. level " < m_accum_level_to_save << ". Selection stopped at " << m_accum_level << endmsg;
+    
     //std::vector<int> tmp_vec;
     //for(int i = 0; i < m_ncuts; i++){
     //    tmp_vec.push_back(m_accum_level[i]);

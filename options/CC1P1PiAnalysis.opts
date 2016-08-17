@@ -37,6 +37,8 @@ PhysicsEventAnalysisAlg.Analyses = { "CC1P1PiAnalysis" };
 //
 //==============================================================
 
+ToolSvc.CC1P1Pi.accum_level_to_save = 3;
+
 //------------------------------------------------------------
 // Configure the PhysicsEventMaker
 //------------------------------------------------------------
@@ -77,7 +79,7 @@ MessageSvc.OutputLevel                               = 3;
 
 PhysicsEventCreatorAlg.OutputLevel                   = 3;
 PhysicsEventAnalysisAlg.OutputLevel                  = 3;
-ToolSvc.CC1P1PiAnalysis.OutputLevel                  = 3;
+ToolSvc.CC1P1PiAnalysis.OutputLevel                  = 2;
 
 //===========================================================================
 //===========================================================================
