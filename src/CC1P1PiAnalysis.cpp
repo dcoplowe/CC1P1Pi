@@ -79,16 +79,14 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("Pion_PDG", m_Pion_PDG = 211);//pi+
     
     declareProperty("n_cuts", m_ncuts = 5);
-    
+    m_accum_level = 0;// = new int [ m_ncuts ]; -- no need for N dim. as we only have one branch.
+
     //Mean Parent Decay Point
     declareProperty("PDP_X", m_PDP_X = 0.231135);
     declareProperty("PDP_Y", m_PDP_Y = 45.368069);
     declareProperty("PDP_Z", m_PDP_Z = 766.384058);
 
     m_PDP = new TVector3(m_PDP_X, m_PDP_Y, m_PDP_X);
-    
-    //int m_ncuts;// = 5;
-    m_accum_level = new int [ m_ncuts ];
     
     m_ProtonScore = new double [2];
     m_PionScore = new double [2];
@@ -185,6 +183,8 @@ StatusCode CC1P1PiAnalysis::initialize()
     // Truth branches contain information matched to a GenMinInteraction
     //---------------------------------------------------------------------
     
+    declareIntTruthBranch("accum_level", 0);
+    
     declareBoolTruthBranch("reco_isMinosMatch");
     declareIntTruthBranch("should_be_accepted", 0); // Inherited from Template
     
@@ -226,7 +226,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         event->setIntData("vert_exists", 1);
     
     counter("c_vertex")++;
-    SetAccumLevel(1);
+    SetAccumLevel();
     
     //}
     
@@ -263,7 +263,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     }
     
     counter("c_3tracks")++;
-    SetAccumLevel(2);
+    SetAccumLevel();
     
     debug()<< "Has 3 tracks!" << endmsg;
     
@@ -283,7 +283,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     debug()<< "Muon track found!" << endmsg;
     
     counter("c_muon_trk")++;
-    SetAccumLevel(3);
+    SetAccumLevel();
     
     //----------- 4 : Vertex in active tracker or carbon target -----------//
     //Not a cut but an action to determine the location of the vertex.
@@ -306,7 +306,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         SaveAccumLevel(event);
         return StatusCode::SUCCESS;
     }
-    SetAccumLevel(4);
+    SetAccumLevel();
     
     
     //----------- 5 : PID on p/pi+ -----------//
@@ -325,7 +325,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         debug() << "Finished Selection Successfully. Pheeewwww ;)" << endmsg;
     }
     
-    SetAccumLevel(5);
+    SetAccumLevel();
     
     SaveAccumLevel(event);
     
@@ -1293,26 +1293,29 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     
 }
 
-void CC1P1PiAnalysis::SetAccumLevel(int cut) const
+void CC1P1PiAnalysis::SetAccumLevel() const
 {
-    m_accum_level[ cut - 1 ] = cut;
+    //m_accum_level[ cut - 1 ] = cut;
+    m_accum_level++;
 }
 
 void CC1P1PiAnalysis::ResetAccumLevel() const
 {
-    for(int i = 0; i < m_ncuts; i++){
-        m_accum_level[i] = 0;
-    }
+    m_accum_level = 0;
+    //for(int i = 0; i < m_ncuts; i++){
+    //    m_accum_level[i] = 0;
+    //}
 }
 
-void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event) const
+void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::GenMinInteraction* truth) const
 {
-    std::vector<int> tmp_vec;
-    for(int i = 0; i < m_ncuts; i++){
-        tmp_vec.push_back(m_accum_level[i]);
-    }
-    
-    event->setContainerIntData("accum_level",tmp_vec);
+    event->setIntData("accum_level", m_accum_level);
+    truth->setIntData("accum_level", m_accum_level);
+    //std::vector<int> tmp_vec;
+    //for(int i = 0; i < m_ncuts; i++){
+    //    tmp_vec.push_back(m_accum_level[i]);
+    //}
+    //event->setContainerIntData("accum_level",tmp_vec);
     
 }
 

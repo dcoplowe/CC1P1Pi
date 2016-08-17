@@ -123,10 +123,10 @@ private:
 
     //Accumulation level counter:
     int m_ncuts;// = 5;
-    int * m_accum_level;
-    void SetAccumLevel(int cut) const;
+    int m_accum_level;
+    void SetAccumLevel() const;
     void ResetAccumLevel() const;
-    void SaveAccumLevel(Minerva::PhysicsEvent * event) const;
+    void SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::GenMinInteraction* truth) const;
     
     //Determine the truth information from the track:
     ITruthMatcher * m_truthMatcher;
