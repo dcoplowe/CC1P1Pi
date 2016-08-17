@@ -170,8 +170,6 @@ StatusCode CC1P1PiAnalysis::initialize()
     declareBoolEventBranch("isMinosMatchTrack");
     declareBoolEventBranch("isMinosMatchStub");
     
-    declareContainerIntEventBranch( "accum_level", m_ncuts, -999);
-
     SetCommonBranches();
     
     SetPartInfo("mu");
@@ -182,8 +180,10 @@ StatusCode CC1P1PiAnalysis::initialize()
     // Declare the Truth block branches.
     // Truth branches contain information matched to a GenMinInteraction
     //---------------------------------------------------------------------
-    
+    declareIntEventBranch("accum_level", 0);
     declareIntTruthBranch("accum_level", 0);
+    declareIntEventBranch("ncuts", m_ncuts);
+    declareIntTruthBranch("ncuts", m_ncuts);
     
     declareBoolTruthBranch("reco_isMinosMatch");
     declareIntTruthBranch("should_be_accepted", 0); // Inherited from Template
@@ -218,7 +218,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     if( !event->hasInteractionVertex() ){
         debug() << "No event vertex. Quitting..." << endmsg;
         //event->setIntData("vert_exists", 0);
-        SaveAccumLevel(event);
+        SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
     //else{
@@ -258,7 +258,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     if(!(ntot_tracks == nout_tracks && ntot_tracks == 3)){
         debug() << "Event doesn't contain extactly three tracks." << endmsg;
-        SaveAccumLevel(event);
+        SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
     
@@ -277,7 +277,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     if(!FindMuon(event, truth, m_MuonProng, m_MuonParticle)){
         debug() << "Muon not found..." << endmsg;
-        SaveAccumLevel(event);
+        SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
     debug()<< "Muon track found!" << endmsg;
@@ -303,7 +303,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         debug() << "Event not in either..." << endmsg;
         event->setIntData("target_region", 3);//Probably don't need this...
         counter("c_tar_other")++;
-        SaveAccumLevel(event);
+        SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
     SetAccumLevel();
@@ -318,7 +318,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     if(!tFinPar){
         debug() << "Failed to identify particles..." << endmsg;
-        SaveAccumLevel(event);
+        SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
     else{
@@ -327,7 +327,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     SetAccumLevel();
     
-    SaveAccumLevel(event);
+    SaveAccumLevel(event, truth);
     
     // Set the PhysicsEvent reconstructionSignature to m_anaSignature, so I know that this tool reconstructed this event.
     // If you mark the event it will go to your analysis DST.  If you don't want it to go there, don't mark it!
