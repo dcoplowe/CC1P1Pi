@@ -1319,7 +1319,7 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
         markEvent(event);
         debug() << "Should have saved event" << endmsg;
     }
-    else debug() << "Failed to reach accum. level " < m_accum_level_to_save << ". Selection stopped at " << m_accum_level << endmsg;
+    else debug() << "Failed to reach accum. level " << m_accum_level_to_save << ". Selection stopped at " << m_accum_level << endmsg;
     
     //std::vector<int> tmp_vec;
     //for(int i = 0; i < m_ncuts; i++){
