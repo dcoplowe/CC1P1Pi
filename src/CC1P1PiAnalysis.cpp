@@ -329,11 +329,11 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     SetAccumLevel();
     
-    SaveAccumLevel(event, truth);
+    SaveAccumLevel(event, truth);//markEvent is called in SaveAccumLevel.
     
     // Set the PhysicsEvent reconstructionSignature to m_anaSignature, so I know that this tool reconstructed this event.
     // If you mark the event it will go to your analysis DST.  If you don't want it to go there, don't mark it!
-    markEvent( event );
+    //markEvent( event );
     
     
     // Now interpret the event and add NeutrinoInts

@@ -37,7 +37,7 @@ PhysicsEventAnalysisAlg.Analyses = { "CC1P1PiAnalysis" };
 //
 //==============================================================
 
-ToolSvc.CC1P1PiAnalysis.accum_level_to_save = 3;
+ToolSvc.CC1P1PiAnalysis.accum_level_to_save = 0;
 
 //------------------------------------------------------------
 // Configure the PhysicsEventMaker
