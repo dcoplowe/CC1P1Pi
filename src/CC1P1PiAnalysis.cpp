@@ -1299,6 +1299,9 @@ void CC1P1PiAnalysis::SetAccumLevel() const
 {
     //m_accum_level[ cut - 1 ] = cut;
     m_accum_level++;
+    debug() << " " << endmsg;
+    debug() << "***** Accum. Level " << m_accum_level << " ***** " << endmsg;
+    debug() << " " << endmsg;
 }
 
 void CC1P1PiAnalysis::ResetAccumLevel() const
@@ -1327,7 +1330,7 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
             std::vector<Minerva::NeutrinoInt*> nuInts;
             nuInts.push_back(nuInt);
             
-        StatusCode sc = addInteractionHyp( event, nuInts );
+            StatusCode sc = addInteractionHyp( event, nuInts );
         }
         else{
             debug() << "Event beleived to have passed all cuts." << endmsg;
