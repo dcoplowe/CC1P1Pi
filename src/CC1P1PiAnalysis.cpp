@@ -311,7 +311,6 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     }
     SetAccumLevel();
     
-    
     //----------- 5 : PID on p/pi+ -----------//
     debug() << "5) PID: p/pi+" << endmsg;
     
@@ -1324,6 +1323,7 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
         truth->setIntData("accum_level", m_accum_level);
         markEvent(event);
         
+        debug() << "++++ Saving Accum. Level " << m_accum_level << " ++++ " << endmsg;
         if(m_accum_level < m_ncuts){
             debug() << "Event beleived to be below cut threshold." << endmsg;
             Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
