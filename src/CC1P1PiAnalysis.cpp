@@ -224,10 +224,10 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         return StatusCode::SUCCESS;
     }
     //else{
-        debug() << "Found vertex!" << endmsg;
-        event->setIntData("vert_exists", 1);
-    
+    debug() << "Found vertex!" << endmsg;
+    event->setIntData("vert_exists", 1);
     counter("c_vertex")++;
+    debug() << "AL should be 1" << endmsg;
     SetAccumLevel();
     
     //}
@@ -242,6 +242,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         bool pass = true; std::string tag = "BadObject";
         event->filtertaglist()->addFilterTag(tag,pass);
         error() << "This vertex is NULL! Flag this event as bad!" << endmsg;
+        debug() << "AL save 1 ?" << endmsg;
         SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
@@ -261,11 +262,13 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     if(!(ntot_tracks == nout_tracks && ntot_tracks == 3)){
         debug() << "Event doesn't contain extactly three tracks." << endmsg;
+        debug() << "AL save 1 ?" << endmsg;
         SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
     
     counter("c_3tracks")++;
+    debug() << "AL should be 2" << endmsg;
     SetAccumLevel();
     
     debug()<< "Has 3 tracks!" << endmsg;
@@ -280,12 +283,14 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     if(!FindMuon(event, truth, m_MuonProng, m_MuonParticle)){
         debug() << "Muon not found..." << endmsg;
+        debug() << "AL save 2 ?" << endmsg;
         SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
     debug()<< "Muon track found!" << endmsg;
     
     counter("c_muon_trk")++;
+    debug() << "AL should be 3" << endmsg;
     SetAccumLevel();
     
     //----------- 4 : Vertex in active tracker or carbon target -----------//
@@ -295,7 +300,6 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         debug() << "Yes in SCINTILLATOR" << endmsg;
         event->setIntData("target_region", 1);
         counter("c_tar_scint")++;
-
     }
     else if (VertIsIn("Carbon", event)){
         debug() << "Yes in CARBON TARGET" << endmsg;
@@ -306,9 +310,12 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         debug() << "Event not in either..." << endmsg;
         event->setIntData("target_region", 3);//Probably don't need this...
         counter("c_tar_other")++;
+        debug() << "AL save 3 ?" << endmsg;
         SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
+    
+    debug() << "AL should be 4" << endmsg;
     SetAccumLevel();
     
     //----------- 5 : PID on p/pi+ -----------//
@@ -320,6 +327,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     if(!tFinPar){
         debug() << "Failed to identify particles..." << endmsg;
+        debug() << "AL save 4 ?" << endmsg;
         SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
@@ -327,6 +335,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         debug() << "Finished Selection Successfully. Pheeewwww ;)" << endmsg;
     }
     
+    debug() << "AL should be 5" << endmsg;
     SetAccumLevel();
     
     SaveAccumLevel(event, truth);//markEvent is called in SaveAccumLevel.
@@ -1318,14 +1327,14 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
     debug() << " " << endmsg;
     debug() << "Call to save accum_level" << endmsg;
     if(m_accum_level >= m_accum_level_to_save){
-        debug() << "Passed save requirement" << endmsg;
+        //debug() << "Passed save requirement" << endmsg;
         event->setIntData("accum_level", m_accum_level);
         truth->setIntData("accum_level", m_accum_level);
         markEvent(event);
         
         debug() << "++++ Saving Accum. Level " << m_accum_level << " ++++ " << endmsg;
         if(m_accum_level < m_ncuts){
-            debug() << "Event beleived to be below cut threshold." << endmsg;
+          //  debug() << "Event beleived to be below cut threshold." << endmsg;
             Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
             
             std::vector<Minerva::NeutrinoInt*> nuInts;
@@ -1337,9 +1346,9 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
             debug() << "Event beleived to have passed all cuts." << endmsg;
         }
         
-        debug() << "Should have saved event" << endmsg;
+        //debug() << "Should have saved event" << endmsg;
     }
-    else debug() << "Failed to reach accum. level " << m_accum_level_to_save << ". Selection stopped at " << m_accum_level << endmsg;
+    //else debug() << "Failed to reach accum. level " << m_accum_level_to_save << ". Selection stopped at " << m_accum_level << endmsg;
 
     debug() << " " << endmsg;
     debug() << " " << endmsg;
