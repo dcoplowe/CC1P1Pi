@@ -1325,9 +1325,9 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
             Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
             
             std::vector<Minerva::NeutrinoInt*> nuInts;
-            nuInt.push_back(nuInt);
+            nuInts.push_back(nuInt);
             
-            addInteractionHyp( event, nuInts );
+        StatusCode sc = addInteractionHyp( event, nuInts );
         }
         else{
             debug() << "Event beleived to have passed all cuts." << endmsg;
