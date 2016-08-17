@@ -1319,6 +1319,12 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
         event->setIntData("accum_level", m_accum_level);
         truth->setIntData("accum_level", m_accum_level);
         markEvent(event);
+        
+        if(m_accum_level < m_accum_level_to_save){
+            Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
+            addInteractionHyp( event, nuInts );
+        }
+        
         debug() << "Should have saved event" << endmsg;
     }
     else debug() << "Failed to reach accum. level " << m_accum_level_to_save << ". Selection stopped at " << m_accum_level << endmsg;
