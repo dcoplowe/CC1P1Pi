@@ -242,6 +242,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         bool pass = true; std::string tag = "BadObject";
         event->filtertaglist()->addFilterTag(tag,pass);
         error() << "This vertex is NULL! Flag this event as bad!" << endmsg;
+        SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
     
