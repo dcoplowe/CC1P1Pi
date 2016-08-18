@@ -604,7 +604,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses, toolsToUse);
         
         if(found_particle){
-            PrintInfo(Form("This prong has %z particle hypotheses attached.",(*prong)->particles().size()), m_print_cut_verbose);
+            PrintInfo(Form("This prong has %d particle hypotheses attached.", (int)((*prong)->particles().size())), m_print_cut_verbose);
         }
         else{
             PrintInfo("Failed to produce particles", m_print_cut_verbose);
@@ -622,7 +622,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             double score_den = 0.0;
             
             for(part = partHypVec.begin(); part != partHypVec.end(); part++){
-                PrintInfo(Form("Testing %d hypothesis with signature: %d and score: %f", (*part)->idcode(), (*part)->methodSignature(), (*part)->score()), m_print_cut_verbose);
+                //PrintInfo(Form("Testing %d hypothesis with signature: %d and score: %f", (*part)->idcode(), (*part)->methodSignature(), (*part)->score()), m_print_cut_verbose);
                 
                 std::string part_name;
                 double minPartScore = -999.0;
@@ -697,7 +697,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                 PDGCode = m_Pion_PDG;
             }
             
-            PrintInfo(Form("        Prong %d believed to be %d and has found_p_no = %d", hadron_counter, part_name_check, found_p_no), m_print_cut_verbose);
+            //PrintInfo(Form("        Prong %d believed to be %d and has found_p_no = %d", hadron_counter, part_name_check, found_p_no), m_print_cut_verbose);
 
             
             if(hadron_counter == 1){
@@ -739,7 +739,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     int pi_prong_no = -999;
     
     PrintInfo("******************************** Summary ********************************", m_print_cut_verbose);
-    PrintInfo(Form("Vector Sizes Consistent: trackChi2NDF N = %z protonScore N = %z pionScore N = %z", trackChi2NDF.size(), protonScore.size(), pionScore.size()), m_print_cut_verbose);
+    PrintInfo(Form("Vector Sizes Consistent: trackChi2NDF N = %d protonScore N = %d pionScore N = %d", (int)(trackChi2NDF.size()), (int)(protonScore.size()), (int)(pionScore.size())), m_print_cut_verbose);
     if(trackChi2NDF.size() == 2 && protonScore.size()  == 2 && pionScore.size() == 2){
         PrintInfo(" YES.", m_print_cut_verbose);
         
