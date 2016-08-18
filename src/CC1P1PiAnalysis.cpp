@@ -88,7 +88,7 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     
     declareProperty("accum_level_to_save", m_accum_level_to_save = 5);//Defualt to no of cuts so that we only save interesting events.
     
-    declareProperty("print_acc_level", m_print_acc_level = false);
+    declareProperty("print_acc_level", m_print_acc_level = true);
     declareProperty("print_cuts", m_print_cuts = false);
     declareProperty("print_other", m_print_other = false);
     
@@ -266,8 +266,8 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     debug() << " " << endmsg;
     
     if(!(ntot_tracks == nout_tracks && ntot_tracks == 3)){
-        debug() << "Event doesn't contain extactly three tracks." << endmsg;
-        debug() << "AL save 1 ?" << endmsg;
+        PrintInfo("Event doesn't contain extactly three tracks.", m_print_cuts);
+        PrintInfo("AL save 1 ?", m_print_acc_level);
         SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
