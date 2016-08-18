@@ -622,7 +622,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             double score_den = 0.0;
             
             for(part = partHypVec.begin(); part != partHypVec.end(); part++){
-                PrintInfo(Form("Testing %s hypothesis with signature: %s and score: %f", (*part)->idcode(), (*part)->methodSignature(), (*part)->score()), m_print_cut_verbose);
+                PrintInfo(Form("Testing %s hypothesis with signature: %d and score: %f", (*part)->idcode(), (*part)->methodSignature(), (*part)->score()), m_print_cut_verbose);
                 
                 std::string part_name;
                 double minPartScore = -999.0;
@@ -697,21 +697,21 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                 PDGCode = m_Pion_PDG;
             }
             
-            PrintInfo(Form("        Prong %d believed to be %s and has found_p_no = %d", hadron_counter, part_name_check, found_p_no), m_print_cut_verbose);
+            PrintInfo(Form("        Prong %d believed to be %d and has found_p_no = %d", hadron_counter, part_name_check, found_p_no), m_print_cut_verbose);
 
             
             if(hadron_counter == 1){
                 Part_from_Prong1 = partHypVec[found_p_no];
                 Prong1_PDG = PDGCode;
                 
-                PrintInfo(Form("        Part_from_Prong1 :: Consistent with %s Hyp?", part_name_check), m_print_cut_verbose);
+                PrintInfo(Form("        Part_from_Prong1 :: Consistent with %d Hyp?", part_name_check), m_print_cut_verbose);
                 if(Part_from_Prong1->idcode() == part_name_check){
                     PrintInfo("YES!!!!", m_print_cut_verbose);
                 }
                 else{
                     PrintInfo("NO ********************** ?!", m_print_cut_verbose);
                 }
-                PrintInfo(Form("        IDCode: %s Score: %f", Part_from_Prong1->idcode(), Part_from_Prong1->score()), m_print_cut_verbose);
+                PrintInfo(Form("        IDCode: %d Score: %f", Part_from_Prong1->idcode(), Part_from_Prong1->score()), m_print_cut_verbose);
                 
             }
             
@@ -719,7 +719,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                 Part_from_Prong2 = partHypVec[found_p_no];
                 Prong2_PDG = PDGCode;
                 
-                PrintInfo(Form("        Part_from_Prong2 :: Consistent with %s Hyp?", part_name_check), m_print_cut_verbose);
+                PrintInfo(Form("        Part_from_Prong2 :: Consistent with %d Hyp?", part_name_check), m_print_cut_verbose);
                 if(Part_from_Prong2->idcode() == part_name_check){
                     PrintInfo("YES!!!!", m_print_cut_verbose);
                 }
@@ -727,7 +727,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                     PrintInfo("NO ********************** ?!", m_print_cut_verbose);
                 }
                 
-                PrintInfo(Form("        IDCode: %s Score: %f", Part_from_Prong2->idcode(), Part_from_Prong2->score()), m_print_cut_verbose);
+                PrintInfo(Form("        IDCode: %d Score: %f", Part_from_Prong2->idcode(), Part_from_Prong2->score()), m_print_cut_verbose);
             }
         }
         
@@ -739,7 +739,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     int pi_prong_no = -999;
     
     PrintInfo("******************************** Summary ********************************", m_print_cut_verbose);
-    PrintInfo(Form("Vector Sizes Consistent: trackChi2NDF N = %d protonScore N = %d pionScore N = %d", trackChi2NDF.size(), protonScore.size(), pionScore.size()), m_print_cut_verbose);
+    PrintInfo(Form("Vector Sizes Consistent: trackChi2NDF N = %z protonScore N = %z pionScore N = %z", trackChi2NDF.size(), protonScore.size(), pionScore.size()), m_print_cut_verbose);
     if(trackChi2NDF.size() == 2 && protonScore.size()  == 2 && pionScore.size() == 2){
         PrintInfo(" YES.", m_print_cut_verbose);
         
@@ -751,10 +751,10 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     
         PrintInfo("Prong 1:", m_print_cut_verbose);
         PrintInfo(Form("        Proton Score %f (%f) Pion Score %f (%f) Chi2NDF %f", protonScore[0], Prong1_Proton, pionScore[0], Prong1_Pion, trackChi2NDF[0]), m_print_cut_verbose);
-        PrintInfo(Form("        PreCal Pr Sc N " << pr_score_N_Vec[0] << " PreCal Pi Sc N " << pi_score_N_Vec[0]), m_print_cut_verbose);
+        PrintInfo(Form("        PreCal Pr Sc N %f PreCal Pi Sc N %f", pr_score_N_Vec[0], pi_score_N_Vec[0]), m_print_cut_verbose);
         PrintInfo("Prong 2:", m_print_cut_verbose);
         PrintInfo(Form("        Proton Score %f (%f) Pion Score %f (%f) Chi2NDF %f", protonScore[1], Prong2_Proton, pionScore[1], Prong2_Pion, trackChi2NDF[1]), m_print_cut_verbose);
-        PrintInfo(Form("        PreCal Pr Sc N %f PreCal Pi Sc N %f", pr_score_N_Vec[1], pi_score_N_Vec[1]), m_print_cut_verbose, m_print_cut_verbose);
+        PrintInfo(Form("        PreCal Pr Sc N %f PreCal Pi Sc N %f", pr_score_N_Vec[1], pi_score_N_Vec[1]), m_print_cut_verbose);
         PrintInfo("*************************************************************************", m_print_cut_verbose);
 
         int Prong1a_PDG = -999;
@@ -782,7 +782,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         if(Prong1_PDG == Prong1a_PDG) PrintInfo(". They are the same!!!", m_print_cut_verbose);
         else PrintInfo(". Close but no cigar... :-(", m_print_cut_verbose);
         
-        PrintInfo(Form("Prong 2: Pre: %d Post %d", Prong2_PDG, Prong2a_PDG, m_print_cut_verbose));
+        PrintInfo(Form("Prong 2: Pre: %d Post %d", Prong2_PDG, Prong2a_PDG), m_print_cut_verbose);
         if(Prong2_PDG == Prong2a_PDG) PrintInfo(". They are the same!!!", m_print_cut_verbose);
         else PrintInfo("Close but no cigar... :-(", m_print_cut_verbose);
         
@@ -831,12 +831,12 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     bool pr_is_correct = false;
     bool pi_is_correct = false;
     PrintInfo("Final Check that the tracks are what we think they are", m_print_cut_verbose);
-    PrintInfo(Form("ProtonParticle: %s", m_ProtonParticle->idcode()), m_print_cut_verbose);
+    PrintInfo(Form("ProtonParticle: %d", m_ProtonParticle->idcode()), m_print_cut_verbose);
     if(m_ProtonParticle->idcode() == Minerva::Particle::Proton){
         PrintInfo(" YES", m_print_cut_verbose);
         pr_is_correct = true;
     }
-    PrintInfo(Form("PionParticle: %s", m_PionParticle->idcode()), m_print_cut_verbose);
+    PrintInfo(Form("PionParticle: %d", m_PionParticle->idcode()), m_print_cut_verbose);
     if(m_PionParticle->idcode() == Minerva::Particle::Pion){
         PrintInfo(" YES", m_print_cut_verbose);
         pi_is_correct = true;
@@ -1365,7 +1365,7 @@ void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
     PrintInfo("CC1P1PiAnalysis::Rotate2BeamCoords", m_print_other);
 
     if(!((int)val.size() == 4)){
-        PrintInfo(Form("Warning : Not a 4 vector! Vector has dimension %d", val.size()), m_print_other);
+        PrintInfo(Form("Warning : Not a 4 vector! Vector has dimension %z", val.size()), m_print_other);
     }
     
     PrintInfo(Form("Initial 4Vec: P_E %f P_X %f P_Y %f P_Z %f", val[0], val[1], val[2], val[3]), m_print_other);
