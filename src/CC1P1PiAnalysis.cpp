@@ -228,7 +228,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     //----------- 1 : Find vertex              -----------//
     PrintInfo("1) Find vertex", m_print_cuts);
     PrintInfo("AL should be 0", m_print_acc_level);
-    PrintInfo(Form("***** Accum. Level %d *****", m_accum_level), m_accum_level);
+    PrintInfo(Form("***** Accum. Level %d *****", m_accum_level), m_print_acc_level);
     
     if( !event->hasInteractionVertex() ){
         PrintInfo("No event vertex. Quitting...", m_print_cuts);
@@ -273,7 +273,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     if(ntot_tracks == n_prongs){
         PrintInfo(" !! EQUAL !!", m_print_cuts);
     }
-    debug() << " " << endmsg;
+    //debug() << " " << endmsg;
     
     if(!(ntot_tracks == nout_tracks && ntot_tracks == 3)){
         PrintInfo("Event doesn't contain extactly three tracks.", m_print_cuts);
@@ -1360,9 +1360,9 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
             PrintInfo("Event beleived to have passed all cuts.", m_print_other);
         }
         
-        //debug() << "Should have saved event" << endmsg;
+        debug() << "Should have saved event" << endmsg;
     }
-    //else debug() << "Failed to reach accum. level " << m_accum_level_to_save << ". Selection stopped at " << m_accum_level << endmsg;
+    else PrintInfo(Form("Failed to reach accum. level %d. Selection stopped at %d.", m_accum_level_to_save, m_accum_level), m_print_acc_level);
 
     //debug() << " " << endmsg;
     //debug() << " " << endmsg;
