@@ -259,7 +259,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     Minerva::ProngVect n_prong_check = event->primaryProngs();
     unsigned int n_prongs = n_prong_check.size();
     
-    debug() << "n_tracks = " << ntot_tracks << " n_prongs = " << n_prongs;
+    PrintInfo(Form("n_tracks = %d n_prongs = %d", ntot_tracks, n_prongs), m_print_cuts);
     if(ntot_tracks == n_prongs){
         PrintInfo(" !! EQUAL !!", m_print_cuts);
     }
