@@ -87,7 +87,11 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("PDP_Z", m_PDP_Z = 766.384058);
     
     declareProperty("accum_level_to_save", m_accum_level_to_save = 5);//Defualt to no of cuts so that we only save interesting events.
-
+    
+    declareProperty("print_acc_level", m_print_acc_level = false);
+    declareProperty("print_cuts", m_print_cuts = false);
+    declareProperty("print_other", m_print_other = false);
+    
     m_PDP = new TVector3(m_PDP_X, m_PDP_Y, m_PDP_X);
     
     m_ProtonScore = new double [2];
@@ -109,7 +113,8 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
 //! Initialize
 StatusCode CC1P1PiAnalysis::initialize()
 {
-    debug() << "CC1P1PiAnalysis::initialize()" << endmsg;
+    PrintInfo("CC1P1PiAnalysis::initialize()", m_print_other);
+    
     
     // Initialize the base class.  This will fail if you did not define m_anaSignature.
     StatusCode sc = this->MinervaAnalysisTool::initialize();
@@ -195,7 +200,7 @@ StatusCode CC1P1PiAnalysis::initialize()
 
 StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Minerva::GenMinInteraction* truth ) const
 {
-    debug() << "CC1P1PiAnalysis::reconstructEvent" << endmsg;
+    PrintInfo("CC1P1PiAnalysis::reconstructEvent", m_print_other);
     
     //Clear Particle Prongs and Particle objects:
     ResetParticles();
@@ -372,11 +377,6 @@ StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, 
     
     // Add the NeutrinoInt to the vector in return value
     nuInts.push_back( nuInt );
-    
-    if( interaction )
-    {
-        debug() << " There's an interaction so make some truth plots." << endmsg;
-    }
     
     return StatusCode::SUCCESS;
 }
@@ -1566,6 +1566,12 @@ TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
 }
 
 
+void CC1P1PiAnalysis::PrintInfo(std::string var, bool print) const
+{
+    if(print){
+        debug() << var << endmsg;
+    }
+}
 
 
 
