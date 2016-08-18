@@ -671,7 +671,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             PrintInfo(Form("        Proton Score %f (%f), Pion Score %f, (%f) Chi2NDF %f", pr_score, pr_score_N, pi_score, pi_score_N, track->chi2PerDoF()), m_print_cut_verbose);
             
             int found_p_no = 0;
-            Minerva::Particle::ID part_name_check;
+            Minerva::Particle::ID part_name_check = Minerva::Particle::Unknown;
             int PDGCode = -999;
             
             if(pr_score_N > pi_score_N){
