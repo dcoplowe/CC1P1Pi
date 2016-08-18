@@ -224,8 +224,11 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     event->filtertaglist()->setOrAddFilterTag( "isMinosMatchTrack", false );
     event->filtertaglist()->setOrAddFilterTag( "isMinosMatchStub", false );
     
+    
     //----------- 1 : Find vertex              -----------//
     PrintInfo("1) Find vertex", m_print_cuts);
+    PrintInfo("AL should be 0", m_print_acc_level);
+    PrintInfo(Form("***** Accum. Level %d *****", m_accum_level), m_accum_level);
     
     if( !event->hasInteractionVertex() ){
         PrintInfo("No event vertex. Quitting...", m_print_cuts);

@@ -81,7 +81,7 @@ PhysicsEventCreatorAlg.OutputLevel                   = 3;
 PhysicsEventAnalysisAlg.OutputLevel                  = 3;
 ToolSvc.CC1P1PiAnalysis.OutputLevel                  = 2;
 
-ToolSvc.CC1P1PiAnalysis.print_cuts              = false;
+ToolSvc.CC1P1PiAnalysis.print_cuts              = true;
 ToolSvc.CC1P1PiAnalysis.print_cut_verbose       = false;
 ToolSvc.CC1P1PiAnalysis.print_acc_level         = true;
 ToolSvc.CC1P1PiAnalysis.print_other             = false;
