@@ -88,8 +88,9 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     
     declareProperty("accum_level_to_save", m_accum_level_to_save = 5);//Defualt to no of cuts so that we only save interesting events.
     
-    declareProperty("print_acc_level", m_print_acc_level = true);
     declareProperty("print_cuts", m_print_cuts = false);
+    declareProperty("print_cut_verbose", m_print_cut_verbose = false);
+    declareProperty("print_acc_level", m_print_acc_level = true);
     declareProperty("print_other", m_print_other = false);
     
     m_PDP = new TVector3(m_PDP_X, m_PDP_Y, m_PDP_X);
@@ -273,74 +274,74 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     }
     
     counter("c_3tracks")++;
-    debug() << "AL should be 2" << endmsg;
+    PrintInfo("AL should be 2", m_print_acc_level);
     SetAccumLevel();
     
-    debug()<< "Has 3 tracks!" << endmsg;
+    PrintInfo("Has 3 tracks!", m_print_cuts);
     
     event->setIntData("n_tracks3", 3);
     event->setIntData("n_prongs", n_prongs);
     
     //----------- 3 : Muon track coming from common vertex -----------//
-    debug()<< "3) Muon Track" << endmsg;
+    PrintInfo("3) Muon Track", m_print_cuts);
    // SmartRef<Minerva::Prong>    muonProng = (Minerva::Prong*)NULL;
    // SmartRef<Minerva::Particle> muonPart = (Minerva::Particle*)NULL;
     
     if(!FindMuon(event, truth, m_MuonProng, m_MuonParticle)){
-        debug() << "Muon not found..." << endmsg;
-        debug() << "AL save 2 ?" << endmsg;
+        PrintInfo("Muon not found...", m_print_cuts);
+        PrintInfo("AL save 2 ?", m_print_acc_level);
         SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
-    debug()<< "Muon track found!" << endmsg;
+    PrintInfo("Muon track found!", m_print_cuts);
     
     counter("c_muon_trk")++;
-    debug() << "AL should be 3" << endmsg;
+    PrintInfo("AL should be 3", m_print_acc_level);
     SetAccumLevel();
     
     //----------- 4 : Vertex in active tracker or carbon target -----------//
     //Not a cut but an action to determine the location of the vertex.
-    debug() << "4) Vertex in Carbon or Scintillator" << endmsg;
+    PrintInfo("4) Vertex in Carbon or Scintillator", m_print_cuts);
     if(VertIsIn("Scint", event)){
-        debug() << "Yes in SCINTILLATOR" << endmsg;
+        PrintInfo("Yes in SCINTILLATOR", m_print_cuts);
         event->setIntData("target_region", 1);
         counter("c_tar_scint")++;
     }
     else if (VertIsIn("Carbon", event)){
-        debug() << "Yes in CARBON TARGET" << endmsg;
+        PrintInfo("Yes in CARBON TARGET", m_print_cuts);
         event->setIntData("target_region", 2);
         counter("c_tar_carbon")++;
     }
     else{
-        debug() << "Event not in either..." << endmsg;
+        PrintInfo("Event not in either...", m_print_cuts);
         event->setIntData("target_region", 3);//Probably don't need this...
         counter("c_tar_other")++;
-        debug() << "AL save 3 ?" << endmsg;
+        PrintInfo("AL save 3 ?", m_print_acc_level);
         SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
     
-    debug() << "AL should be 4" << endmsg;
+    PrintInfo("AL should be 4", m_print_acc_level);
     SetAccumLevel();
     
     //----------- 5 : PID on p/pi+ -----------//
-    debug() << "5) PID: p/pi+" << endmsg;
+    PrintInfo("5) PID: p/pi+", m_print_cuts);
     
     //HadronSystem hadrons;
     
     bool tFinPar = FindParticles(event);
     
     if(!tFinPar){
-        debug() << "Failed to identify particles..." << endmsg;
-        debug() << "AL save 4 ?" << endmsg;
+        PrintInfo("Failed to identify particles...", m_print_cuts);
+        PrintInfo("AL save 4 ?", m_print_acc_level);
         SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
     else{
-        debug() << "Finished Selection Successfully. Pheeewwww ;)" << endmsg;
+        PrintInfo("Finished Selection Successfully. Pheeewwww ;)", m_print_cuts);
     }
     
-    debug() << "AL should be 5" << endmsg;
+    PrintInfo("AL should be 5", m_print_acc_level);
     SetAccumLevel();
     
     SaveAccumLevel(event, truth);//markEvent is called in SaveAccumLevel.
@@ -395,7 +396,7 @@ StatusCode CC1P1PiAnalysis::tagTruth( Minerva::GenMinInteraction *truth ) const
 //! Finalize
 StatusCode CC1P1PiAnalysis::finalize()
 {
-    debug() << "CC1P1PiAnalysis::finalize()" << endmsg;
+    PrintInfo("CC1P1PiAnalysis::finalize()", m_print_other);
     
     // finalize the base class.
     StatusCode sc = this->MinervaAnalysisTool::finalize();
@@ -447,7 +448,7 @@ bool CC1P1PiAnalysis::FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInte
             return false;
         }*/
         
-        debug() << " Muon Particle Score: " << muonPart->score() << endmsg;
+        PrintInfo(Form("Muon Particle Score: %f", muonPart->score()), m_print_cut_verbose);
         if (muonPart->score() >= m_minMuonScore) {
             
             muonProng->filtertaglist()->setOrAddFilterTag( "PrimaryMuon", true );
@@ -466,13 +467,13 @@ bool CC1P1PiAnalysis::FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInte
             if (truth) truth->filtertaglist()->setOrAddFilterTag( "reco_isMinosMatch", true );
         }
         else {
-            debug()<<"Muon prong does not pass score cut"<<endmsg;
+            PrintInfo("Muon prong does not pass score cut", m_print_cut_verbose);
             return false;
         }
         
     } 
     else {
-        debug() << "Did not find a muon prong!" << endmsg;
+        PrintInfo("Did not find a muon prong!", m_print_cut_verbose);
         return false;
     }
     
@@ -514,15 +515,14 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
         downZ = m_carbon_downZ;
     }
     else {
-        debug() << "CC1P1PiAnalysis::VertIsIn : Could not determine target name: "
-                << targetRegion.Data() << ". Please check, it may not be implemented." << endmsg;
+        PrintInfo(Form("CC1P1PiAnalysis::VertIsIn : Could not determine target name: %s. Please check, it may not be implemented.", targetRegion.Data()), m_print_cut_verbose);
         return false;
     }
     
     bool fidVertex = m_coordSysTool->inFiducial( vertex->position().x(), vertex->position().y(), vertex->position().z(), apothem, upZ, downZ );
     
     if(fidVertex){
-        debug() << "Vertex is in fiducial volume" << endmsg;
+        PrintInfo("Vertex is in fiducial volume", m_print_cut_verbose);
     }
     
     return fidVertex;
@@ -532,7 +532,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
 {
     //This code is currently a little messy and needs cleaning up. There are currently lots of cross checks in the code here.
     
-    debug() << "CC1P1PiAnalysis::FindParticles" << endmsg;
+    PrintInfo("CC1P1PiAnalysis::FindParticles", m_print_cut_verbose);
     //Determine which track is most proton like and pion like:
     // 1) Get particle scores and compare which track is has the highest score for the given hypothosis.
     // 2) Look for Michel features.
@@ -562,11 +562,11 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     for( prong = prongs.begin(); prong != prongs.end(); prong++ ){
         
         prong_count++;
-        debug() << "Checking Prong: " << prong_count << "." << endmsg;
+        PrintInfo(Form("Checking Prong: %d", prong_count), m_print_cut_verbose);
         
         //Check prong isn't that of the muon:
         if(m_MuonProng == (*prong)){
-            debug() << "Prong already determined as muon." << endmsg;
+            PrintInfo("Prong already determined as muon.", m_print_cut_verbose);
             continue;
         }
         
@@ -574,12 +574,12 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         Minerva::TrackVect tracks = (*prong)->minervaTracks();
         
         if( tracks.empty() ) {
-            debug() << "  This prong contains an empty vector of tracks, skipping!" << endmsg;
+            PrintInfo("  This prong contains an empty vector of tracks, skipping!", m_print_cut_verbose);
             continue;
             //Return false statement if found to minos match.
         }
         else if( (*prong)->MinosTrack() || (*prong)->MinosStub() ) {
-            debug() << "  This is a MINOS matched prong, skipping!" << endmsg;
+            PrintInfo("  This is a MINOS matched prong, skipping!", m_print_cut_verbose);
             continue;
             //Return false statement if found to minos match.
         }
@@ -590,7 +590,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         Gaudi::XYZPoint endpoint = track->lastState().position();
         
         if(!m_coordSysTool->inFiducial(endpoint.x(), endpoint.y(), endpoint.z(), m_det_apothem, m_det_upZ, m_det_downZ)){
-            debug() << "Track not contained in detector fiducial volume." << endmsg;
+            PrintInfo("Track not contained in detector fiducial volume.", m_print_cut_verbose);
             return false;
         }
         
@@ -604,10 +604,10 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses, toolsToUse);
         
         if(found_particle){
-            debug() << "This prong has " << (*prong)->particles().size() << " particle hypotheses attached." << endmsg;
+            PrintInfo(Form("This prong has %d particle hypotheses attached.",(*prong)->particles().size()), m_print_cut_verbose);
         }
         else{
-            debug() << "Failed to produce particles" << endmsg;
+            PrintInfo("Failed to produce particles", m_print_cut_verbose);
         }
         
         if((*prong)->particles().size() == 2){
@@ -622,7 +622,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             double score_den = 0.0;
             
             for(part = partHypVec.begin(); part != partHypVec.end(); part++){
-                debug() << "Testing " << (*part)->idcode() << " hypothesis with signature: " << (*part)->methodSignature() << " and score: " << (*part)->score() << endmsg;
+                PrintInfo(Form("Testing %s hypothesis with signature: %s and score: %f", (*part)->idcode(), (*part)->methodSignature(), (*part)->score()), m_print_cut_verbose);
                 
                 std::string part_name;
                 double minPartScore = -999.0;
@@ -633,13 +633,13 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                     part_name = "Proton";
                     minPartScore = m_minProtonScore;
                     maxPartChi2 = m_maxProtonChi2;
-                    debug() << "        Running checks on Proton Hypothesis." << endmsg;
+                    PrintInfo("        Running checks on Proton Hypothesis.", m_print_cut_verbose);
                 }
                 else if((*part)->idcode() == Minerva::Particle::Pion){
                     part_name = "Pion";
                     minPartScore = m_minPionScore;
                     maxPartChi2 = m_maxPionChi2;
-                    debug() << "        Running checks on Pion Hypothesis." << endmsg;
+                    PrintInfo("        Running checks on Pion Hypothesis.", m_print_cut_verbose);
                 }
                 
                 //Actual PID bit: Does the particle
@@ -667,8 +667,8 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             pr_score_N_Vec.push_back(pr_score_N);
             pi_score_N_Vec.push_back(pi_score_N);
             
-            debug() << "Prong " << hadron_counter <<":" << endmsg;
-            debug() << "        Proton Score " << pr_score << " (" << pr_score_N <<") Pion Score " << pi_score << " (" << pi_score_N <<") Chi2NDF " << track->chi2PerDoF() << endmsg;
+            PrintInfo(Form("Prong %d:", hadron_counter), m_print_cut_verbose);
+            PrintInfo(Form("        Proton Score %f (%f), Pion Score %f, (%f) Chi2NDF %f", pr_score, pr_score_N, pi_score, pi_score_N, track->chi2PerDoF()), m_print_cut_verbose);
             
             int found_p_no = 0;
             Minerva::Particle::ID part_name_check;
@@ -697,22 +697,21 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                 PDGCode = m_Pion_PDG;
             }
             
-            debug() << "        Prong " << hadron_counter << " believed to be " << part_name_check << " and has found_p_no = " << found_p_no << endmsg;
+            PrintInfo(Form("        Prong %d believed to be %s and has found_p_no = %d", hadron_counter, part_name_check, found_p_no), m_print_cut_verbose);
 
             
             if(hadron_counter == 1){
                 Part_from_Prong1 = partHypVec[found_p_no];
                 Prong1_PDG = PDGCode;
                 
-                debug() << "        Part_from_Prong1 :: Consistent with " << part_name_check << " Hyp? ";
+                PrintInfo(Form("        Part_from_Prong1 :: Consistent with %s Hyp?", part_name_check), m_print_cut_verbose);
                 if(Part_from_Prong1->idcode() == part_name_check){
-                    debug() << "YES!!!!";
+                    PrintInfo("YES!!!!", m_print_cut_verbose);
                 }
                 else{
-                    debug() << "NO ********************** ?!";
+                    PrintInfo("NO ********************** ?!", m_print_cut_verbose);
                 }
-                debug() << " " << endmsg;
-                debug() << "        IDCode: " << Part_from_Prong1->idcode() <<" Score: " << Part_from_Prong1->score() << endmsg;
+                PrintInfo(Form("        IDCode: %s Score: %f", Part_from_Prong1->idcode(), Part_from_Prong1->score()), m_print_cut_verbose);
                 
             }
             
@@ -720,15 +719,15 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                 Part_from_Prong2 = partHypVec[found_p_no];
                 Prong2_PDG = PDGCode;
                 
-                debug() << "        Part_from_Prong2 :: Consistent with " << part_name_check << " Hyp?";
+                PrintInfo(Form("        Part_from_Prong2 :: Consistent with %s Hyp?", part_name_check), m_print_cut_verbose);
                 if(Part_from_Prong2->idcode() == part_name_check){
-                    debug() << "YES!!!!";
+                    PrintInfo("YES!!!!", m_print_cut_verbose);
                 }
                 else{
-                    debug() << "NO ********************** ?!";
+                    PrintInfo("NO ********************** ?!", m_print_cut_verbose);
                 }
-                debug() << " " << endmsg;
-                debug() << "        IDCode: " << Part_from_Prong2->idcode() <<" Score: " << Part_from_Prong2->score() << endmsg;
+                
+                PrintInfo(Form("        IDCode: %s Score: %f", Part_from_Prong2->idcode(), Part_from_Prong2->score()), m_print_cut_verbose);
             }
         }
         
@@ -739,10 +738,10 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     int pr_prong_no = -999;
     int pi_prong_no = -999;
     
-    debug() << "******************************** Summary ********************************" << endmsg;
-    debug() << "Vector Sizes Consistent: trackChi2NDF N = " << trackChi2NDF.size() << " protonScore N = " << protonScore.size() << " pionScore N = " << pionScore.size();
+    PrintInfo("******************************** Summary ********************************", m_print_cut_verbose);
+    PrintInfo(Form("Vector Sizes Consistent: trackChi2NDF N = %d protonScore N = %d pionScore N = %d", trackChi2NDF.size(), protonScore.size(), pionScore.size()), m_print_cut_verbose);
     if(trackChi2NDF.size() == 2 && protonScore.size()  == 2 && pionScore.size() == 2){
-        debug() << " YES." << endmsg;
+        PrintInfo(" YES.", m_print_cut_verbose);
         
         double Prong1_Proton = protonScore[0]/(protonScore[0] + pionScore[0]);
         double Prong1_Pion = pionScore[0]/(protonScore[0] + pionScore[0]);
@@ -750,15 +749,14 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         double Prong2_Proton = protonScore[1]/(protonScore[1] + pionScore[1]);
         double Prong2_Pion = pionScore[1]/(protonScore[1] + pionScore[1]);
     
-        debug() << "Prong 1:" << endmsg;
-        debug() << "        Proton Score " << protonScore[0] << " (" << Prong1_Proton <<") Pion Score " << pionScore[0] << " (" << Prong1_Pion <<") Chi2NDF " << trackChi2NDF[0] << endmsg;
-        debug() << "        PreCal Pr Sc N " << pr_score_N_Vec[0] << " PreCal Pi Sc N " << pi_score_N_Vec[0] << endmsg;
-        debug() << "Prong 2:" << endmsg;
-        debug() << "        Proton Score " << protonScore[1] << " (" << Prong2_Proton <<") Pion Score " << pionScore[1] << " (" << Prong2_Pion <<") Chi2NDF " << trackChi2NDF[1] << endmsg;
-        debug() << "        PreCal Pr Sc N " << pr_score_N_Vec[1] << " PreCal Pi Sc N " << pi_score_N_Vec[1] << endmsg;
-        
-        debug() << "*************************************************************************" << endmsg;
-        
+        PrintInfo("Prong 1:", m_print_cut_verbose);
+        PrintInfo(Form("        Proton Score %f (%f) Pion Score %f (%f) Chi2NDF %f", protonScore[0], Prong1_Proton, pionScore[0], Prong1_Pion, trackChi2NDF[0]), m_print_cut_verbose);
+        PrintInfo(Form("        PreCal Pr Sc N " << pr_score_N_Vec[0] << " PreCal Pi Sc N " << pi_score_N_Vec[0]), m_print_cut_verbose);
+        PrintInfo("Prong 2:", m_print_cut_verbose);
+        PrintInfo(Form("        Proton Score %f (%f) Pion Score %f (%f) Chi2NDF %f", protonScore[1], Prong2_Proton, pionScore[1], Prong2_Pion, trackChi2NDF[1]), m_print_cut_verbose);
+        PrintInfo(Form("        PreCal Pr Sc N %f PreCal Pi Sc N %f", pr_score_N_Vec[1], pi_score_N_Vec[1]), m_print_cut_verbose, m_print_cut_verbose);
+        PrintInfo("*************************************************************************", m_print_cut_verbose);
+
         int Prong1a_PDG = -999;
         if(Prong1_Proton > Prong1_Pion){
             Prong1a_PDG = m_Proton_PDG;
@@ -779,17 +777,14 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             //debug() << "Prong 2 is thought to be a Pion" << endmsg;
         }
         
-        debug() << "Checking PDG Codes:" << endmsg;
-        debug() << "Prong 1: Pre:" << Prong1_PDG << " Post " << Prong1a_PDG;
-        if(Prong1_PDG == Prong1a_PDG) debug() << ". They are the same!!!";
-        else debug() << ". Close but no cigar... :-(";
-        debug() << " " << endmsg;
+        PrintInfo("Checking PDG Codes:", m_print_cut_verbose);
+        PrintInfo(Form("Prong 1: Pre: %d, Post %d", Prong1_PDG, Prong1a_PDG), m_print_cut_verbose);
+        if(Prong1_PDG == Prong1a_PDG) PrintInfo(". They are the same!!!", m_print_cut_verbose);
+        else PrintInfo(". Close but no cigar... :-(", m_print_cut_verbose);
         
-        debug() << "Prong 2: Pre:" << Prong2_PDG << " Post " << Prong2a_PDG;
-        if(Prong2_PDG == Prong2a_PDG) debug() << ". They are the same!!!";
-        else debug() << ". Close but no cigar... :-(";
-        debug() << " " << endmsg;
-        
+        PrintInfo(Form("Prong 2: Pre: %d Post %d", Prong2_PDG, Prong2a_PDG, m_print_cut_verbose));
+        if(Prong2_PDG == Prong2a_PDG) PrintInfo(". They are the same!!!", m_print_cut_verbose);
+        else PrintInfo("Close but no cigar... :-(", m_print_cut_verbose);
         
         if(Prong1_PDG != Prong2_PDG){
             if(Prong1_PDG == m_Proton_PDG){
@@ -808,16 +803,16 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             }
         }
         else if(Prong1_PDG == m_Proton_PDG){
-            debug() << "Found two protons..." << endmsg;
+            PrintInfo("Found two protons...", m_print_cut_verbose);
             return false;
         }
         else{
-            debug() << "Found two pions..." << endmsg;
+            PrintInfo("Found two pions...", m_print_cut_verbose);
             return false;
         }
     }
     else{
-        debug() << " No... Check this out!!!!" << endmsg;
+        PrintInfo(" No... Check this out!!!!", m_print_cut_verbose);
         return false;
     }
 
@@ -835,24 +830,24 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
     
     bool pr_is_correct = false;
     bool pi_is_correct = false;
-    debug() << "Final Check that the tracks are what we think they are" << endmsg;
-    debug() << "ProtonParticle: " << m_ProtonParticle->idcode();
+    PrintInfo("Final Check that the tracks are what we think they are", m_print_cut_verbose);
+    PrintInfo(Form("ProtonParticle: %s", m_ProtonParticle->idcode()), m_print_cut_verbose);
     if(m_ProtonParticle->idcode() == Minerva::Particle::Proton){
-        debug() << " YES" << endmsg;
+        PrintInfo(" YES", m_print_cut_verbose);
         pr_is_correct = true;
     }
-    debug() << "PionParticle: " << m_PionParticle->idcode();
+    PrintInfo(Form("PionParticle: %s", m_PionParticle->idcode()), m_print_cut_verbose);
     if(m_PionParticle->idcode() == Minerva::Particle::Pion){
-        debug() << " YES" << endmsg;
+        PrintInfo(" YES", m_print_cut_verbose);
         pi_is_correct = true;
     }
     
     if(!(pr_is_correct || pi_is_correct)){
-        debug() << "Particles not correct... check code" << endmsg;
+        PrintInfo("Particles not correct... check code", m_print_cut_verbose);
         return false;
     }
     
-    debug() << "Found Proton and Pion Tracks" << endmsg;
+    PrintInfo("Found Proton and Pion Tracks", m_print_cut_verbose);
     
     return true;
 }
@@ -1308,9 +1303,7 @@ void CC1P1PiAnalysis::SetAccumLevel() const
 {
     //m_accum_level[ cut - 1 ] = cut;
     m_accum_level++;
-    debug() << " " << endmsg;
-    debug() << "***** Accum. Level " << m_accum_level << " ***** " << endmsg;
-    debug() << " " << endmsg;
+    PrintInfo(Form("***** Accum. Level %d ***** ", m_accum_level), m_print_acc_level);
 }
 
 void CC1P1PiAnalysis::ResetAccumLevel() const
@@ -1323,16 +1316,16 @@ void CC1P1PiAnalysis::ResetAccumLevel() const
 
 void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::GenMinInteraction* truth) const
 {
-    debug() << " " << endmsg;
-    debug() << " " << endmsg;
-    debug() << "Call to save accum_level" << endmsg;
+    //debug() << " " << endmsg;
+    //debug() << " " << endmsg;
+    //debug() << "Call to save accum_level" << endmsg;
     if(m_accum_level >= m_accum_level_to_save){
         //debug() << "Passed save requirement" << endmsg;
         event->setIntData("accum_level", m_accum_level);
         truth->setIntData("accum_level", m_accum_level);
         markEvent(event);
         
-        debug() << "++++ Saving Accum. Level " << m_accum_level << " ++++ " << endmsg;
+        PrintInfo(Form("++++ Saving Accum. Level %d ++++", m_accum_level), m_print_acc_level);
         if(m_accum_level < m_ncuts){
           //  debug() << "Event beleived to be below cut threshold." << endmsg;
             Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
@@ -1341,17 +1334,23 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
             nuInts.push_back(nuInt);
             
             StatusCode sc = addInteractionHyp( event, nuInts );
+            if(sc){
+                PrintInfo("Added Int. Hyp", m_print_acc_level);
+            }
+            else {
+                PrintInfo("Failed to add Int. Hyp", m_print_acc_level);
+            }
         }
         else{
-            debug() << "Event beleived to have passed all cuts." << endmsg;
+            PrintInfo("Event beleived to have passed all cuts.", m_print_other);
         }
         
         //debug() << "Should have saved event" << endmsg;
     }
     //else debug() << "Failed to reach accum. level " << m_accum_level_to_save << ". Selection stopped at " << m_accum_level << endmsg;
 
-    debug() << " " << endmsg;
-    debug() << " " << endmsg;
+    //debug() << " " << endmsg;
+    //debug() << " " << endmsg;
     //std::vector<int> tmp_vec;
     //for(int i = 0; i < m_ncuts; i++){
     //    tmp_vec.push_back(m_accum_level[i]);
@@ -1363,13 +1362,13 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
 void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
 {
     //Determine size of 4 vec at some point...
-    debug() << "CC1P1PiAnalysis::Rotate2BeamCoords" << endmsg;
+    PrintInfo("CC1P1PiAnalysis::Rotate2BeamCoords", m_print_other);
 
     if(!((int)val.size() == 4)){
-        debug() << "Warning : Not a 4 vector! Vector has dimension " << val.size() << endmsg;
+        PrintInfo(Form("Warning : Not a 4 vector! Vector has dimension %d", val.size()), m_print_other);
     }
     
-    debug() << "Initial 4Vec: P_E " << val[0] << " P_X " << val[1] << " P_Y " << val[2] << " P_Z "<< val[3] << endmsg;
+    PrintInfo(Form("Initial 4Vec: P_E %f P_X %f P_Y %f P_Z %f", val[0], val[1], val[2], val[3]), m_print_other);
     
     double py = val[2];
     double pz = val[3];
@@ -1380,7 +1379,7 @@ void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
     val[2] = py_prime;
     val[3] = pz_prime;
     
-    debug() << "Rotated 4Vec: P_E " << val[0] << " P_X " << val[1] << " P_Y " << val[2] << " P_Z "<< val[3] << endmsg;
+    PrintInfo(Form("Rotated 4Vec: P_E %f P_X %f P_Y %f P_Z %f", val[0], val[1], val[2], val[3]), m_print_other);
     
 }
 
@@ -1516,7 +1515,8 @@ TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 *& refdir, const TVector3 *& 
     //w.r.t. beam direction
     //
     if(!refdir){
-        printf("CC1P1PiAnalysis::GetVecT refdir null\n"); exit(1);
+        error() << "CC1P1PiAnalysis::GetVecT refdir null" << endmsg;
+        exit(1);
     }
     
     
@@ -1564,7 +1564,6 @@ TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
     
     return nuDirCalc;
 }
-
 
 void CC1P1PiAnalysis::PrintInfo(std::string var, bool print) const
 {
