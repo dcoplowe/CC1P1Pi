@@ -203,6 +203,10 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
 {
     PrintInfo("CC1P1PiAnalysis::reconstructEvent", m_print_other);
     
+    PrintInfo("-------------------------------------------------------------------------------------------------", m_print_acc_level);
+    PrintInfo("----------------------------           New Event             ------------------------------------", m_print_acc_level);
+    PrintInfo("-------------------------------------------------------------------------------------------------", m_print_acc_level);
+    
     //Clear Particle Prongs and Particle objects:
     ResetParticles();
     ResetAccumLevel();
@@ -227,6 +231,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         PrintInfo("No event vertex. Quitting...", m_print_cuts);
         //event->setIntData("vert_exists", 0);
         SaveAccumLevel(event, truth);
+        EventFinished();
         return StatusCode::SUCCESS;
     }
     //else{
@@ -250,6 +255,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         error() << "This vertex is NULL! Flag this event as bad!" << endmsg;
         PrintInfo("AL save 1 ?", m_print_acc_level);
         SaveAccumLevel(event, truth);
+        EventFinished();
         return StatusCode::SUCCESS;
     }
     
@@ -270,6 +276,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         PrintInfo("Event doesn't contain extactly three tracks.", m_print_cuts);
         PrintInfo("AL save 1 ?", m_print_acc_level);
         SaveAccumLevel(event, truth);
+        EventFinished()
         return StatusCode::SUCCESS;
     }
     
@@ -291,6 +298,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         PrintInfo("Muon not found...", m_print_cuts);
         PrintInfo("AL save 2 ?", m_print_acc_level);
         SaveAccumLevel(event, truth);
+        EventFinished();
         return StatusCode::SUCCESS;
     }
     PrintInfo("Muon track found!", m_print_cuts);
@@ -318,6 +326,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         counter("c_tar_other")++;
         PrintInfo("AL save 3 ?", m_print_acc_level);
         SaveAccumLevel(event, truth);
+        EventFinished();
         return StatusCode::SUCCESS;
     }
     
@@ -335,6 +344,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         PrintInfo("Failed to identify particles...", m_print_cuts);
         PrintInfo("AL save 4 ?", m_print_acc_level);
         SaveAccumLevel(event, truth);
+        EventFinished();
         return StatusCode::SUCCESS;
     }
     else{
@@ -360,6 +370,8 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     // Add the newly create NeutrinoInts to this PhysicsEvent
     StatusCode sc = addInteractionHyp( event, nuInts );
+    
+    EventFinished();
     
     return sc;
 }
@@ -1572,6 +1584,14 @@ void CC1P1PiAnalysis::PrintInfo(std::string var, bool print) const
     }
 }
 
+void CC1P1PiAnalysis::EventFinished() const
+{
+    if(m_print_acc_level){
+        PrintInfo("-------------------------------------------------------------------------------------------------");
+        PrintInfo("----------------------------            Finished             ------------------------------------");
+        PrintInfo("-------------------------------------------------------------------------------------------------");
+    }
+}
 
 
 

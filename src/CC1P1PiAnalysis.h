@@ -157,6 +157,8 @@ private:
     bool m_print_cuts;
     bool m_print_other;
     bool m_print_cut_verbose;
+    
+    void EventFinished() const;
 };
 
 #endif
