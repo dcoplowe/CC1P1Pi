@@ -276,7 +276,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         PrintInfo("Event doesn't contain extactly three tracks.", m_print_cuts);
         PrintInfo("AL save 1 ?", m_print_acc_level);
         SaveAccumLevel(event, truth);
-        EventFinished()
+        EventFinished();
         return StatusCode::SUCCESS;
     }
     
