@@ -604,7 +604,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses, toolsToUse);
         
         if(found_particle){
-            PrintInfo(Form("This prong has %d particle hypotheses attached.",(*prong)->particles().size()), m_print_cut_verbose);
+            PrintInfo(Form("This prong has %z particle hypotheses attached.",(*prong)->particles().size()), m_print_cut_verbose);
         }
         else{
             PrintInfo("Failed to produce particles", m_print_cut_verbose);
@@ -622,7 +622,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             double score_den = 0.0;
             
             for(part = partHypVec.begin(); part != partHypVec.end(); part++){
-                PrintInfo(Form("Testing %s hypothesis with signature: %d and score: %f", (*part)->idcode(), (*part)->methodSignature(), (*part)->score()), m_print_cut_verbose);
+                PrintInfo(Form("Testing %d hypothesis with signature: %d and score: %f", (*part)->idcode(), (*part)->methodSignature(), (*part)->score()), m_print_cut_verbose);
                 
                 std::string part_name;
                 double minPartScore = -999.0;
@@ -1365,7 +1365,7 @@ void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
     PrintInfo("CC1P1PiAnalysis::Rotate2BeamCoords", m_print_other);
 
     if(!((int)val.size() == 4)){
-        PrintInfo(Form("Warning : Not a 4 vector! Vector has dimension %z", val.size()), m_print_other);
+        PrintInfo(Form("Warning : Not a 4 vector! Vector has dimension %d", (int)val.size()), m_print_other);
     }
     
     PrintInfo(Form("Initial 4Vec: P_E %f P_X %f P_Y %f P_Z %f", val[0], val[1], val[2], val[3]), m_print_other);
