@@ -220,19 +220,19 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     event->filtertaglist()->setOrAddFilterTag( "isMinosMatchStub", false );
     
     //----------- 1 : Find vertex              -----------//
-    debug()<< "1) Find vertex" << endmsg;
+    PrintInfo("1) Find vertex", m_print_cuts);
     
     if( !event->hasInteractionVertex() ){
-        debug() << "No event vertex. Quitting..." << endmsg;
+        PrintInfo("No event vertex. Quitting...", m_print_cuts);
         //event->setIntData("vert_exists", 0);
         SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
     //else{
-    debug() << "Found vertex!" << endmsg;
+    PrintInfo("Found vertex!", m_print_cuts);
     event->setIntData("vert_exists", 1);
     counter("c_vertex")++;
-    debug() << "AL should be 1" << endmsg;
+    PrintInfo("AL should be 1", m_print_acc_level);
     SetAccumLevel();
     
     //}
@@ -240,14 +240,14 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     //----------- 2 : Vertex has only 3 tracks -----------//
     //Only want a total of three outgoing tracks therefore total number of
     //tracks is equal to no. of outgoing tracks.
-    debug()<< "2) Three tracks" << endmsg;
+    PrintInfo("2) Three tracks", m_print_cuts);
     SmartRef<Minerva::Vertex> reco_vertex = event->interactionVertex();
     
     if( !reco_vertex ) {
         bool pass = true; std::string tag = "BadObject";
         event->filtertaglist()->addFilterTag(tag,pass);
         error() << "This vertex is NULL! Flag this event as bad!" << endmsg;
-        debug() << "AL save 1 ?" << endmsg;
+        PrintInfo("AL save 1 ?", m_print_acc_level);
         SaveAccumLevel(event, truth);
         return StatusCode::SUCCESS;
     }
@@ -261,7 +261,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     debug() << "n_tracks = " << ntot_tracks << " n_prongs = " << n_prongs;
     if(ntot_tracks == n_prongs){
-        debug() << " !! EQUAL !!";
+        PrintInfo(" !! EQUAL !!", m_print_cuts);
     }
     debug() << " " << endmsg;
     
