@@ -474,16 +474,16 @@ void CC1P1PiAnalysis::FindShortTracks(Minerva::PhysicsEvent * event) const
     PrintInfo("Finished making short tracks", m_print_cuts);
     
     int n_anchored_short_trk_prongs = event->primaryProngs().size() - n_anchored_long_trk_prongs - 1;
-    int n_iso_trk_prongs = (event->select<Prong>("Used:Unused","All")).size() - event->primaryProngs().size();
+    //int n_iso_trk_prongs = (event->select<Prong>("Used:Unused","All")).size() - event->primaryProngs().size();
     
     event->setIntData("n_anchored_long_trk_prongs", n_anchored_short_trk_prongs);
     event->setIntData("n_anchored_short_trk_prongs", n_anchored_short_trk_prongs);
-    event->setIntData("n_iso_trk_prongs", n_iso_trk_prongs);
+    //event->setIntData("n_iso_trk_prongs", n_iso_trk_prongs);
     
     PrintInfo("******************** Short Track Finder ************************",true);
     PrintInfo(Form("n_anchored_long_trk_prongs = %d", n_anchored_long_trk_prongs), true);
     PrintInfo(Form("n_anchored_short_trk_prongs = %d", n_anchored_short_trk_prongs), true);
-    PrintInfo(Form("n_iso_trk_prongs = %d", n_iso_trk_prongs), true);
+    //PrintInfo(Form("n_iso_trk_prongs = %d", n_iso_trk_prongs), true);
     
 }
 
