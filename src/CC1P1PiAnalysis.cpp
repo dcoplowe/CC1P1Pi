@@ -19,8 +19,8 @@
 #include <TMath.h>
 #include <TVector3.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdlib.h>
 
 #ifndef EPSILON
 #define EPSILON  1e-10
@@ -231,7 +231,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     PrintInfo("1) Find vertex", m_print_cuts);
     PrintInfo("AL should be 0", m_print_acc_level);
     //PrintInfo(Form("***** Accum. Level %d *****", m_accum_level), m_print_acc_level);
-    PrintInfo( ("***** Accum. Level " + itoa(m_accum_level) + " *****").c_str(), m_print_acc_level);
+    PrintInfo( ("***** Accum. Level " + std::to_string(m_accum_level) + " *****").c_str(), m_print_acc_level);
     
     if( !event->hasInteractionVertex() ){
         PrintInfo("No event vertex. Quitting...", m_print_cuts);
