@@ -7,6 +7,7 @@
 //#include "MINERVAUtils.h"
 
 //Forward declared headers:
+#include "AnaUtils/ICCPionIncUtils.h"
 #include "AnaUtils/IMuonUtils.h"
 #include "GeoUtils/IMinervaCoordSysTool.h"
 #include "DetDesc/Material.h"
