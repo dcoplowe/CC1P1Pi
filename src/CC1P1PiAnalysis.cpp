@@ -224,11 +224,11 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     event->filtertaglist()->setOrAddFilterTag( "isMinosMatchTrack", false );
     event->filtertaglist()->setOrAddFilterTag( "isMinosMatchStub", false );
     
-    
     //----------- 1 : Find vertex              -----------//
     PrintInfo("1) Find vertex", m_print_cuts);
     PrintInfo("AL should be 0", m_print_acc_level);
-    PrintInfo(Form("***** Accum. Level %d *****", m_accum_level), m_print_acc_level);
+//    PrintInfo(Form("***** Accum. Level %d *****", m_accum_level), m_print_acc_level);
+    PrintInfo( ("***** Accum. Level " + m_accum_level +" *****").c_str(), m_print_acc_level);
     
     if( !event->hasInteractionVertex() ){
         PrintInfo("No event vertex. Quitting...", m_print_cuts);
@@ -579,7 +579,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         prong_count++;
         PrintInfo(Form("Checking Prong: %d", prong_count), m_print_cut_verbose);
         
-        //Check prong isn't that of the muon:
+        //Check prong isn't muon prong:
         if(m_MuonProng == (*prong)){
             PrintInfo("Prong already determined as muon.", m_print_cut_verbose);
             continue;
@@ -601,6 +601,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
         
         hadron_counter++;
      
+        //Why are we taking the last track? What is the size of the track?
         SmartRef<Minerva::Track> track = tracks[tracks.size() - 1];
         Gaudi::XYZPoint endpoint = track->lastState().position();
         
@@ -609,7 +610,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             return false;
         }
         
-        //The following code is based on that of the ProtonUtils.
+        //The following code is based on code in ProtonUtils.
         std::vector<Minerva::Particle::ID> hypotheses;
         hypotheses.push_back(Minerva::Particle::Pion);
         hypotheses.push_back(Minerva::Particle::Proton);
@@ -644,6 +645,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                 double maxPartChi2 = -999.0;
                 
                 //For now let's just compare the hyp of which is more proton/pion like
+                //This simply sets the part_name, scores and chi2 are not used yet
                 if((*part)->idcode() == Minerva::Particle::Proton){
                     part_name = "Proton";
                     minPartScore = m_minProtonScore;
@@ -689,7 +691,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
             Minerva::Particle::ID part_name_check = Minerva::Particle::Unknown;
             int PDGCode = -999;
             
-            if(pr_score_N > pi_score_N){
+            if(pr_score_N < pi_score_N){
                 
                 for(int hyp_counter = 0; hyp_counter < (int)partHypVec.size(); hyp_counter++){
                     if( partHypVec[hyp_counter]->idcode() == Minerva::Particle::Proton){
@@ -701,7 +703,7 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
                 PDGCode = m_Proton_PDG;
                 
             }
-            else if(pr_score_N < pi_score_N){
+            else{
                 for(int hyp_counter = 0; hyp_counter < (int)partHypVec.size(); hyp_counter++){
                     if( partHypVec[hyp_counter]->idcode() == Minerva::Particle::Pion){
                         found_p_no = hyp_counter;
