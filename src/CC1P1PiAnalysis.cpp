@@ -21,6 +21,7 @@
 
 //#include <stdio.h>
 //#include <stdlib.h>
+#include <string>
 
 #ifndef EPSILON
 #define EPSILON  1e-10
