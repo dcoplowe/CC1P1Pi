@@ -20,6 +20,7 @@
 #include <TVector3.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifndef EPSILON
 #define EPSILON  1e-10
