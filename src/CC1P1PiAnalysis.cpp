@@ -19,6 +19,8 @@
 #include <TMath.h>
 #include <TVector3.h>
 
+#include <stdio.h>
+
 #ifndef EPSILON
 #define EPSILON  1e-10
 #endif
