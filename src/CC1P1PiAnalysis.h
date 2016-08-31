@@ -4,6 +4,7 @@
 #include "AnaUtils/MinervaAnalysisTool.h"
 
 //Forward declarations:
+class ICCPionIncUtils;
 class IMuonUtils;
 class IMinervaCoordSysTool;
 class INuclearTargetTool;
@@ -58,6 +59,9 @@ private:
     void ResetParticles() const;
     //----------------------------------------------------------------------------//
 
+    //------ Find short tracks originating from the vertex ------//
+    ICCPionIncUtils * m_ccPionIncUtils;
+    void FindShortTracks(const Minerva::PhysicsEvent * event) const;
 
     //------ Find Muon ------//
     bool FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth, SmartRef<Minerva::Prong>& muonProng, SmartRef<Minerva::Particle>& muonPart) const;

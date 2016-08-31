@@ -19,9 +19,9 @@
 #include <TMath.h>
 #include <TVector3.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string>
 
 #ifndef EPSILON
 #define EPSILON  1e-10
@@ -126,6 +126,12 @@ StatusCode CC1P1PiAnalysis::initialize()
     if( sc.isFailure() )
         return Error( "Failed to initialize!", sc );
     
+    try {
+        m_ccPionIncUtils = tool<ICCPionIncUtils>("CCPionIncUtils");
+    } catch( GaudiException& e ) {
+        error() << "Could not obtain tool: CCPionIncUtils" << endmsg;
+        return StatusCode::FAILURE;
+    }
     
     try{ m_muonUtils = tool<IMuonUtils>("MuonUtils", m_muonUtilsAlias); }
     catch( GaudiException& e){
@@ -175,12 +181,18 @@ StatusCode CC1P1PiAnalysis::initialize()
     // Declare recon vars
     //---------------------------------------------------------------------
 
+    //Selection branches:
     declareIntEventBranch("n_tracks3", -999);
     declareIntEventBranch("vert_exists", -999);
     declareIntEventBranch("target_region", -999);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
     //  declareContainerDoubleEventBranch( "shower_momentum", 4, -999. );
     declareBoolEventBranch("isMinosMatchTrack");
     declareBoolEventBranch("isMinosMatchStub");
+    
+    declareIntEventBranch("n_anchored_long_trk_prongs", -999);
+    declareIntEventBranch("n_anchored_short_trk_prongs", -999);
+    declareIntEventBranch("n_iso_trk_prongs", -999);
+    declareIntEventBranch("n_prongs", -999);
     
     SetCommonBranches();
     
@@ -231,8 +243,8 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     //----------- 1 : Find vertex              -----------//
     PrintInfo("1) Find vertex", m_print_cuts);
     PrintInfo("AL should be 0", m_print_acc_level);
-    //PrintInfo(Form("***** Accum. Level %d *****", m_accum_level), m_print_acc_level);
-    PrintInfo( ("***** Accum. Level " + std::to_string(m_accum_level) + " *****").c_str(), m_print_acc_level);
+    PrintInfo(Form("***** Accum. Level %d *****", m_accum_level), m_print_acc_level);
+    //PrintInfo( ("***** Accum. Level " + std::to_string(m_accum_level) + " *****").c_str(), m_print_acc_level);
     
     if( !event->hasInteractionVertex() ){
         PrintInfo("No event vertex. Quitting...", m_print_cuts);
@@ -249,6 +261,9 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     SetAccumLevel();
     
     //}
+    
+    //Action: Look for short tracks around the vertex:
+    FindShortTracks(event);
     
     //----------- 2 : Vertex has only 3 tracks -----------//
     //Only want a total of three outgoing tracks therefore total number of
@@ -273,11 +288,12 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     Minerva::ProngVect n_prong_check = event->primaryProngs();
     unsigned int n_prongs = n_prong_check.size();
     
+    event->setIntData("n_prongs", (int)n_prongs);
+    
     PrintInfo(Form("n_tracks = %d n_prongs = %d", ntot_tracks, n_prongs), m_print_cuts);
     if(ntot_tracks == n_prongs){
         PrintInfo(" !! EQUAL !!", m_print_cuts);
     }
-    //debug() << " " << endmsg;
     
     if(!(ntot_tracks == nout_tracks && ntot_tracks == 3)){
         PrintInfo("Event doesn't contain extactly three tracks.", m_print_cuts);
@@ -447,6 +463,29 @@ bool CC1P1PiAnalysis::truthIsPlausible( const Minerva::PhysicsEvent * event ) co
 
 
 //Selection Functions:
+
+void CC1P1PiAnalysis::FindShortTracks(const Minerva::PhysicsEvent * event) const
+{
+    int n_anchored_long_trk_prongs = event->primaryProngs().size() - 1;
+    
+    PrintInfo("Making short tracks", m_print_cuts);
+    m_ccPionIncUtils->makeShortTracks(event);
+    PrintInfo("Finished making short tracks", m_print_cuts);
+    
+    int n_anchored_short_trk_prongs = event->primaryProngs().size() - n_anchored_long_trk_prongs - 1;
+    int n_iso_trk_prongs = (event->select<Prong>("Used:Unused","All")).size() - event->primaryProngs().size();
+    
+    event->setIntData("n_anchored_long_trk_prongs", n_anchored_short_trk_prongs);
+    event->setIntData("n_anchored_short_trk_prongs", n_anchored_short_trk_prongs);
+    event->setIntData("n_iso_trk_prongs", n_iso_trk_prongs);
+    
+    PrintInfo("******************** Short Track Finder ************************",true);
+    PrintInfo(Form("n_anchored_long_trk_prongs = %d", n_anchored_long_trk_prongs), true);
+    PrintInfo(Form("n_anchored_short_trk_prongs = %d", n_anchored_short_trk_prongs), true);
+    PrintInfo(Form("n_iso_trk_prongs = %d", n_iso_trk_prongs), true);
+    
+}
+
 
 bool CC1P1PiAnalysis::FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth, SmartRef<Minerva::Prong>& muonProng, SmartRef<Minerva::Particle>& muonPart ) const
 {
