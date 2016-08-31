@@ -465,7 +465,7 @@ bool CC1P1PiAnalysis::truthIsPlausible( const Minerva::PhysicsEvent * event ) co
 
 //Selection Functions:
 
-void CC1P1PiAnalysis::FindShortTracks(const Minerva::PhysicsEvent * event) const
+void CC1P1PiAnalysis::FindShortTracks(Minerva::PhysicsEvent * event) const
 {
     int n_anchored_long_trk_prongs = event->primaryProngs().size() - 1;
     
