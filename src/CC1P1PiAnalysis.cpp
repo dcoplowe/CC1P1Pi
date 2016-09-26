@@ -1506,9 +1506,9 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
         markEvent(event);
         
         PrintInfo(Form("++++ Saving Accum. Level %d ++++", tmp_accum_level), m_print_acc_level);
-        if(m_accum_level < m_ncuts){
+        if(tmp_accum_level < m_ncuts){
           //  debug() << "Event beleived to be below cut threshold." << endmsg;
-            Minerva::NeutrioInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
+            Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
             
             std::vector<Minerva::NeutrinoInt*> nuInts;
             nuInts.push_back(nuInt);
