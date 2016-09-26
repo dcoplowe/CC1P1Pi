@@ -115,8 +115,10 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     m_PDP = new TVector3(m_PDP_X, m_PDP_Y, m_PDP_X);
     
     m_ProtonScore = new double [2];
+    m_ProtonChi2ndf = new double [1];
+    
     m_PionScore = new double [2];
-    m_Chi2NDF = new double [2];
+    m_PionChi2ndf = new double [1];
     
     //Want to pass 4-mom vectors in order to produce Q2, Enu and transverse variables:
     m_Muon4Mom = new double [4];
@@ -814,11 +816,11 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
         //1 is the pion score.
         m_ProtonScore[ 0 ] = tmp_pr_score[ best_proton[0] ];
         m_ProtonScore[ 1 ] = tmp_pi_score[ best_proton[0] ];
-        m_ProtonChi2ndf = tmp_chi2ndf[ best_proton[0] ];
+        m_ProtonChi2ndf[ 0 ] = tmp_chi2ndf[ best_proton[0] ];
 
         m_PionScore[ 0 ] = tmp_pr_score[ best_pion[0] ];
         m_PionScore[ 1 ] = tmp_pi_score[ best_pion[0] ];
-        m_PionChi2ndf = tmp_chi2ndf[ best_pion[0] ];
+        m_PionChi2ndf[ 0 ] = tmp_chi2ndf[ best_pion[0] ];
         
         debug() << "******************************** Consistancy Check dEdX ********************************" << endmsg;
         debug() << "Proton Prong: " << endmsg;
@@ -860,8 +862,8 @@ void CC1P1PiAnalysis::ResetParticles() const
     m_PionScore[0] = -999.;
     m_PionScore[1] = -999.;
     
-    m_ProtonChi2ndf = -999.;
-    m_PionChi2ndf = -999.;
+    m_ProtonChi2ndf[0] = -999.;
+    m_PionChi2ndf[0] = -999.;
     
     for(int i = 0; i < 4; i++){
         m_EX_Pion4Mom[i] = -999.;//TXYZ
@@ -1169,7 +1171,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         tmp_scores[0] = m_ProtonScore[0];
         tmp_scores[1] = m_ProtonScore[1];
         
-        tmp_chi2ndf = m_ProtonChi2ndf;
+        tmp_chi2ndf = m_ProtonChi2ndf[0];
         
         prong_LL = m_LL_ProtonProng;
         particle_LL = m_LL_ProtonParticle;
@@ -1183,7 +1185,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         tmp_scores[0] = m_PionScore[0];
         tmp_scores[1] = m_PionScore[1];
         
-        tmp_chi2ndf = m_PionChi2ndf;
+        tmp_chi2ndf = m_PionChi2ndf[0];
 
         prong_LL = m_LL_PionProng;
         particle_LL = m_LL_PionParticle;
@@ -1225,7 +1227,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         double score = particle_EX->score();
         cc1p1piHyp->setDoubleData( (name + "_score").c_str(), score );
         
-        Minerva::TrackVect tracks = (*prong)->minervaTracks();
+        Minerva::TrackVect tracks = *prong_EX->minervaTracks();
         if(!tracks.empty()){
             SmartRef<Minerva::Track> track = tracks[ tracks.size() - 1 ];
             tmp_chi2ndf = track->chi2PerDoF();
@@ -1236,6 +1238,11 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     }
     
 //    declareContainerDoubleBranch(m_hypMeths, (name + "_startdir").c_str(), 3, -999.); -- need to take care in how this is determined.
+    SmartRef<Minerva::Prong> prong;
+    
+    if(!prong_EX){
+        prong = prong_LL;
+    }
     
     Gaudi::XYZPoint upstream = ( *prong->minervaTracks().front() ).upstreamState().position();
     std::vector<double> sel_start_xyz;
@@ -1301,6 +1308,8 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             true4mom.push_back(traj_4p.px());
             true4mom.push_back(traj_4p.py());
             true4mom.push_back(traj_4p.pz());
+            
+            Rotate2BeamCoords(true4mom);
             
             SetGlobal4Vec(name, true4mom, true);
             
