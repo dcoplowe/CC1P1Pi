@@ -1315,6 +1315,14 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             
             cc1p1piHyp->setContainerDoubleData( (name + "_true4mom").c_str(), true4mom);
             
+            std::vector<double> true_dir;
+            double norm = sqrt( true4mom[1]*true4mom[1] + true4mom[2]*true4mom[2] + true4mom[3]*true4mom[3] );
+            true_dir.push_back( (true4mom[1]/norm) );
+            true_dir.push_back( (true4mom[2]/norm) );
+            true_dir.push_back( (true4mom[3]/norm) );
+            
+            cc1p1piHyp->setContainerDoubleData( (name + "_truestartdir").c_str(), true_dir);
+            
             const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
             
             double nu_3vec_mag = sqrt(nu_4vec.px()*nu_4vec.px() + nu_4vec.py()*nu_4vec.py() + nu_4vec.pz()*nu_4vec.pz());
@@ -1378,11 +1386,6 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             tru_end_xyz.push_back(finpos.y());
             tru_end_xyz.push_back(finpos.z());
             cc1p1piHyp->setContainerDoubleData( (name + "_trueendpos_xyz").c_str(), tru_end_xyz);
-            
-            std::vector<double> true_dir;
-            true_dir.push_back();
-            true_dir.push_back();
-            true_dir.push_back();
         }
     }
     
