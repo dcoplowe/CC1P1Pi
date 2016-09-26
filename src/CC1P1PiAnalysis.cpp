@@ -638,13 +638,16 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent * event, std::string m
     
     if(!IsEventContained(event)) return false;
     
+    bool success = false;
+    if(method == "LL") success = LLMethod(event);
+    else if(method == "EX") success = EXMethod(event);
     //Determine which track is most proton like and pion like:
     // 1) Get particle scores and compare which track is has the highest score for the given hypothosis.
     // 2) Look for Michel features.
     //
     //Check that they are contianed in det FV and they are not minos matched.
-    
-    return true;
+ 
+    return success;
 }
 
 bool CC1P1PiAnalysis::IsEventContained(Minerva::PhysicsEvent * event) const
@@ -697,7 +700,12 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
     
     Minerva::ProngVect prongs = event->primaryProngs();
     Minerva::ProngVect::iterator prong;
-    Minerva::ProngVect tmp_prong;
+
+    Minerva::ProngVect tmp_pr_prongs;
+    Minerva::ParticleVect tmp_pr_particles;
+    
+    Minerva::ProngVect tmp_pi_prongs;
+    Minerva::ParticleVect tmp_pi_particles;
     
     int pr_count = 0;
     
@@ -706,18 +714,19 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
         if( (*prong) == m_MuonProng) continue;
         
         tmp_prong.push_back( (*prong) );
+        Minerva::Prong tmp_pr_prong;
+        Minerva::Particle tmp_pr_particle;
         bool pr_found = m_protonUtils->findProtonProng(tmp_prong, tmp_pr_prong, tmp_pr_particle);
         tmp_prong.clear();
         
         if(pr_found){
-            if(pr_count > 0){
-                PrintInfo("More than one proton found...", m_print_cut_verbose);
-                return false;
-            }
+            tmp_pr_prongs.push_back(tmp_pr_prong);
+            tmp_pr_particles.push_back(tmp_pr_particle);
+            //if(pr_count > 0){
+            //    PrintInfo("More than one proton found...", m_print_cut_verbose);
+            //    return false;
+            //}
             //save the fact that more than two protons were found.
-            
-            m_EX_ProtonProng = tmp_pr_prong;
-            m_EX_ProtonParticle = tmp_pr_particle;
             pr_count++;
         }
         //else{
@@ -726,6 +735,9 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
         //}
         
     }
+
+    //m_EX_ProtonProng = tmp_pr_prong;
+    //m_EX_ProtonParticle = tmp_pr_particle;
     
     return true;
 }
@@ -1367,16 +1379,31 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
     //debug() << " " << endmsg;
     //debug() << " " << endmsg;
     //debug() << "Call to save accum_level" << endmsg;
-    if(m_accum_level >= m_accum_level_to_save){
+    
+    double tmp_accum_level = 0;
+    std::vector<double> accum_level;
+    
+    //Save the lowest accum level
+    
+    for(int i = 0; i < m_nsplits; i++){
+        
+        accum_level.push_back(m_accum_level[i]);
+        if(i == 0) tmp_accum_level = m_accum_level[i];
+        if(tmp_accum_level < m_accum_level[i] && i > 0) tmp_accum_level = m_accum_level[i];
+        
+    }
+    
+    if(tmp_accum_level >= m_accum_level_to_save){
         //debug() << "Passed save requirement" << endmsg;
-        event->setIntData("accum_level", m_accum_level);
-        truth->setIntData("accum_level", m_accum_level);
+        
+        event->setIntData("accum_level", accum_level);
+        truth->setIntData("accum_level", accum_level);
         markEvent(event);
         
         PrintInfo(Form("++++ Saving Accum. Level %d ++++", m_accum_level), m_print_acc_level);
         if(m_accum_level < m_ncuts){
           //  debug() << "Event beleived to be below cut threshold." << endmsg;
-            Minerva::NeutrinoInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
+            Minerva::NeutrioInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
             
             std::vector<Minerva::NeutrinoInt*> nuInts;
             nuInts.push_back(nuInt);
