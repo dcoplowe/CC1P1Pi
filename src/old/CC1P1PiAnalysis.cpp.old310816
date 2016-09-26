@@ -7,14 +7,11 @@
 //#include "MINERVAUtils.h"
 
 //Forward declared headers:
-#include "AnaUtils/ICCPionIncUtils.h"
 #include "AnaUtils/IMuonUtils.h"
 #include "GeoUtils/IMinervaCoordSysTool.h"
 #include "DetDesc/Material.h"
 #include "GeoUtils/INuclearTargetTool.h"
-#include "AnaUtils/IProtonUtils.h"
 #include "ParticleMaker/IParticleMakerTool.h"
-#include "ParticleMaker/IParticleTool.h"
 #include "TruthMatcher/ITruthMatcher.h"
 
 //Root headers:
@@ -22,9 +19,9 @@
 #include <TMath.h>
 #include <TVector3.h>
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 
 #ifndef EPSILON
 #define EPSILON  1e-10
@@ -67,10 +64,10 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
 
     declareProperty("NuclearTargetToolAlias", m_nuclearTargetToolAlias  = "CC1P1PiTargetTool");
     
-    //For hadron PID: Removed *CLHEP::mm from the following:
-    declareProperty("det_apothem", m_det_apothem = 1200.0);//Same as Proton utils:
-    declareProperty("det_upZ", m_det_upZ = 4000.0);//Same as Proton utils:
-    declareProperty("det_downZ", m_det_downZ = 10000.0);//Same as Proton utils:
+    //For hadron PID:
+    declareProperty("det_apothem", m_det_apothem = 1200.0*CLHEP::mm);//Same as Proton utils:
+    declareProperty("det_upZ", m_det_upZ = 4000.0*CLHEP::mm);//Same as Proton utils:
+    declareProperty("det_downZ", m_det_downZ = 10000.0*CLHEP::mm);//Same as Proton utils:
     
     declareProperty("ParticleMakerAlias", m_particleMakerAlias = "CC1P1PiParticleMaker");
     
@@ -88,24 +85,12 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("n_cuts", m_ncuts = 5);
     m_accum_level = 0;// = new int [ m_ncuts ]; -- no need for N dim. as we only have one branch.
 
-    m_nsplits = 2;
-    m_accum_level = new int [m_nsplits];
-    
-    //Mean Parent Decay Point in metres
+    //Mean Parent Decay Point
     declareProperty("PDP_X", m_PDP_X = 0.231135);
     declareProperty("PDP_Y", m_PDP_Y = 45.368069);
     declareProperty("PDP_Z", m_PDP_Z = 766.384058);
     
-    //Run option parameters:
     declareProperty("accum_level_to_save", m_accum_level_to_save = 5);//Defualt to no of cuts so that we only save interesting events.
-    declareProperty("PID_method", m_PID_method = false);
-    
-    if(m_PID_method){
-        m_PID_tool = "dEdXTool";
-    }
-    else{
-        m_PID_tool = "dEdXTool";//What is the name? Check Phil's analysis
-    }
     
     declareProperty("print_cuts", m_print_cuts = false);
     declareProperty("print_cut_verbose", m_print_cut_verbose = false);
@@ -119,25 +104,14 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     m_Chi2NDF = new double [2];
     
     //Want to pass 4-mom vectors in order to produce Q2, Enu and transverse variables:
-    m_Muon4Mom = new double [4];
-    m_Muontrue4Mom = new double [4];
-    
-    m_EX_Pion4Mom = new double [4];//TXYZ
-    m_EX_Proton4Mom = new double [4];
-    
-    m_LL_Pion4Mom = new double [4];
-    m_LL_Proton4Mom = new double [4];
-    
+    m_Pion4Mom = new double [4];//TXYZ
     m_Piontrue4Mom = new double [4];
+    
+    m_Proton4Mom = new double [4];
     m_Protontrue4Mom = new double [4];
     
-    m_Muon_dir = new double [3];
-    m_Proton_dir = new double [3];
-    m_Pion_dir = new double [3];
-    
-    m_Muontrue_dir = new double [3];
-    m_Protontrue_dir = new double [3];
-    m_Piontrue_dir = new double [3];
+    m_Muon4Mom = new double [4];
+    m_Muontrue4Mom = new double [4];
     
 }
 
@@ -146,17 +120,12 @@ StatusCode CC1P1PiAnalysis::initialize()
 {
     PrintInfo("CC1P1PiAnalysis::initialize()", m_print_other);
     
+    
     // Initialize the base class.  This will fail if you did not define m_anaSignature.
     StatusCode sc = this->MinervaAnalysisTool::initialize();
     if( sc.isFailure() )
         return Error( "Failed to initialize!", sc );
     
-    try {
-        m_ccPionIncUtils = tool<ICCPionIncUtils>("CCPionIncUtils");
-    } catch( GaudiException& e ) {
-        error() << "Could not obtain tool: CCPionIncUtils" << endmsg;
-        return StatusCode::FAILURE;
-    }
     
     try{ m_muonUtils = tool<IMuonUtils>("MuonUtils", m_muonUtilsAlias); }
     catch( GaudiException& e){
@@ -179,21 +148,9 @@ StatusCode CC1P1PiAnalysis::initialize()
         return StatusCode::FAILURE;
     }
     
-    try { m_protonUtils = tool<IProtonUtils>("ProtonUtils"); }
-    catch( GaudiException& e){
-        error() << "Could not obtain ProtonUtils!" << endmsg;
-        return StatusCode::FAILURE;
-    }
-    
     try { m_particleMaker = tool<IParticleMakerTool>("ParticleMakerTool", m_particleMakerAlias); }
     catch( GaudiException& e){
         error() << "Could not obtain ParticleMakerTool: " << m_particleMakerAlias << endmsg;
-        return StatusCode::FAILURE;
-    }
-    
-    try { m_LikelihoodPIDTool = tool<IParticleTool>("ParticleTool"); }
-    catch( GaudiException& e){
-        error() << "Could not obtain IParticleTool: " << endmsg;
         return StatusCode::FAILURE;
     }
     
@@ -218,7 +175,6 @@ StatusCode CC1P1PiAnalysis::initialize()
     // Declare recon vars
     //---------------------------------------------------------------------
 
-    //Selection branches:
     declareIntEventBranch("n_tracks3", -999);
     declareIntEventBranch("vert_exists", -999);
     declareIntEventBranch("target_region", -999);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
@@ -226,13 +182,6 @@ StatusCode CC1P1PiAnalysis::initialize()
     declareBoolEventBranch("isMinosMatchTrack");
     declareBoolEventBranch("isMinosMatchStub");
     
-    declareIntEventBranch("n_anchored_long_trk_prongs", -999);
-    declareIntEventBranch("n_anchored_short_trk_prongs", -999);
-    declareIntEventBranch("n_iso_trk_prongs", -999);
-    declareIntEventBranch("n_prongs", -999);
-    declareIntEventBranch("contained_evt", -999);
-//    declareIntTruthBranch("contained_evt", -999);
-
     SetCommonBranches();
     
     SetPartInfo("mu");
@@ -243,11 +192,8 @@ StatusCode CC1P1PiAnalysis::initialize()
     // Declare the Truth block branches.
     // Truth branches contain information matched to a GenMinInteraction
     //---------------------------------------------------------------------
-
-    declareIntEventBranch("nsplits", m_nsplits);
-    declareIntTruthBranch("nsplits", m_nsplits);
-    declareContainerIntEventBranch("accum_level", m_nsplits, 0);
-    declareContainerIntTruthBranch("accum_level", m_nsplits, 0);
+    declareIntEventBranch("accum_level", 0);
+    declareIntTruthBranch("accum_level", 0);
     declareIntEventBranch("ncuts", m_ncuts);
     declareIntTruthBranch("ncuts", m_ncuts);
     
@@ -285,11 +231,8 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     //----------- 1 : Find vertex              -----------//
     PrintInfo("1) Find vertex", m_print_cuts);
     PrintInfo("AL should be 0", m_print_acc_level);
-    for(int i = 0; i < m_nsplits; i++){
-        PrintInfo(Form("***** Accum. Level [%d] = %d *****", i, m_accum_level[i]), m_print_acc_level);
-    }
-    
-    //PrintInfo( ("***** Accum. Level " + std::to_string(m_accum_level) + " *****").c_str(), m_print_acc_level);
+    //PrintInfo(Form("***** Accum. Level %d *****", m_accum_level), m_print_acc_level);
+    PrintInfo( ("***** Accum. Level " + std::to_string(m_accum_level) + " *****").c_str(), m_print_acc_level);
     
     if( !event->hasInteractionVertex() ){
         PrintInfo("No event vertex. Quitting...", m_print_cuts);
@@ -306,9 +249,6 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     SetAccumLevel();
     
     //}
-    
-    //Action: Look for short tracks around the vertex:
-    FindShortTracks(event);
     
     //----------- 2 : Vertex has only 3 tracks -----------//
     //Only want a total of three outgoing tracks therefore total number of
@@ -333,12 +273,11 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     Minerva::ProngVect n_prong_check = event->primaryProngs();
     unsigned int n_prongs = n_prong_check.size();
     
-    event->setIntData("n_prongs", (int)n_prongs);
-    
     PrintInfo(Form("n_tracks = %d n_prongs = %d", ntot_tracks, n_prongs), m_print_cuts);
     if(ntot_tracks == n_prongs){
         PrintInfo(" !! EQUAL !!", m_print_cuts);
     }
+    //debug() << " " << endmsg;
     
     if(!(ntot_tracks == nout_tracks && ntot_tracks == 3)){
         PrintInfo("Event doesn't contain extactly three tracks.", m_print_cuts);
@@ -472,6 +411,7 @@ StatusCode CC1P1PiAnalysis::tagTruth( Minerva::GenMinInteraction *truth ) const
     return StatusCode::SUCCESS;
 }
 
+
 //! Finalize
 StatusCode CC1P1PiAnalysis::finalize()
 {
@@ -507,29 +447,6 @@ bool CC1P1PiAnalysis::truthIsPlausible( const Minerva::PhysicsEvent * event ) co
 
 
 //Selection Functions:
-
-void CC1P1PiAnalysis::FindShortTracks(Minerva::PhysicsEvent * event) const
-{
-    int n_anchored_long_trk_prongs = event->primaryProngs().size() - 1;
-    
-    PrintInfo("Making short tracks", m_print_cuts);
-    m_ccPionIncUtils->makeShortTracks(event);
-    PrintInfo("Finished making short tracks", m_print_cuts);
-    
-    int n_anchored_short_trk_prongs = event->primaryProngs().size() - n_anchored_long_trk_prongs - 1;
-    //int n_iso_trk_prongs = (event->select<Prong>("Used:Unused","All")).size() - event->primaryProngs().size();
-    
-    event->setIntData("n_anchored_long_trk_prongs", n_anchored_short_trk_prongs);
-    event->setIntData("n_anchored_short_trk_prongs", n_anchored_short_trk_prongs);
-    //event->setIntData("n_iso_trk_prongs", n_iso_trk_prongs);
-    
-    PrintInfo("******************** Short Track Finder ************************",true);
-    PrintInfo(Form("n_anchored_long_trk_prongs = %d", n_anchored_long_trk_prongs), true);
-    PrintInfo(Form("n_anchored_short_trk_prongs = %d", n_anchored_short_trk_prongs), true);
-    //PrintInfo(Form("n_iso_trk_prongs = %d", n_iso_trk_prongs), true);
-    
-}
-
 
 bool CC1P1PiAnalysis::FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth, SmartRef<Minerva::Prong>& muonProng, SmartRef<Minerva::Particle>& muonPart ) const
 {
@@ -630,30 +547,42 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     return fidVertex;
 }
 
-bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent * event, std::string method) const
+bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent* event) const
 {
     //This code is currently a little messy and needs cleaning up. There are currently lots of cross checks in the code here.
     
     PrintInfo("CC1P1PiAnalysis::FindParticles", m_print_cut_verbose);
-    
-    if(!IsEventContained(event)) return false;
-    
     //Determine which track is most proton like and pion like:
     // 1) Get particle scores and compare which track is has the highest score for the given hypothosis.
     // 2) Look for Michel features.
     //
     //Check that they are contianed in det FV and they are not minos matched.
-    
-    return true;
-}
-
-bool CC1P1PiAnalysis::IsEventContained(Minerva::PhysicsEvent * event) const
-{
+   
     Minerva::ProngVect prongs = event->primaryProngs();
     Minerva::ProngVect::iterator prong;
-
-    for( prong = prongs.begin(); prong != prongs.end(); prong++ ){
     
+    std::vector<double> protonScore;
+    std::vector<double> pionScore;
+    std::vector<double> trackChi2NDF;
+    
+    SmartRef<Minerva::Particle> Part_from_Prong1;
+    SmartRef<Minerva::Particle> Part_from_Prong2;
+    
+    int prong_count = 0;
+    int hadron_counter = 0;
+    //std::vector<Minerva::Particle::ID> hyp_order;
+    
+    std::vector<double> pr_score_N_Vec;
+    std::vector<double> pi_score_N_Vec;
+    
+    int Prong1_PDG = -999;
+    int Prong2_PDG = -999;
+    
+    for( prong = prongs.begin(); prong != prongs.end(); prong++ ){
+        
+        prong_count++;
+        PrintInfo(Form("Checking Prong: %d", prong_count), m_print_cut_verbose);
+        
         //Check prong isn't muon prong:
         if(m_MuonProng == (*prong)){
             PrintInfo("Prong already determined as muon.", m_print_cut_verbose);
@@ -674,66 +603,272 @@ bool CC1P1PiAnalysis::IsEventContained(Minerva::PhysicsEvent * event) const
             //Return false statement if found to minos match.
         }
         
+        hadron_counter++;
+     
+        //Why are we taking the last track? What is the size of the track?
         SmartRef<Minerva::Track> track = tracks[tracks.size() - 1];
         Gaudi::XYZPoint endpoint = track->lastState().position();
         
         if(!m_coordSysTool->inFiducial(endpoint.x(), endpoint.y(), endpoint.z(), m_det_apothem, m_det_upZ, m_det_downZ)){
             PrintInfo("Track not contained in detector fiducial volume.", m_print_cut_verbose);
-            event->setIntData("contained_evt", 0);
+            return false;
+        }
+        
+        //The following code is based on code in ProtonUtils.
+        std::vector<Minerva::Particle::ID> hypotheses;
+        hypotheses.push_back(Minerva::Particle::Pion);
+        hypotheses.push_back(Minerva::Particle::Proton);
+        IParticleMakerTool::NameAliasListType toolsToUse;
+        toolsToUse.push_back( std::make_pair("dEdXTool","dEdXTool") );
+        
+        bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses, toolsToUse);
+        
+        if(found_particle){
+            PrintInfo(Form("This prong has %d particle hypotheses attached.", (int)((*prong)->particles().size())), m_print_cut_verbose);
+        }
+        else{
+            PrintInfo("Failed to produce particles", m_print_cut_verbose);
+        }
+        
+        if((*prong)->particles().size() == 2){
+            
+            trackChi2NDF.push_back(track->chi2PerDoF());
+            
+            Minerva::ParticleVect partHypVec = (*prong)->particles();
+            Minerva::ParticleVect::iterator part;
+            
+            double pr_score  = 0.0;
+            double pi_score  = 0.0;
+            double score_den = 0.0;
+            
+            for(part = partHypVec.begin(); part != partHypVec.end(); part++){
+                //PrintInfo(Form("Testing %d hypothesis with signature: %d and score: %f", (*part)->idcode(), (*part)->methodSignature(), (*part)->score()), m_print_cut_verbose);
+                
+                std::string part_name;
+                double minPartScore = -999.0;
+                double maxPartChi2 = -999.0;
+                
+                //For now let's just compare the hyp of which is more proton/pion like
+                //This simply sets the part_name, scores and chi2 are not used yet
+                if((*part)->idcode() == Minerva::Particle::Proton){
+                    part_name = "Proton";
+                    minPartScore = m_minProtonScore;
+                    maxPartChi2 = m_maxProtonChi2;
+                    PrintInfo("        Running checks on Proton Hypothesis.", m_print_cut_verbose);
+                }
+                else if((*part)->idcode() == Minerva::Particle::Pion){
+                    part_name = "Pion";
+                    minPartScore = m_minPionScore;
+                    maxPartChi2 = m_maxPionChi2;
+                    PrintInfo("        Running checks on Pion Hypothesis.", m_print_cut_verbose);
+                }
+                
+                //Actual PID bit: Does the particle
+                if( (*part)->methodSignature().find("dEdX") != std::string::npos ) {
+                    
+                    if((*part)->idcode() == Minerva::Particle::Proton){
+                        protonScore.push_back((*part)->score());
+                        pr_score = (*part)->score();
+                    }
+                    else  if((*part)->idcode() == Minerva::Particle::Pion){
+                        pionScore.push_back((*part)->score());
+                        pi_score = (*part)->score();
+                    }
+            
+                    score_den += (*part)->score();
+                }
+                
+            }
+        
+            //Temp particle:
+            //Add the Norms here:
+            double pr_score_N = pr_score/score_den;
+            double pi_score_N = pi_score/score_den;
+            
+            pr_score_N_Vec.push_back(pr_score_N);
+            pi_score_N_Vec.push_back(pi_score_N);
+            
+            PrintInfo(Form("Prong %d:", hadron_counter), m_print_cut_verbose);
+            PrintInfo(Form("        Proton Score %f (%f), Pion Score %f, (%f) Chi2NDF %f", pr_score, pr_score_N, pi_score, pi_score_N, track->chi2PerDoF()), m_print_cut_verbose);
+            
+            int found_p_no = 0;
+            Minerva::Particle::ID part_name_check = Minerva::Particle::Unknown;
+            int PDGCode = -999;
+            
+            if(pr_score_N < pi_score_N){
+                
+                for(int hyp_counter = 0; hyp_counter < (int)partHypVec.size(); hyp_counter++){
+                    if( partHypVec[hyp_counter]->idcode() == Minerva::Particle::Proton){
+                        found_p_no = hyp_counter;
+                    }
+                }
+                
+                part_name_check = Minerva::Particle::Proton;
+                PDGCode = m_Proton_PDG;
+                
+            }
+            else{
+                for(int hyp_counter = 0; hyp_counter < (int)partHypVec.size(); hyp_counter++){
+                    if( partHypVec[hyp_counter]->idcode() == Minerva::Particle::Pion){
+                        found_p_no = hyp_counter;
+                    }
+                }
+                
+                part_name_check = Minerva::Particle::Pion;
+                PDGCode = m_Pion_PDG;
+            }
+            
+            //PrintInfo(Form("        Prong %d believed to be %d and has found_p_no = %d", hadron_counter, part_name_check, found_p_no), m_print_cut_verbose);
+
+            
+            if(hadron_counter == 1){
+                Part_from_Prong1 = partHypVec[found_p_no];
+                Prong1_PDG = PDGCode;
+                
+                PrintInfo(Form("        Part_from_Prong1 :: Consistent with %d Hyp?", part_name_check), m_print_cut_verbose);
+                if(Part_from_Prong1->idcode() == part_name_check){
+                    PrintInfo("YES!!!!", m_print_cut_verbose);
+                }
+                else{
+                    PrintInfo("NO ********************** ?!", m_print_cut_verbose);
+                }
+                PrintInfo(Form("        IDCode: %d Score: %f", Part_from_Prong1->idcode(), Part_from_Prong1->score()), m_print_cut_verbose);
+                
+            }
+            
+            if(hadron_counter == 2){
+                Part_from_Prong2 = partHypVec[found_p_no];
+                Prong2_PDG = PDGCode;
+                
+                PrintInfo(Form("        Part_from_Prong2 :: Consistent with %d Hyp?", part_name_check), m_print_cut_verbose);
+                if(Part_from_Prong2->idcode() == part_name_check){
+                    PrintInfo("YES!!!!", m_print_cut_verbose);
+                }
+                else{
+                    PrintInfo("NO ********************** ?!", m_print_cut_verbose);
+                }
+                
+                PrintInfo(Form("        IDCode: %d Score: %f", Part_from_Prong2->idcode(), Part_from_Prong2->score()), m_print_cut_verbose);
+            }
+        }
+        
+        //Look for michels at end of the prong
+    }
+    
+    //Given the particle hypotheses, set the candidate tracks:
+    int pr_prong_no = -999;
+    int pi_prong_no = -999;
+    
+    PrintInfo("******************************** Summary ********************************", m_print_cut_verbose);
+    PrintInfo(Form("Vector Sizes Consistent: trackChi2NDF N = %d protonScore N = %d pionScore N = %d", (int)(trackChi2NDF.size()), (int)(protonScore.size()), (int)(pionScore.size())), m_print_cut_verbose);
+    if(trackChi2NDF.size() == 2 && protonScore.size()  == 2 && pionScore.size() == 2){
+        PrintInfo(" YES.", m_print_cut_verbose);
+        
+        double Prong1_Proton = protonScore[0]/(protonScore[0] + pionScore[0]);
+        double Prong1_Pion = pionScore[0]/(protonScore[0] + pionScore[0]);
+        
+        double Prong2_Proton = protonScore[1]/(protonScore[1] + pionScore[1]);
+        double Prong2_Pion = pionScore[1]/(protonScore[1] + pionScore[1]);
+    
+        PrintInfo("Prong 1:", m_print_cut_verbose);
+        PrintInfo(Form("        Proton Score %f (%f) Pion Score %f (%f) Chi2NDF %f", protonScore[0], Prong1_Proton, pionScore[0], Prong1_Pion, trackChi2NDF[0]), m_print_cut_verbose);
+        PrintInfo(Form("        PreCal Pr Sc N %f PreCal Pi Sc N %f", pr_score_N_Vec[0], pi_score_N_Vec[0]), m_print_cut_verbose);
+        PrintInfo("Prong 2:", m_print_cut_verbose);
+        PrintInfo(Form("        Proton Score %f (%f) Pion Score %f (%f) Chi2NDF %f", protonScore[1], Prong2_Proton, pionScore[1], Prong2_Pion, trackChi2NDF[1]), m_print_cut_verbose);
+        PrintInfo(Form("        PreCal Pr Sc N %f PreCal Pi Sc N %f", pr_score_N_Vec[1], pi_score_N_Vec[1]), m_print_cut_verbose);
+        PrintInfo("*************************************************************************", m_print_cut_verbose);
+
+        int Prong1a_PDG = -999;
+        if(Prong1_Proton > Prong1_Pion){
+            Prong1a_PDG = m_Proton_PDG;
+            //debug() << "Prong 1 is thought to be a Proton" << endmsg;
+        }
+        else{
+            Prong1a_PDG = m_Pion_PDG;
+            //debug() << "Prong 1 is thought to be a Pion" << endmsg;
+        }
+        
+        int Prong2a_PDG = -999;
+        if(Prong2_Proton > Prong2_Pion){
+            Prong2a_PDG = m_Proton_PDG;
+            //debug() << "Prong 2 is thought to be a Proton" << endmsg;
+        }
+        else{
+            Prong2a_PDG = m_Pion_PDG;
+            //debug() << "Prong 2 is thought to be a Pion" << endmsg;
+        }
+        
+        PrintInfo("Checking PDG Codes:", m_print_cut_verbose);
+        PrintInfo(Form("Prong 1: Pre: %d, Post %d", Prong1_PDG, Prong1a_PDG), m_print_cut_verbose);
+        if(Prong1_PDG == Prong1a_PDG) PrintInfo(". They are the same!!!", m_print_cut_verbose);
+        else PrintInfo(". Close but no cigar... :-(", m_print_cut_verbose);
+        
+        PrintInfo(Form("Prong 2: Pre: %d Post %d", Prong2_PDG, Prong2a_PDG), m_print_cut_verbose);
+        if(Prong2_PDG == Prong2a_PDG) PrintInfo(". They are the same!!!", m_print_cut_verbose);
+        else PrintInfo("Close but no cigar... :-(", m_print_cut_verbose);
+        
+        if(Prong1_PDG != Prong2_PDG){
+            if(Prong1_PDG == m_Proton_PDG){
+                pr_prong_no = 0;
+                pi_prong_no = 1;
+                
+                m_ProtonParticle = Part_from_Prong1;
+                m_PionParticle = Part_from_Prong2;
+            }
+            else{
+                pr_prong_no = 1;
+                pi_prong_no = 0;
+                
+                m_ProtonParticle = Part_from_Prong2;
+                m_PionParticle = Part_from_Prong1;
+            }
+        }
+        else if(Prong1_PDG == m_Proton_PDG){
+            PrintInfo("Found two protons...", m_print_cut_verbose);
+            return false;
+        }
+        else{
+            PrintInfo("Found two pions...", m_print_cut_verbose);
             return false;
         }
     }
-    
-    event->setIntData("contained_evt", 1);
-    
-    return true;
-}
+    else{
+        PrintInfo(" No... Check this out!!!!", m_print_cut_verbose);
+        return false;
+    }
 
-bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
-{
-    //For now lets make it easy and use the built in PID from ProtonUtils.
-    //First find the track most likely to be a proton, then check that the other track is not a proton.
-    //For the pion: Adopt the PID technique used in Brandon's analysis.
+    m_ProtonProng = prongs[pr_prong_no];
+    m_PionProng = prongs[pi_prong_no];
     
-    Minerva::ProngVect prongs = event->primaryProngs();
-    Minerva::ProngVect::iterator prong;
-    Minerva::ProngVect tmp_prong;
+    m_ProtonScore[0] = protonScore[pr_prong_no];
+    m_ProtonScore[1] = pionScore[pr_prong_no];
     
-    int pr_count = 0;
+    m_PionScore[0] = protonScore[pi_prong_no];
+    m_PionScore[1] = pionScore[pi_prong_no];
     
-    for(prong = prongs.begin(); prong != prongs.end(); prong++){
+    m_Chi2NDF[0] = trackChi2NDF[pr_prong_no];
+    m_Chi2NDF[1] = trackChi2NDF[pi_prong_no];
     
-        if( (*prong) == m_MuonProng) continue;
-        
-        tmp_prong.push_back( (*prong) );
-        bool pr_found = m_protonUtils->findProtonProng(tmp_prong, tmp_pr_prong, tmp_pr_particle);
-        tmp_prong.clear();
-        
-        if(pr_found){
-            if(pr_count > 0){
-                PrintInfo("More than one proton found...", m_print_cut_verbose);
-                return false;
-            }
-            //save the fact that more than two protons were found.
-            
-            m_EX_ProtonProng = tmp_pr_prong;
-            m_EX_ProtonParticle = tmp_pr_particle;
-            pr_count++;
-        }
-        //else{
-            //Now check if the prong is a pion:
-            
-        //}
-        
+    bool pr_is_correct = false;
+    bool pi_is_correct = false;
+    PrintInfo("Final Check that the tracks are what we think they are", m_print_cut_verbose);
+    PrintInfo(Form("ProtonParticle: %d", m_ProtonParticle->idcode()), m_print_cut_verbose);
+    if(m_ProtonParticle->idcode() == Minerva::Particle::Proton){
+        PrintInfo(" YES", m_print_cut_verbose);
+        pr_is_correct = true;
+    }
+    PrintInfo(Form("PionParticle: %d", m_PionParticle->idcode()), m_print_cut_verbose);
+    if(m_PionParticle->idcode() == Minerva::Particle::Pion){
+        PrintInfo(" YES", m_print_cut_verbose);
+        pi_is_correct = true;
     }
     
-    return true;
-}
-
-bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
-{
-
-   // m_LikelihoodPIDTool->makeParticles( prong, protonLikelihood, protonHypotheses );
+    if(!(pr_is_correct || pi_is_correct)){
+        PrintInfo("Particles not correct... check code", m_print_cut_verbose);
+        return false;
+    }
+    
+    PrintInfo("Found Proton and Pion Tracks", m_print_cut_verbose);
     
     return true;
 }
@@ -743,11 +878,11 @@ void CC1P1PiAnalysis::ResetParticles() const
     m_MuonProng = NULL;
     m_MuonParticle = NULL;
 
-    m_EX_ProtonProng = NULL;
-    m_EX_ProtonParticle = NULL;
+    m_ProtonProng = NULL;
+    m_ProtonParticle = NULL;
     
-    m_EX_PionProng = NULL;
-    m_EX_PionParticle = NULL;
+    m_PionProng = NULL;
+    m_PionParticle = NULL;
     
     m_ProtonScore[0] = -999.;
     m_ProtonScore[1] = -999.;
@@ -759,102 +894,64 @@ void CC1P1PiAnalysis::ResetParticles() const
     m_Chi2NDF[1] = -999.;
     
     for(int i = 0; i < 4; i++){
-        m_EX_Pion4Mom[i] = -999.;//TXYZ
-        m_LL_Pion4Mom[i] = -999.;//TXYZ
+        m_Pion4Mom[i] = -999.;//TXYZ
         m_Piontrue4Mom[i] = -999.;
         
-        m_EX_Proton4Mom[i] = -999.;
-        m_LL_Proton4Mom[i] = -999.;
+        m_Proton4Mom[i] = -999.;
         m_Protontrue4Mom[i] = -999.;
         
         m_Muon4Mom[i] = -999.;
         m_Muontrue4Mom[i] = -999.;
-        
-        if(i<3){
-            m_Muontrue_dir[i] = -999.;
-            m_Muon_dir[i] = -999.;
-            
-            m_Protontrue_dir[i] = -999.;
-            m_Proton_dir[i] = -999.;
-            
-            m_Piontrue_dir[i] = -999.;
-            m_Pion_dir[i] = -999.;
-        }
     }
+    
 }
 
 //Generic Particle information builder:
 void CC1P1PiAnalysis::SetPartInfo(std::string name)
 {
+    
     if(name == "pr" || name == "pi"){
-        declareDoubleBranch(m_hypMeths, (name + "_EX_prscore").c_str() , -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_EX_piscore").c_str() , -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_LL_prscore").c_str() , -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_LL_piscore").c_str() , -999.);
-        
-        declareDoubleBranch(m_hypMeths, (name + "_EX_chi2ndf").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_LL_chi2ndf").c_str(), -999.);
-        
-        declareDoubleBranch(m_hypMeths, (name + "_EX_E").c_str() , -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_LL_E").c_str() , -999.);
-        
-        declareDoubleBranch(m_hypMeths, (name + "_EX_mom").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_LL_mom").c_str(), -999.);
-
-        declareContainerDoubleBranch(m_hypMeths, (name + "_EX_4mom").c_str(), 4, -999.);
-        declareContainerDoubleBranch(m_hypMeths, (name + "_LL_4mom").c_str(), 4, -999.);
-
-        declareDoubleBranch(m_hypMeths, (name + "_EX_pTMag").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_LL_pTMag").c_str(), -999.);
-        
-        declareContainerDoubleBranch(m_hypMeths, (name + "_EX_pT").c_str(), 3, -999.);
-        declareContainerDoubleBranch(m_hypMeths, (name + "_LL_pT").c_str(), 3, -999.);
-        
-        declareDoubleBranch(m_hypMeths, (name + "_EX_pTT").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_LL_pTT").c_str(), -999.);
-        
-        declareDoubleBranch(m_hypMeths, (name + "_EX_Phi").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_LL_Phi").c_str(), -999.);
-        
-        declareDoubleBranch(m_hypMeths, (name + "_EX_Theta").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_LL_Theta").c_str(), -999.);
-        
-        declareDoubleBranch(m_hypMeths, (name + "_EX_KE").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_LL_KE").c_str(), -999.);
-
+        declareDoubleBranch(m_hypMeths, (name + "_prscore").c_str() , -999.);
+        declareDoubleBranch(m_hypMeths, (name + "_piscore").c_str() , -999.);
     }
     else{
-        
         declareDoubleBranch(m_hypMeths, (name + "_score").c_str() , -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_chi2ndf").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_E").c_str() , -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_mom").c_str(), -999.);
-        declareContainerDoubleBranch(m_hypMeths, (name + "_4mom").c_str(), 4, -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_pTMag").c_str(), -999.);
-        declareContainerDoubleBranch(m_hypMeths, (name + "_pT").c_str(), 3, -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_pTT").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_Phi").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_Theta").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_KE").c_str(), -999.);
-        
     }
-    
-    declareDoubleBranch(m_hypMeths, (name + "_trueE").c_str(), -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_truemom").c_str(), -999.);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_true4mom").c_str(), 4, -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_truepTMag").c_str(), -999.);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_truepT").c_str(), 3, -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_truepTT").c_str(), -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_truePhi").c_str(), -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_trueTheta").c_str(), -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_trueKE").c_str(), -999.);
     
     declareDoubleBranch(m_hypMeths, (name + "_det_frac").c_str(), -999.);
     declareDoubleBranch(m_hypMeths, (name + "_det_otherE").c_str(), -999.);
+    
     declareDoubleBranch(m_hypMeths, (name + "_chi2ndf").c_str(), -999.);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_startdir").c_str(), 3, -999.);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_truestartdir").c_str(), 3, -999.);
+
+    declareDoubleBranch(m_hypMeths, (name + "_E").c_str() , -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_trueE").c_str(), -999.);
+
+    declareDoubleBranch(m_hypMeths, (name + "_mom").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_truemom").c_str(), -999.);
+    
+    declareContainerDoubleBranch(m_hypMeths, (name + "_4mom").c_str(), 4, -999.);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_true4mom").c_str(), 4, -999.);
+    
+    declareDoubleBranch(m_hypMeths, (name + "_pTMag").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_truepTMag").c_str(), -999.);
+    
+    declareContainerDoubleBranch(m_hypMeths, (name + "_pT").c_str(), 3, -999.);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_truepT").c_str(), 3, -999.);
+    
+    declareDoubleBranch(m_hypMeths, (name + "_pTT").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_truepTT").c_str(), -999.);
+    
     declareIntBranch(m_hypMeths, (name + "_PDG").c_str(), -999);
+    
+    declareDoubleBranch(m_hypMeths, (name + "_Phi").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_truePhi").c_str(), -999.);
+    
+    declareDoubleBranch(m_hypMeths, (name + "_Theta").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_trueTheta").c_str(), -999.);
+    
+    declareDoubleBranch(m_hypMeths, (name + "_KE").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_trueKE").c_str(), -999.);
+    
     declareContainerDoubleBranch(m_hypMeths, (name + "_startpos_xyz").c_str(), 3, -999.);
     declareContainerDoubleBranch(m_hypMeths, (name + "_truestartpos_xyz").c_str(), 3, -999.);
     declareContainerDoubleBranch(m_hypMeths, (name + "_endpos_xyz").c_str(), 3, -999.);
@@ -868,46 +965,31 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
 
 void CC1P1PiAnalysis::SetCommonBranches()
 {
-    declareDoubleBranch(m_hypMeths, "Enu_EX", -999.);
-    declareDoubleBranch(m_hypMeths, "Enu_LL", -999.);
+    declareDoubleBranch(m_hypMeths, "Enu", -999.);
     declareDoubleBranch(m_hypMeths, "trueEnu", -999.);
     
-    declareDoubleBranch(m_hypMeths, "Q2_EX", -999.0);
-    declareDoubleBranch(m_hypMeths, "Q2_LL", -999.0);
+    declareDoubleBranch(m_hypMeths, "Q2", -999.0);
     declareDoubleBranch(m_hypMeths, "trueQ2", -999.0);
     
-    declareDoubleBranch(m_hypMeths, "dpTT_EX", -999.0);
-    declareDoubleBranch(m_hypMeths, "dpTT_LL", -999.0);
+    declareDoubleBranch(m_hypMeths, "dpTT", -999.0);
     declareDoubleBranch(m_hypMeths, "truedpTT", -999.0);
     
-    declareDoubleBranch(m_hypMeths, "dpTT_pi_EX", -999.0);
-    declareDoubleBranch(m_hypMeths, "dpTT_pi_LL", -999.0);
-    declareDoubleBranch(m_hypMeths, "dpTT_pi_dir_EX", -999.0);
-    declareDoubleBranch(m_hypMeths, "dpTT_pi_dir_LL", -999.0);
+    declareDoubleBranch(m_hypMeths, "dpTT_pi", -999.0);
     declareDoubleBranch(m_hypMeths, "truedpTT_pi", -999.0);
-    declareDoubleBranch(m_hypMeths, "truedpTT_pi_dir", -999.0);
     
-    declareDoubleBranch(m_hypMeths, "dpTT_pr_EX", -999.0);
-    declareDoubleBranch(m_hypMeths, "dpTT_pr_LL", -999.0);
-    declareDoubleBranch(m_hypMeths, "dpTT_pr_dir_EX", -999.0);
-    declareDoubleBranch(m_hypMeths, "dpTT_pr_dir_LL", -999.0);
+    declareDoubleBranch(m_hypMeths, "dpTT_pr", -999.0);
     declareDoubleBranch(m_hypMeths, "truedpTT_pr", -999.0);
-    declareDoubleBranch(m_hypMeths, "truedpTT_pr_dir", -999.0);
 
-    declareDoubleBranch(m_hypMeths, "dpT_EX", -999.0);
-    declareDoubleBranch(m_hypMeths, "dpT_LL", -999.0);
+    declareDoubleBranch(m_hypMeths, "dpT", -999.0);
     declareDoubleBranch(m_hypMeths, "truedpT", -999.0);
     
-    declareContainerDoubleBranch(m_hypMeths, "dpT_vec_EX", 3, -999.0);
-    declareContainerDoubleBranch(m_hypMeths, "dpT_vec_LL", 3, -999.0);
+    declareContainerDoubleBranch(m_hypMeths, "dpT_vec", 3, -999.0);
     declareContainerDoubleBranch(m_hypMeths, "truedpT_vec", 3, -999.0);
 
-    declareDoubleBranch(m_hypMeths, "dalphaT_EX", -999.0);
-    declareDoubleBranch(m_hypMeths, "dalphaT_LL", -999.0);
+    declareDoubleBranch(m_hypMeths, "dalphaT", -999.0);
     declareDoubleBranch(m_hypMeths, "truedalphaT", -999.0);
 
-    declareDoubleBranch(m_hypMeths, "dphiT_EX", -999.0);
-    declareDoubleBranch(m_hypMeths, "dphiT_LL", -999.0);
+    declareDoubleBranch(m_hypMeths, "dphiT", -999.0);
     declareDoubleBranch(m_hypMeths, "truedphiT", -999.0);
 
 }
@@ -915,80 +997,42 @@ void CC1P1PiAnalysis::SetCommonBranches()
 void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
 {
     
-    double Enu = m_Muon4Mom[0] + m_EX_Proton4Mom[0] + m_EX_Pion4Mom[0];
+    double Enu = m_Muon4Mom[0] + m_Proton4Mom[0] + m_Pion4Mom[0];
     cc1p1piHyp->setDoubleData("Enu", Enu);
     
     double Q2 = -999.;
     cc1p1piHyp->setDoubleData("Q2", Q2);
     
     const TVector3 * mu_p = new TVector3(m_Muon4Mom[1], m_Muon4Mom[2], m_Muon4Mom[3]);
-    
-    const TVector3 * pr_EX_p = new TVector3(m_EX_Proton4Mom[1], m_EX_Proton4Mom[2], m_EX_Proton4Mom[3]);
-    const TVector3 * pi_EX_p = new TVector3(m_EX_Pion4Mom[1], m_EX_Pion4Mom[2], m_EX_Pion4Mom[3]);
-    
-    
-    const TVector3 * pr_LL_p = new TVector3(m_LL_Proton4Mom[1], m_LL_Proton4Mom[2], m_LL_Proton4Mom[3]);
-    const TVector3 * pi_LL_p = new TVector3(m_LL_Pion4Mom[1], m_LL_Pion4Mom[2], m_LL_Pion4Mom[3]);
+    const TVector3 * pr_p = new TVector3(m_Proton4Mom[1], m_Proton4Mom[2], m_Proton4Mom[3]);
+    const TVector3 * pi_p = new TVector3(m_Pion4Mom[1], m_Pion4Mom[2], m_Pion4Mom[3]);
     
     SmartRef<Minerva::Vertex> int_vert = event->interactionVertex();
     const Gaudi::XYZPoint vert_3vec = int_vert->position();
     double vertex[3] = {vert_3vec.x(), vert_3vec.y(), vert_3vec.z()};//{0.};
     
-    //----------------------------------- dEdX vars -----------------------------------//
+    double dpTT = -999.;
+    double dpTMag = -999.;
+    double dalphaT = -999.;
+    double dphiT = -999.;
     
-    double dpTT_EX = -999.;
-    double dpTMag_EX = -999.;
-    double dalphaT_EX = -999.;
-    double dphiT_EX = -999.;
+    TVector3 * dpT_3mom = GetTransverseVars(vertex, mu_p, pr_p, pi_p, dpTT, dpTMag, dalphaT, dphiT);
+    std::vector<double> vec_dpT_3mom;
+    vec_dpT_3mom.push_back(dpT_3mom->X());
+    vec_dpT_3mom.push_back(dpT_3mom->Y());
+    vec_dpT_3mom.push_back(dpT_3mom->Z());
     
-    TVector3 * dpT_3mom_EX = GetTransverseVars(vertex, mu_p, pr_EX_p, pi_EX_p, dpTT_EX, dpTMag_EX, dalphaT_EX, dphiT_EX);
-    std::vector<double> vec_dpT_3mom_EX;
-    vec_dpT_3mom_EX.push_back(dpT_3mom_EX->X());
-    vec_dpT_3mom_EX.push_back(dpT_3mom_EX->Y());
-    vec_dpT_3mom_EX.push_back(dpT_3mom_EX->Z());
-    
-    cc1p1piHyp->setDoubleData("dpTT_EX", dpTT_EX);
-    cc1p1piHyp->setDoubleData("dpT_EX", dpTMag_EX);
-    cc1p1piHyp->setDoubleData("dalphaT_EX", dalphaT_EX);
-    cc1p1piHyp->setDoubleData("dphiT_EX", dphiT_EX);
-    cc1p1piHyp->setContainerDoubleData("dpT_vec_EX", vec_dpT_3mom_EX);
+    cc1p1piHyp->setDoubleData("dpTT", dpTT);
+    cc1p1piHyp->setDoubleData("dpT", dpTMag);
+    cc1p1piHyp->setDoubleData("dalphaT", dalphaT);
+    cc1p1piHyp->setDoubleData("dphiT", dphiT);
    
-    double dpTT_pi_EX = GetDPTT(vertex, pi_EX_p, mu_p, pr_EX_p);
+    double dpTT_pi = GetDPTT(vertex, pi_p, mu_p, pr_p);
     
-    cc1p1piHyp->setDoubleData("dpTT_pi_EX", dpTT_pi_EX);
+    cc1p1piHyp->setDoubleData("dpTT_pi", dpTT_pi);
     
-    double dpTT_pr_EX = GetDPTT(vertex, pr_EX_p, pi_EX_p, mu_p);
-    cc1p1piHyp->setDoubleData("dpTT_pr_EX", dpTT_pr_EX);
-
-    //---------------------------------------END---------------------------------------//
-
-    //------------------------------------ LL vars ------------------------------------//
-
-    double dpTT_LL = -999.;
-    double dpTMag_LL = -999.;
-    double dalphaT_LL = -999.;
-    double dphiT_LL = -999.;
-    
-    TVector3 * dpT_3mom_LL = GetTransverseVars(vertex, mu_p, pr_LL_p, pi_LL_p, dpTT_LL, dpTMag_LL, dalphaT_LL, dphiT_LL);
-    std::vector<double> vec_dpT_3mom_LL;
-    vec_dpT_3mom_LL.push_back(dpT_3mom_LL->X());
-    vec_dpT_3mom_LL.push_back(dpT_3mom_LL->Y());
-    vec_dpT_3mom_LL.push_back(dpT_3mom_LL->Z());
-    
-    cc1p1piHyp->setDoubleData("dpTT_LL", dpTT_LL);
-    cc1p1piHyp->setDoubleData("dpT_LL", dpTMag_LL);
-    cc1p1piHyp->setDoubleData("dalphaT_LL", dalphaT_LL);
-    cc1p1piHyp->setDoubleData("dphiT_LL", dphiT_LL);
-    cc1p1piHyp->setContainerDoubleData("dpT_vec_LL", vec_dpT_3mom_LL);
-
-    double dpTT_pi_LL = GetDPTT(vertex, pi_LL_p, mu_p, pr_LL_p);
-    
-    cc1p1piHyp->setDoubleData("dpTT_pi_LL", dpTT_pi_LL);
-    
-    double dpTT_pr_LL = GetDPTT(vertex, pr_LL_p, pi_LL_p, mu_p);
-    cc1p1piHyp->setDoubleData("dpTT_pr_LL", dpTT_pr_LL);
-    
-    //---------------------------------------END---------------------------------------//
+    double dpTT_pr = GetDPTT(vertex, pr_p, pi_p, mu_p);
+    cc1p1piHyp->setDoubleData("dpTT_pr", dpTT_pr);
     
     if(truth){
         
@@ -1021,7 +1065,6 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         cc1p1piHyp->setDoubleData("truedpT", truedpT);
         cc1p1piHyp->setDoubleData("truedalphaT", truedalphaT);
         cc1p1piHyp->setDoubleData("truedphiT", truedphiT);
-        cc1p1piHyp->setContainerDoubleData("truedpT_vec", vec_dpT_3mom_true);
         
         double truedpTT_pi = GetDPTT(vertex_true, truepi_p, truemu_p, truepr_p, true);
         cc1p1piHyp->setDoubleData("truedpTT_pi", truedpTT_pi);
@@ -1029,53 +1072,34 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         double truedpTT_pr = GetDPTT(vertex_true, truepr_p, truepi_p, truemu_p, true);
         cc1p1piHyp->setDoubleData("truedpTT_pr", truedpTT_pr);
         
-        const TVector3 * truepi_dir = new TVector3(m_Piontrue_dir[1], m_Piontrue_dir[2], m_Piontrue_dir[3]);
-        double truedpTT_pi_dir = GetDPTT(vertex_true, truepi_dir, truemu_p, truepr_p, true);
-        cc1p1piHyp->setDoubleData("truedpTT_pi_dir", truedpTT_pi_dir);
-        
-        const TVector3 * truepr_dir = new TVector3(m_Protontrue_dir[1], m_Protontrue_dir[2], m_Protontrue_dir[3]);
-        double truedpTT_pr_dir = GetDPTT(vertex_true, truepr_dir, truepi_p, truemu_p, true);
-        cc1p1piHyp->setDoubleData("truedpTT_pr_dir", truedpTT_pr_dir);
     }
-    
 }
 
 void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
 {
-    SmartRef<Minerva::Prong> prong_EX;
-    SmartRef<Minerva::Particle> particle_EX;
     
-    SmartRef<Minerva::Prong> prong_LL;
-    SmartRef<Minerva::Particle> particle_LL;
-    
+    SmartRef<Minerva::Prong> prong;
+    SmartRef<Minerva::Particle> particle;
     double mass = 0.0;
     int ch2_vec_no = 0;
     double tmp_scores[2] = {-999.};
     
     if(name == "mu"){
-        prong_EX = m_MuonProng;
-        prong_EX = m_MuonParticle;
+        prong = m_MuonProng;
+        particle = m_MuonParticle;
         mass = MinervaUnits::M_mu;
     }
     else if(name == "pr"){
-        prong_EX = m_EX_ProtonProng;
-        particle_EX = m_EX_ProtonParticle;
-
-        prong_LL = m_LL_ProtonProng;
-        particle_LL = m_LL_ProtonParticle;
-
+        prong = m_ProtonProng;
+        particle = m_ProtonParticle;
         mass = MinervaUnits::M_p;
         ch2_vec_no = 0;
         tmp_scores[0] = m_ProtonScore[0];
         tmp_scores[1] = m_ProtonScore[1];
     }
     else if(name == "pi"){
-        prong_EX = m_EX_PionProng;
-        particle_EX = m_EX_PionParticle;
-
-        prong_LL = m_LL_PionProng;
-        particle_LL = m_LL_PionParticle;
-        
+        prong = m_PionProng;
+        particle = m_PionParticle;
         mass = MinervaUnits::M_pion;
         ch2_vec_no = 1;
         tmp_scores[0] = m_PionScore[0];
@@ -1088,48 +1112,78 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     if(mass == 0.0){
         warning() << "CC1P1PiAnalysis::FillPartInfo :: " << name << " mass is zero!!!" << endmsg;
     }
-    
-    double ch2ndf = -999.;
 
     double ch2ndf = -999.;
     
-    
-    cc1p1piHyp->setDoubleData( (name + "_chi2ndf").c_str(), ch2ndf);
-
     if(name == "pr" || name == "pi"){
-        
-        //Scores need changing for PID comparisons:
-        cc1p1piHyp->setDoubleData( (name + "_EX_prscore").c_str(), tmp_scores[0]);
-        cc1p1piHyp->setDoubleData( (name + "_EX_piscore").c_str(), tmp_scores[1]);
-        
-        cc1p1piHyp->setDoubleData( (name + "_LL_prscore").c_str(), -888.);
-        cc1p1piHyp->setDoubleData( (name + "_LL_piscore").c_str(), -888.);
-        
-        FillMomDepVars( (name + "_EX").c_str(), prong_EX, particle_EX, mass, event, cc1p1piHyp);
-        
-        if(prong_LL && particle_LL){
-            FillMomDepVars( (name + "_LL").c_str(), prong_LL, particle_LL, mass, event, cc1p1piHyp);
-        }
-        else{
-            error() << "CC1P1PiAnalysis::FillPartInfo :: Likelihood Prong or particle is NULL for \"" << name << "\". Please check";
-        }
+        cc1p1piHyp->setDoubleData( (name + "_prscore").c_str(), tmp_scores[0]);
+        cc1p1piHyp->setDoubleData( (name + "_piscore").c_str(), tmp_scores[1]);
         
         double hasFSI = -999;
         cc1p1piHyp->setIntData( (name + "_FSI").c_str(), hasFSI);
+
         ch2ndf = m_Chi2NDF[ch2_vec_no];
-        
+
     }
     else{
-        declareDoubleBranch(m_hypMeths, (name + "_score").c_str() , -999.);
-        FillMomDepVars(name, prong_EX, particle_EX, mass, event, cc1p1piHyp);
-        
-        double score = particle_EX->score();
+        double score = particle->score();
         cc1p1piHyp->setDoubleData( (name + "_score").c_str(), score );
+        ch2ndf = -999.;
     }
     
-//    declareContainerDoubleBranch(m_hypMeths, (name + "_startdir").c_str(), 3, -999.); -- need to take care in how this is determined.
+    cc1p1piHyp->setDoubleData( (name + "_chi2ndf").c_str(), ch2ndf);
     
-    Gaudi::XYZPoint upstream = ( *prong->minervaTracks().front() ).upstreamState().position();
+    //Reco vars:
+    
+    Gaudi::LorentzVector four_vec = particle->momentumVec();
+    
+    double Energy = four_vec.E();
+    cc1p1piHyp->setDoubleData( (name + "_E").c_str(), Energy);
+    
+    double mom = sqrt( pow( four_vec.E(), 2 ) - pow( mass, 2 ) );
+    cc1p1piHyp->setDoubleData( (name + "_mom").c_str(), mom);
+    
+    std::vector<double> sel4mom;
+    sel4mom.push_back(four_vec.E());
+    sel4mom.push_back(four_vec.px());
+    sel4mom.push_back(four_vec.py());
+    sel4mom.push_back(four_vec.pz());
+    
+    Rotate2BeamCoords(sel4mom);
+    
+    SetGlobal4Vec(name, sel4mom);
+
+    cc1p1piHyp->setContainerDoubleData( (name + "_4mom").c_str(), sel4mom);
+    
+    SmartRef<Minerva::Vertex> vertex = event->interactionVertex();
+    const Gaudi::XYZPoint vert_3vec = vertex->position();
+    double vtx[3] = {vert_3vec.x(), vert_3vec.y(), vert_3vec.z()};
+    
+    const TVector3 * mom_vec = new TVector3(sel4mom[1], sel4mom[2], sel4mom[3]);
+    const TVector3 * pT = GetPT(vtx, mom_vec);
+    
+    cc1p1piHyp->setDoubleData( (name + "_pTMag").c_str(), pT->Mag());
+
+    std::vector<double> selpT;
+    selpT.push_back(pT->X());
+    selpT.push_back(pT->Y());
+    selpT.push_back(pT->Z());
+    
+    cc1p1piHyp->setContainerDoubleData( (name + "_pT").c_str(), selpT);
+
+    double pTT = -999.;
+    cc1p1piHyp->setDoubleData( (name + "_pTT").c_str(), pTT);
+    
+    double Phi = m_coordSysTool->phiWRTBeam( four_vec );
+    cc1p1piHyp->setDoubleData( (name + "_Phi").c_str(), Phi);
+    
+    double Theta = m_coordSysTool->thetaWRTBeam( four_vec );
+    cc1p1piHyp->setDoubleData( (name + "_Theta").c_str(), Theta);
+    
+    double KE = four_vec.E() - mass;
+    cc1p1piHyp->setDoubleData( (name + "_KE").c_str(), KE);
+    
+    Gaudi::XYZPoint upstream = (*prong->minervaTracks().front() ).upstreamState().position();
     std::vector<double> sel_start_xyz;
     sel_start_xyz.push_back(upstream.x());
     sel_start_xyz.push_back(upstream.y());
@@ -1261,105 +1315,24 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             tru_end_xyz.push_back(finpos.y());
             tru_end_xyz.push_back(finpos.z());
             cc1p1piHyp->setContainerDoubleData( (name + "_trueendpos_xyz").c_str(), tru_end_xyz);
-            
-            std::vector<double> true_dir;
-            true_dir.push_back();
-            true_dir.push_back();
-            true_dir.push_back();
         }
     }
     
 }
 
-void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Prong> prong, SmartRef<Minerva::Particle> particle, double mass, const Minerva::PhysicsEvent *event, Minerva::NeutrinoInt* cc1p1piHyp) const
+void CC1P1PiAnalysis::SetAccumLevel() const
 {
-    //Must contain EX or LL in st
-    
-    double chi2ndf = -888.;//Need to add this at some point, can take end of track ch2ndf but is it what useful? Also, what is it's interpretation for LL fit, if it even has one.
-    cc1p1piHyp->setDoubleData( (name + "_chi2ndf").c_str(), chi2ndf);
-    
-    Gaudi::LorentzVector four_vec = particle->momentumVec();
-    
-    double Energy = four_vec.E();
-    cc1p1piHyp->setDoubleData( (name + "_E").c_str(), Energy);
-    
-    double mom = sqrt( pow( four_vec.E(), 2 ) - pow( mass, 2 ) );
-    cc1p1piHyp->setDoubleData( (name + "_mom").c_str(), mom);
-    
-    std::vector<double> sel4mom;
-    sel4mom.push_back(four_vec.E());
-    sel4mom.push_back(four_vec.px());
-    sel4mom.push_back(four_vec.py());
-    sel4mom.push_back(four_vec.pz());
-    
-    Rotate2BeamCoords(sel4mom);
-    
-    SetGlobal4Vec(name, sel4mom);
-    
-    cc1p1piHyp->setContainerDoubleData( (name + "_4mom").c_str(), sel4mom);
-    
-    SmartRef<Minerva::Vertex> vertex = event->interactionVertex();
-    const Gaudi::XYZPoint vert_3vec = vertex->position();
-    double vtx[3] = {vert_3vec.x(), vert_3vec.y(), vert_3vec.z()};
-    
-    const TVector3 * mom_vec = new TVector3(sel4mom[1], sel4mom[2], sel4mom[3]);
-    const TVector3 * pT = GetPT(vtx, mom_vec);
-    
-    cc1p1piHyp->setDoubleData( (name + "_pTMag").c_str(), pT->Mag());
-    
-    std::vector<double> selpT;
-    selpT.push_back(pT->X());
-    selpT.push_back(pT->Y());
-    selpT.push_back(pT->Z());
-    
-    cc1p1piHyp->setContainerDoubleData( (name + "_pT").c_str(), selpT);
-    
-    double pTT = -999.;
-    cc1p1piHyp->setDoubleData( (name + "_pTT").c_str(), pTT);
-    
-    double Phi = m_coordSysTool->phiWRTBeam( four_vec );
-    cc1p1piHyp->setDoubleData( (name + "_Phi").c_str(), Phi_EX);
-    
-    double Theta = m_coordSysTool->thetaWRTBeam( four_vec );
-    cc1p1piHyp->setDoubleData( (name + "_Theta").c_str(), Theta);
-    
-    double KE = four_vec.E() - mass;
-    cc1p1piHyp->setDoubleData( (name + "_KE").c_str(), KE);
-}
-
-void CC1P1PiAnalysis::DefineTruthTree(){
-    
-}
-
-void CC1P1PiAnalysis::FillTruthTree() const
-{
-    //Want to iterate through final states vector of particles and each for the highest mom. p/pi/mu. these should then be used to fill the true variables.
-    
-}
-
-void CC1P1PiAnalysis::SetAccumLevel(int split) const
-{
-    if(split == -999){
-        for(int i = 0; i < m_nsplits; i++) m_accum_level[ i ]++;
-    }
-    else{
-        m_accum_level[ split ]++;
-    }
-    //m_accum_level[ split - 1 ]++;
     //m_accum_level[ cut - 1 ] = cut;
-    //m_accum_level++;
-    
-    for(int i = 0; i < m_nsplits; i++){
-        PrintInfo(Form("***** Accum. Level %d ***** ", m_accum_level), m_print_acc_level);
-    }
+    m_accum_level++;
+    PrintInfo(Form("***** Accum. Level %d ***** ", m_accum_level), m_print_acc_level);
 }
 
 void CC1P1PiAnalysis::ResetAccumLevel() const
 {
-    //m_accum_level = 0;
-    for(int i = 0; i < m_nsplits; i++){
-        m_accum_level[i] = 0;
-    }
+    m_accum_level = 0;
+    //for(int i = 0; i < m_ncuts; i++){
+    //    m_accum_level[i] = 0;
+    //}
 }
 
 void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::GenMinInteraction* truth) const
@@ -1434,37 +1407,23 @@ void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
 void CC1P1PiAnalysis::SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, bool truth) const
 {
     if(truth){
-        double norm = sqrt(vec.px()*vec.px() + vec.py()*vec.py() + vec.pz()*vec.pz());
         if(name == "mu"){
             m_Muontrue4Mom[0] = vec.E();
             m_Muontrue4Mom[1] = vec.px();
             m_Muontrue4Mom[2] = vec.py();
             m_Muontrue4Mom[3] = vec.pz();
-
-            m_Muontrue_dir[0] = vec.px()/norm;
-            m_Muontrue_dir[1] = vec.py()/norm;
-            m_Muontrue_dir[2] = vec.pz()/norm;
         }
         else if(name == "pr"){
             m_Protontrue4Mom[0] = vec.E();
             m_Protontrue4Mom[1] = vec.px();
             m_Protontrue4Mom[2] = vec.py();
             m_Protontrue4Mom[3] = vec.pz();
-            
-            m_Protontrue_dir[0] = vec.px()/norm;
-            m_Protontrue_dir[1] = vec.py()/norm;
-            m_Protontrue_dir[2] = vec.pz()/norm;
-
         }
         else if(name == "pi"){
             m_Piontrue4Mom[0] = vec.E();
             m_Piontrue4Mom[1] = vec.px();
             m_Piontrue4Mom[2] = vec.py();
             m_Piontrue4Mom[3] = vec.pz();
-            
-            m_Piontrue_dir[0] = vec.px()/norm;
-            m_Piontrue_dir[1] = vec.py()/norm;
-            m_Piontrue_dir[2] = vec.pz()/norm;
         }
         else{
             error() << "SetGlobal4Vec::FillPartInfo :: Could not determine particle hyp. Please check" << endmsg;
@@ -1477,29 +1436,17 @@ void CC1P1PiAnalysis::SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, 
             m_Muon4Mom[2] = vec.py();
             m_Muon4Mom[3] = vec.pz();
         }
-        else if(name == "pr_EX"){
-            m_EX_Proton4Mom[0] = vec.E();
-            m_EX_Proton4Mom[1] = vec.px();
-            m_EX_Proton4Mom[2] = vec.py();
-            m_EX_Proton4Mom[3] = vec.pz();
+        else if(name == "pr"){
+            m_Proton4Mom[0] = vec.E();
+            m_Proton4Mom[1] = vec.px();
+            m_Proton4Mom[2] = vec.py();
+            m_Proton4Mom[3] = vec.pz();
         }
-        else if(name == "pi_EX"){
-            m_EX_Pion4Mom[0] = vec.E();
-            m_EX_Pion4Mom[1] = vec.px();
-            m_EX_Pion4Mom[2] = vec.py();
-            m_EX_Pion4Mom[3] = vec.pz();
-        }
-        else if(name == "pr_LL"){
-            m_LL_Proton4Mom[0] = vec.E();
-            m_LL_Proton4Mom[1] = vec.px();
-            m_LL_Proton4Mom[2] = vec.py();
-            m_LL_Proton4Mom[3] = vec.pz();
-        }
-        else if(name == "pi_LL"){
-            m_LL_Pion4Mom[0] = vec.E();
-            m_LL_Pion4Mom[1] = vec.px();
-            m_LL_Pion4Mom[2] = vec.py();
-            m_LL_Pion4Mom[3] = vec.pz();
+        else if(name == "pi"){
+            m_Pion4Mom[0] = vec.E();
+            m_Pion4Mom[1] = vec.px();
+            m_Pion4Mom[2] = vec.py();
+            m_Pion4Mom[3] = vec.pz();
         }
         else{
             error() << "SetGlobal4Vec::FillPartInfo :: Could not determine particle hyp. Please check" << endmsg;

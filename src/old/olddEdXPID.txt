@@ -1,0 +1,315 @@
+PID Code from used in the first instance of the analysis:
+
+Minerva::ProngVect prongs = event->primaryProngs();
+    Minerva::ProngVect::iterator prong;
+    
+    std::vector<double> protonScore;
+    std::vector<double> pionScore;
+    std::vector<double> trackChi2NDF;
+    
+    SmartRef<Minerva::Particle> Part_from_Prong1;
+    SmartRef<Minerva::Particle> Part_from_Prong2;
+    
+    int prong_count = 0;
+    int hadron_counter = 0;
+    //std::vector<Minerva::Particle::ID> hyp_order;
+    
+    std::vector<double> pr_score_N_Vec;
+    std::vector<double> pi_score_N_Vec;
+    
+    int Prong1_PDG = -999;
+    int Prong2_PDG = -999;
+    
+    for( prong = prongs.begin(); prong != prongs.end(); prong++ ){
+        
+        prong_count++;
+        PrintInfo(Form("Checking Prong: %d", prong_count), m_print_cut_verbose);
+        
+        //Check prong isn't muon prong:
+        if(m_MuonProng == (*prong)){
+            PrintInfo("Prong already determined as muon.", m_print_cut_verbose);
+            continue;
+        }
+        
+        //Check if track is fully contained in detector FV and there are no minos matched tracks:
+        Minerva::TrackVect tracks = (*prong)->minervaTracks();
+        
+        if( tracks.empty() ) {
+            PrintInfo("  This prong contains an empty vector of tracks, skipping!", m_print_cut_verbose);
+            continue;
+            //Return false statement if found to minos match.
+        }
+        else if( (*prong)->MinosTrack() || (*prong)->MinosStub() ) {
+            PrintInfo("  This is a MINOS matched prong, skipping!", m_print_cut_verbose);
+            continue;
+            //Return false statement if found to minos match.
+        }
+        
+        hadron_counter++;
+        
+        //Why are we taking the last track? What is the size of the track?
+        SmartRef<Minerva::Track> track = tracks[tracks.size() - 1];
+        Gaudi::XYZPoint endpoint = track->lastState().position();
+        
+        if(!m_coordSysTool->inFiducial(endpoint.x(), endpoint.y(), endpoint.z(), m_det_apothem, m_det_upZ, m_det_downZ)){
+            PrintInfo("Track not contained in detector fiducial volume.", m_print_cut_verbose);
+            return false;
+        }
+        
+        //The following code is based on code in ProtonUtils.
+        std::vector<Minerva::Particle::ID> hypotheses;
+        hypotheses.push_back(Minerva::Particle::Pion);
+        hypotheses.push_back(Minerva::Particle::Proton);
+        IParticleMakerTool::NameAliasListType toolsToUse;
+        toolsToUse.push_back( std::make_pair("dEdXTool","dEdXTool") );
+        
+        bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses, toolsToUse);
+        
+        if(found_particle){
+            PrintInfo(Form("This prong has %d particle hypotheses attached.", (int)((*prong)->particles().size())), m_print_cut_verbose);
+        }
+        else{
+            PrintInfo("Failed to produce particles", m_print_cut_verbose);
+        }
+        
+        if((*prong)->particles().size() == 2){
+            
+            trackChi2NDF.push_back(track->chi2PerDoF());
+            
+            Minerva::ParticleVect partHypVec = (*prong)->particles();
+            Minerva::ParticleVect::iterator part;
+            
+            double pr_score  = 0.0;
+            double pi_score  = 0.0;
+            double score_den = 0.0;
+            
+            for(part = partHypVec.begin(); part != partHypVec.end(); part++){
+                //PrintInfo(Form("Testing %d hypothesis with signature: %d and score: %f", (*part)->idcode(), (*part)->methodSignature(), (*part)->score()), m_print_cut_verbose);
+                
+                std::string part_name;
+                double minPartScore = -999.0;
+                double maxPartChi2 = -999.0;
+                
+                //For now let's just compare the hyp of which is more proton/pion like
+                //This simply sets the part_name, scores and chi2 are not used yet
+                if((*part)->idcode() == Minerva::Particle::Proton){
+                    part_name = "Proton";
+                    minPartScore = m_minProtonScore;
+                    maxPartChi2 = m_maxProtonChi2;
+                    PrintInfo("        Running checks on Proton Hypothesis.", m_print_cut_verbose);
+                }
+                else if((*part)->idcode() == Minerva::Particle::Pion){
+                    part_name = "Pion";
+                    minPartScore = m_minPionScore;
+                    maxPartChi2 = m_maxPionChi2;
+                    PrintInfo("        Running checks on Pion Hypothesis.", m_print_cut_verbose);
+                }
+                
+                //Actual PID bit: Does the particle
+                if( (*part)->methodSignature().find("dEdX") != std::string::npos ) {
+                    
+                    if((*part)->idcode() == Minerva::Particle::Proton){
+                        protonScore.push_back((*part)->score());
+                        pr_score = (*part)->score();
+                    }
+                    else  if((*part)->idcode() == Minerva::Particle::Pion){
+                        pionScore.push_back((*part)->score());
+                        pi_score = (*part)->score();
+                    }
+                    
+                    score_den += (*part)->score();
+                }
+                
+            }
+            
+            //Temp particle:
+            //Add the Norms here:
+            double pr_score_N = pr_score/score_den;
+            double pi_score_N = pi_score/score_den;
+            
+            pr_score_N_Vec.push_back(pr_score_N);
+            pi_score_N_Vec.push_back(pi_score_N);
+            
+            PrintInfo(Form("Prong %d:", hadron_counter), m_print_cut_verbose);
+            PrintInfo(Form("        Proton Score %f (%f), Pion Score %f, (%f) Chi2NDF %f", pr_score, pr_score_N, pi_score, pi_score_N, track->chi2PerDoF()), m_print_cut_verbose);
+            
+            int found_p_no = 0;
+            Minerva::Particle::ID part_name_check = Minerva::Particle::Unknown;
+            int PDGCode = -999;
+            
+            if(pr_score_N < pi_score_N){
+                
+                for(int hyp_counter = 0; hyp_counter < (int)partHypVec.size(); hyp_counter++){
+                    if( partHypVec[hyp_counter]->idcode() == Minerva::Particle::Proton){
+                        found_p_no = hyp_counter;
+                    }
+                }
+                
+                part_name_check = Minerva::Particle::Proton;
+                PDGCode = m_Proton_PDG;
+                
+            }
+            else{
+                for(int hyp_counter = 0; hyp_counter < (int)partHypVec.size(); hyp_counter++){
+                    if( partHypVec[hyp_counter]->idcode() == Minerva::Particle::Pion){
+                        found_p_no = hyp_counter;
+                    }
+                }
+                
+                part_name_check = Minerva::Particle::Pion;
+                PDGCode = m_Pion_PDG;
+            }
+            
+            //PrintInfo(Form("        Prong %d believed to be %d and has found_p_no = %d", hadron_counter, part_name_check, found_p_no), m_print_cut_verbose);
+            
+            
+            if(hadron_counter == 1){
+                Part_from_Prong1 = partHypVec[found_p_no];
+                Prong1_PDG = PDGCode;
+                
+                PrintInfo(Form("        Part_from_Prong1 :: Consistent with %d Hyp?", part_name_check), m_print_cut_verbose);
+                if(Part_from_Prong1->idcode() == part_name_check){
+                    PrintInfo("YES!!!!", m_print_cut_verbose);
+                }
+                else{
+                    PrintInfo("NO ********************** ?!", m_print_cut_verbose);
+                }
+                PrintInfo(Form("        IDCode: %d Score: %f", Part_from_Prong1->idcode(), Part_from_Prong1->score()), m_print_cut_verbose);
+                
+            }
+            
+            if(hadron_counter == 2){
+                Part_from_Prong2 = partHypVec[found_p_no];
+                Prong2_PDG = PDGCode;
+                
+                PrintInfo(Form("        Part_from_Prong2 :: Consistent with %d Hyp?", part_name_check), m_print_cut_verbose);
+                if(Part_from_Prong2->idcode() == part_name_check){
+                    PrintInfo("YES!!!!", m_print_cut_verbose);
+                }
+                else{
+                    PrintInfo("NO ********************** ?!", m_print_cut_verbose);
+                }
+                
+                PrintInfo(Form("        IDCode: %d Score: %f", Part_from_Prong2->idcode(), Part_from_Prong2->score()), m_print_cut_verbose);
+            }
+        }
+        
+        //Look for michels at end of the prong
+    }
+    
+    //Given the particle hypotheses, set the candidate tracks:
+    int pr_prong_no = -999;
+    int pi_prong_no = -999;
+    
+    PrintInfo("******************************** Summary ********************************", m_print_cut_verbose);
+    PrintInfo(Form("Vector Sizes Consistent: trackChi2NDF N = %d protonScore N = %d pionScore N = %d", (int)(trackChi2NDF.size()), (int)(protonScore.size()), (int)(pionScore.size())), m_print_cut_verbose);
+    if(trackChi2NDF.size() == 2 && protonScore.size()  == 2 && pionScore.size() == 2){
+        PrintInfo(" YES.", m_print_cut_verbose);
+        
+        double Prong1_Proton = protonScore[0]/(protonScore[0] + pionScore[0]);
+        double Prong1_Pion = pionScore[0]/(protonScore[0] + pionScore[0]);
+        
+        double Prong2_Proton = protonScore[1]/(protonScore[1] + pionScore[1]);
+        double Prong2_Pion = pionScore[1]/(protonScore[1] + pionScore[1]);
+        
+        PrintInfo("Prong 1:", m_print_cut_verbose);
+        PrintInfo(Form("        Proton Score %f (%f) Pion Score %f (%f) Chi2NDF %f", protonScore[0], Prong1_Proton, pionScore[0], Prong1_Pion, trackChi2NDF[0]), m_print_cut_verbose);
+        PrintInfo(Form("        PreCal Pr Sc N %f PreCal Pi Sc N %f", pr_score_N_Vec[0], pi_score_N_Vec[0]), m_print_cut_verbose);
+        PrintInfo("Prong 2:", m_print_cut_verbose);
+        PrintInfo(Form("        Proton Score %f (%f) Pion Score %f (%f) Chi2NDF %f", protonScore[1], Prong2_Proton, pionScore[1], Prong2_Pion, trackChi2NDF[1]), m_print_cut_verbose);
+        PrintInfo(Form("        PreCal Pr Sc N %f PreCal Pi Sc N %f", pr_score_N_Vec[1], pi_score_N_Vec[1]), m_print_cut_verbose);
+        PrintInfo("*************************************************************************", m_print_cut_verbose);
+        
+        int Prong1a_PDG = -999;
+        if(Prong1_Proton > Prong1_Pion){
+            Prong1a_PDG = m_Proton_PDG;
+            //debug() << "Prong 1 is thought to be a Proton" << endmsg;
+        }
+        else{
+            Prong1a_PDG = m_Pion_PDG;
+            //debug() << "Prong 1 is thought to be a Pion" << endmsg;
+        }
+        
+        int Prong2a_PDG = -999;
+        if(Prong2_Proton > Prong2_Pion){
+            Prong2a_PDG = m_Proton_PDG;
+            //debug() << "Prong 2 is thought to be a Proton" << endmsg;
+        }
+        else{
+            Prong2a_PDG = m_Pion_PDG;
+            //debug() << "Prong 2 is thought to be a Pion" << endmsg;
+        }
+        
+        PrintInfo("Checking PDG Codes:", m_print_cut_verbose);
+        PrintInfo(Form("Prong 1: Pre: %d, Post %d", Prong1_PDG, Prong1a_PDG), m_print_cut_verbose);
+        if(Prong1_PDG == Prong1a_PDG) PrintInfo(". They are the same!!!", m_print_cut_verbose);
+        else PrintInfo(". Close but no cigar... :-(", m_print_cut_verbose);
+        
+        PrintInfo(Form("Prong 2: Pre: %d Post %d", Prong2_PDG, Prong2a_PDG), m_print_cut_verbose);
+        if(Prong2_PDG == Prong2a_PDG) PrintInfo(". They are the same!!!", m_print_cut_verbose);
+        else PrintInfo("Close but no cigar... :-(", m_print_cut_verbose);
+        
+        if(Prong1_PDG != Prong2_PDG){
+            if(Prong1_PDG == m_Proton_PDG){
+                pr_prong_no = 0;
+                pi_prong_no = 1;
+                
+                m_ProtonParticle = Part_from_Prong1;
+                m_PionParticle = Part_from_Prong2;
+            }
+            else{
+                pr_prong_no = 1;
+                pi_prong_no = 0;
+                
+                m_ProtonParticle = Part_from_Prong2;
+                m_PionParticle = Part_from_Prong1;
+            }
+        }
+        else if(Prong1_PDG == m_Proton_PDG){
+            PrintInfo("Found two protons...", m_print_cut_verbose);
+            return false;
+        }
+        else{
+            PrintInfo("Found two pions...", m_print_cut_verbose);
+            return false;
+        }
+    }
+    else{
+        PrintInfo(" No... Check this out!!!!", m_print_cut_verbose);
+        return false;
+    }
+    
+    m_ProtonProng = prongs[pr_prong_no];
+    m_PionProng = prongs[pi_prong_no];
+    
+    m_ProtonScore[0] = protonScore[pr_prong_no];
+    m_ProtonScore[1] = pionScore[pr_prong_no];
+    
+    m_PionScore[0] = protonScore[pi_prong_no];
+    m_PionScore[1] = pionScore[pi_prong_no];
+    
+    m_Chi2NDF[0] = trackChi2NDF[pr_prong_no];
+    m_Chi2NDF[1] = trackChi2NDF[pi_prong_no];
+    
+    bool pr_is_correct = false;
+    bool pi_is_correct = false;
+    PrintInfo("Final Check that the tracks are what we think they are", m_print_cut_verbose);
+    PrintInfo(Form("ProtonParticle: %d", m_ProtonParticle->idcode()), m_print_cut_verbose);
+    if(m_ProtonParticle->idcode() == Minerva::Particle::Proton){
+        PrintInfo(" YES", m_print_cut_verbose);
+        pr_is_correct = true;
+    }
+    PrintInfo(Form("PionParticle: %d", m_PionParticle->idcode()), m_print_cut_verbose);
+    if(m_PionParticle->idcode() == Minerva::Particle::Pion){
+        PrintInfo(" YES", m_print_cut_verbose);
+        pi_is_correct = true;
+    }
+    
+    if(!(pr_is_correct || pi_is_correct)){
+        PrintInfo("Particles not correct... check code", m_print_cut_verbose);
+        return false;
+    }
+    
+    PrintInfo("Found Proton and Pion Tracks", m_print_cut_verbose);
+    
+    return true;c

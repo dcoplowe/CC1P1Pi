@@ -8,9 +8,7 @@ class ICCPionIncUtils;
 class IMuonUtils;
 class IMinervaCoordSysTool;
 class INuclearTargetTool;
-class IProtonUtils;
 class IParticleMakerTool;
-class IParticleTool;//This is for LL PID
 class ITruthMatcher;
 class TString;
 class TVector3;
@@ -48,33 +46,15 @@ private:
     double * m_Muon4Mom;
     double * m_Muontrue4Mom;
     
-    mutable SmartRef<Minerva::Prong> m_EX_ProtonProng;
-    mutable SmartRef<Minerva::Particle> m_EX_ProtonParticle;
-    double * m_EX_Proton4Mom;
-
-    mutable SmartRef<Minerva::Prong> m_EX_PionProng;
-    mutable SmartRef<Minerva::Particle> m_EX_PionParticle;
-    double * m_EX_Pion4Mom;
-    
-    mutable SmartRef<Minerva::Prong> m_LL_ProtonProng;
-    mutable SmartRef<Minerva::Particle> m_LL_ProtonParticle;
-    double * m_LL_Proton4Mom;
-    double * m_LL_Pion_dir;
-    
-    mutable SmartRef<Minerva::Prong> m_LL_PionProng;
-    mutable SmartRef<Minerva::Particle> m_LL_PionParticle;
-    double * m_LL_Pion4Mom;
-
+    mutable SmartRef<Minerva::Prong> m_ProtonProng;
+    mutable SmartRef<Minerva::Particle> m_ProtonParticle;
+    double * m_Proton4Mom;
     double * m_Protontrue4Mom;
+    
+    mutable SmartRef<Minerva::Prong> m_PionProng;
+    mutable SmartRef<Minerva::Particle> m_PionParticle;
+    double * m_Pion4Mom;
     double * m_Piontrue4Mom;
-    
-    double * m_Muon_dir;
-    double * m_Proton_dir;
-    double * m_Pion_dir;
-    
-    double * m_Muontrue_dir;
-    double * m_Protontrue_dir;
-    double * m_Piontrue_dir;
     
     void ResetParticles() const;
     //----------------------------------------------------------------------------//
@@ -113,25 +93,13 @@ private:
     //-----------------------//
     
     //Find Proton/Pion:
-    bool FindParticles(Minerva::PhysicsEvent * event, std::string method = "LL") const;
-    
-    bool IsEventContained(Minerva::PhysicsEvent * event) const;
-    
+    bool FindParticles(Minerva::PhysicsEvent* event) const;
     double m_det_apothem;
     double m_det_upZ;
     double m_det_downZ;
     
-    //dEdX method:
-    bool EXMethod(Minerva::PhysicsEvent * event) const;
-    IProtonUtils * m_protonUtils;
     IParticleMakerTool * m_particleMaker;
     std::string          m_particleMakerAlias;
-    
-    //Likelihood method:
-    bool LLMethod(Minerva::PhysicsEvent * event) const;
-    IParticleTool * m_LikelihoodPIDTool;
-    
-    
     
     double m_minProtonScore;
     double m_maxProtonChi2;
@@ -154,20 +122,14 @@ private:
     void SetCommonBranches();// const;
     
     void FillCommonBranches(const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const;
-
-    void FillMomDepVars(std::string name, SmartRef<Minerva::Prong> prong, SmartRef<Minerva::Particle> particle, double mass, const Minerva::PhysicsEvent *event, Minerva::NeutrinoInt* cc1p1piHyp) const;
-    
-    void DefineTruthTree();
-    void FillTruthTree() const;
     
     void Rotate2BeamCoords(std::vector<double> val) const;
 
     //Accumulation level counter:
     int m_ncuts;// = 5;
-    int m_nsplits;
-    mutable int * m_accum_level;
+    mutable int m_accum_level;
     int m_accum_level_to_save;
-    void SetAccumLevel(int split = -999) const;
+    void SetAccumLevel() const;
     void ResetAccumLevel() const;
     void SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::GenMinInteraction* truth) const;
     
