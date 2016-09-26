@@ -1,0 +1,45 @@
+ int pr_count = 0;
+         int pi_count = 0;
+        tmp_prong.push_back( (*prong) );
+        Minerva::Prong tmp_pr_prong;
+        Minerva::Particle tmp_pr_particle;
+        bool pr_found = m_protonUtils->findProtonProng(tmp_prong, tmp_pr_prong, tmp_pr_particle);//This does make hard cuts for PID.
+        tmp_prong.clear();
+        
+        if(pr_found){
+            tmp_pr_prongs.push_back(tmp_pr_prong);
+            tmp_pr_particles.push_back(tmp_pr_particle);
+            //if(pr_count > 0){
+            //    PrintInfo("More than one proton found...", m_print_cut_verbose);
+            //    return false;
+            //}
+            //save the fact that more than two protons were found.
+            pr_count++;
+        }
+        else{
+            //Now check if the prong is a pion:
+            Minerva::Prong tmp_pr_prong;
+            Minerva::Particle tmp_pr_particle;
+            
+            //Some pion PID.
+            
+            tmp_pi_prongs.push_back(tmp_pr_prong);
+            tmp_pi_particles.push_back(tmp_pr_particle);
+            
+            pi_count++;
+        }
+        
+    }
+
+    if( (int)tmp_pi_prongs.size() == (int)tmp_pr_prongs.size() && (int)tmp_pr_prongs.size() == 1){
+        m_EX_ProtonProng = tmp_pr_prongs[0] ;
+        m_EX_ProtonParticle = tmp_pr_particles[0];
+    
+        m_EX_PionProng = tmp_pi_prongs[0] ;
+        m_EX_PionParticle = tmp_pi_particles[0];
+        
+        return true;
+    }
+    else return false;
+    
+    return false;

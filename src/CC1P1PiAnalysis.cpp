@@ -701,45 +701,138 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
     Minerva::ProngVect prongs = event->primaryProngs();
     Minerva::ProngVect::iterator prong;
 
+    std::vector<double> tmp_chi2ndf;
+    
     Minerva::ProngVect tmp_pr_prongs;
     Minerva::ParticleVect tmp_pr_particles;
+    std::vector<double> tmp_pr_score;
     
     Minerva::ProngVect tmp_pi_prongs;
     Minerva::ParticleVect tmp_pi_particles;
-    
-    int pr_count = 0;
-    
+    std::vector<double> tmp_pi_score;
+
     for(prong = prongs.begin(); prong != prongs.end(); prong++){
     
         if( (*prong) == m_MuonProng) continue;
         
-        tmp_prong.push_back( (*prong) );
-        Minerva::Prong tmp_pr_prong;
-        Minerva::Particle tmp_pr_particle;
-        bool pr_found = m_protonUtils->findProtonProng(tmp_prong, tmp_pr_prong, tmp_pr_particle);
-        tmp_prong.clear();
+        Minerva::ParticleVect partHypVec = (*prong)->particles();
+        Minerva::ParticleVect::iterator part;
         
-        if(pr_found){
-            tmp_pr_prongs.push_back(tmp_pr_prong);
-            tmp_pr_particles.push_back(tmp_pr_particle);
-            //if(pr_count > 0){
-            //    PrintInfo("More than one proton found...", m_print_cut_verbose);
-            //    return false;
-            //}
-            //save the fact that more than two protons were found.
-            pr_count++;
-        }
-        //else{
-            //Now check if the prong is a pion:
+        debug() << "  Considering a prong with " << partHypVec.size() << " particle hypotheses." << endmsg;
+        
+        for( part = partHypVec.begin(); part != partHypVec.end(); part++ ){
+        
+            debug() << "   Found a " << (*part)->idcode() << " with signature: " << (*part)->methodSignature() << " and score: " << (*part)->score() << endmsg;
             
-        //}
-        
-    }
+            if( (*part)->isMultiMass() && (*part)->methodSignature().find("dEdX") == std::string::npos ) continue;
+            
+            //Minerva::Prong tmp_prong = (*prong);
+            //Minerva::Particle tmp_particle = (*part);
+            
+            /*double chi2ndf = -999.0;
+            Minerva::TrackVect tracks = (*prong)->minervaTracks();
+            if(!tracks.empty()){
+                SmartRef<Minerva::Track> track = tracks[ tracks.size() - 1 ];
+                chi2ndf = track->chi2PerDoF();
+            }*/
+            
+            if( (*part)->idcode() == Minerva::Particle::Proton ){
+                debug() << "   Setting Proton info. and score: " << endmsg;
 
-    //m_EX_ProtonProng = tmp_pr_prong;
-    //m_EX_ProtonParticle = tmp_pr_particle;
+                tmp_pr_prongs.push_back( (*prong) );
+                tmp_pr_particles.push_back( (*part) );
+                tmp_pr_score.push_back( (*part)->score() );
+                //tmp_pr_chi2ndf.push_back( chi2ndf );
+            }
+            else if( (*part)->idcode() == Minerva::Particle::Pion ){
+                debug() << "   Setting Pion info. and score: " << endmsg;
+
+                tmp_pi_prongs.push_back( (*prong) );
+                tmp_pi_particles.push_back( (*part) );
+                tmp_pi_score.push_back( (*part)->score() );
+                //tmp_pi_chi2ndf.push_back( chi2ndf );
+            }
+        }
+        
+        double chi2ndf = -999.0;
+        Minerva::TrackVect tracks = (*prong)->minervaTracks();
+        if(!tracks.empty()){
+            SmartRef<Minerva::Track> track = tracks[ tracks.size() - 1 ];
+            chi2ndf = track->chi2PerDoF();
+        }
+        
+        tmp_chi2ndf.push_back( chi2ndf );
+    }
     
-    return true;
+    debug() << "******************************** dEdX Summary ********************************" << endmsg;
+    debug() << "Proton Prong: " << endmsg;
+    debug() << "              tmp_pr_prongs.size() = " << tmp_pr_prongs.size() << endmsg;
+    debug() << "              tmp_pr_particles.size() = " << tmp_pr_particles.size() << endmsg;
+    debug() << "              tmp_pr_score.size() = " << tmp_pr_score.size() << endmsg;
+    
+    for(int i = 0; i < (int)tmp_pr_score.size(); i++){
+        debug() << "[" << i <<"]:    tmp_pr_score = " << tmp_pr_score[i] << "     tmp_pr_chi2ndf = " << tmp_chi2ndf[i] << endmsg;
+    }
+    debug() << "  Pion Prong: " << endmsg;
+    debug() << "              tmp_pi_prongs.size() = " << tmp_pi_prongs.size() << endmsg;
+    debug() << "              tmp_pi_particles.size() = " << tmp_pi_particles.size() << endmsg;
+    debug() << "              tmp_pi_score.size() = " << tmp_pi_score.size() << endmsg;
+    
+    for(int i = 0; i < (int)tmp_pi_score.size(); i++){
+        debug() << "[" << i <<"]:    tmp_pi_score = " << tmp_pi_score[i] << "     tmp_pi_chi2ndf = " << tmp_chi2ndf[i] << endmsg;
+    }
+    debug() << "******************************************************************************" << endmsg;
+    
+    std:vector<int> best_proton;
+    std:vector<int> best_pion;
+    
+    int count = (int)tmp_pr_score.size();
+    if(count < (int)tmp_pi_score.size()) count = (int)tmp_pi_score.size();
+    
+    for(int i = 0; i < count; i++){
+        
+        //if((int)tmp_pr_prongs.size() ==
+        
+        if(tmp_pr_prongs[i] == tmp_pi_prongs[i]){
+            if(tmp_pr_score[i] < tmp_pi_score[i]){//Closest to 1 is the best (Range = 0-1)
+                best_pion.push_back( i );
+            }
+            else{
+                best_proton.push_back( i );
+            }
+        }
+    }
+    
+    if( (int)best_proton.size() == (int)best_pion.size() && (int)best_proton.size() == 1){
+        m_EX_ProtonProng = tmp_pr_prongs[ best_proton[0] ];
+        m_EX_ProtonParticle = tmp_pr_particles[ best_proton[0] ];
+        
+        m_EX_PionProng = tmp_pi_prongs[ best_pion[0] ];
+        m_EX_PionParticle = tmp_pi_particles[ best_pion[0] ];
+    
+        //0 score is the actual proton score
+        //1 is the pion score.
+        m_ProtonScore[ 0 ] = tmp_pr_score[ best_proton[0] ];
+        m_ProtonScore[ 1 ] = tmp_pi_score[ best_proton[0] ];
+        m_ProtonChi2ndf = tmp_chi2ndf[ best_proton[0] ];
+
+        m_PionScore[ 0 ] = tmp_pr_score[ best_pion[0] ];
+        m_PionScore[ 1 ] = tmp_pi_score[ best_pion[0] ];
+        m_PionChi2ndf = tmp_chi2ndf[ best_pion[0] ];
+        
+        debug() << "******************************** Consistancy Check dEdX ********************************" << endmsg;
+        debug() << "Proton Prong: " << endmsg;
+        debug() << "             m_ProtonScore[ 0 ] = tmp_pr_score[ best_proton[0] = " << best_proton[0] << "] = " << m_ProtonScore[0] << endmsg;
+        debug() << "             m_ProtonScore[ 1 ] = tmp_pi_score[ best_proton[0] = " << best_proton[0] << "] = " << m_ProtonScore[1] << endmsg;
+        debug() << "  Pion Prong: " << endmsg;
+        debug() << "             m_PionScore[ 0 ] = tmp_pr_score[ best_pion[0] = " << best_pion[0] << "] = " << m_PionScore[0] << endmsg;
+        debug() << "             m_PionScore[ 1 ] = tmp_pi_score[ best_pion[0] = " << best_pion[0] << "] = " << m_PionScore[1] << endmsg;
+        debug() << "****************************************************************************************" << endmsg;
+        
+        return true;
+    }
+    else return false;
+    
 }
 
 bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
@@ -1061,7 +1154,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     SmartRef<Minerva::Particle> particle_LL;
     
     double mass = 0.0;
-    int ch2_vec_no = 0;
+    double tmp_chi2ndf = -999.;
     double tmp_scores[2] = {-999.};
     
     if(name == "mu"){
@@ -1072,26 +1165,30 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     else if(name == "pr"){
         prong_EX = m_EX_ProtonProng;
         particle_EX = m_EX_ProtonParticle;
-
+    
+        tmp_scores[0] = m_ProtonScore[0];
+        tmp_scores[1] = m_ProtonScore[1];
+        
+        tmp_chi2ndf = m_ProtonChi2ndf;
+        
         prong_LL = m_LL_ProtonProng;
         particle_LL = m_LL_ProtonParticle;
 
         mass = MinervaUnits::M_p;
-        ch2_vec_no = 0;
-        tmp_scores[0] = m_ProtonScore[0];
-        tmp_scores[1] = m_ProtonScore[1];
     }
     else if(name == "pi"){
         prong_EX = m_EX_PionProng;
         particle_EX = m_EX_PionParticle;
+    
+        tmp_scores[0] = m_PionScore[0];
+        tmp_scores[1] = m_PionScore[1];
+        
+        tmp_chi2ndf = m_PionChi2ndf;
 
         prong_LL = m_LL_PionProng;
         particle_LL = m_LL_PionParticle;
         
         mass = MinervaUnits::M_pion;
-        ch2_vec_no = 1;
-        tmp_scores[0] = m_PionScore[0];
-        tmp_scores[1] = m_PionScore[1];
     }
     else{
         error() << "CC1P1PiAnalysis::FillPartInfo :: Could not find determine name \"" << name << "\". Please check";
@@ -1101,18 +1198,12 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         warning() << "CC1P1PiAnalysis::FillPartInfo :: " << name << " mass is zero!!!" << endmsg;
     }
     
-    double ch2ndf = -999.;
-
-    double ch2ndf = -999.;
-    
-    
-    cc1p1piHyp->setDoubleData( (name + "_chi2ndf").c_str(), ch2ndf);
-
     if(name == "pr" || name == "pi"){
         
         //Scores need changing for PID comparisons:
         cc1p1piHyp->setDoubleData( (name + "_EX_prscore").c_str(), tmp_scores[0]);
         cc1p1piHyp->setDoubleData( (name + "_EX_piscore").c_str(), tmp_scores[1]);
+        cc1p1piHyp->setDoubleData( (name + "_EX_chi2ndf").c_str(), tmp_chi2ndf);
         
         cc1p1piHyp->setDoubleData( (name + "_LL_prscore").c_str(), -888.);
         cc1p1piHyp->setDoubleData( (name + "_LL_piscore").c_str(), -888.);
@@ -1132,11 +1223,19 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         
     }
     else{
-        declareDoubleBranch(m_hypMeths, (name + "_score").c_str() , -999.);
         FillMomDepVars(name, prong_EX, particle_EX, mass, event, cc1p1piHyp);
         
         double score = particle_EX->score();
         cc1p1piHyp->setDoubleData( (name + "_score").c_str(), score );
+        
+        Minerva::TrackVect tracks = (*prong_EX)->minervaTracks();
+        if(!tracks.empty()){
+            SmartRef<Minerva::Track> track = tracks[ tracks.size() - 1 ];
+            tmp_chi2ndf = track->chi2PerDoF();
+        }
+        
+        cc1p1piHyp->setDoubleData( (name + "_chi2ndf").c_str(), tmp_chi2ndf);
+
     }
     
 //    declareContainerDoubleBranch(m_hypMeths, (name + "_startdir").c_str(), 3, -999.); -- need to take care in how this is determined.
