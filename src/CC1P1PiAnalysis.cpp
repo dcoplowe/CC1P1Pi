@@ -1227,7 +1227,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         double score = particle_EX->score();
         cc1p1piHyp->setDoubleData( (name + "_score").c_str(), score );
         
-        Minerva::TrackVect tracks = *prong_EX->minervaTracks();
+        Minerva::TrackVect tracks = (*prong_EX)->minervaTracks();
         if(!tracks.empty()){
             SmartRef<Minerva::Track> track = tracks[ tracks.size() - 1 ];
             tmp_chi2ndf = track->chi2PerDoF();
