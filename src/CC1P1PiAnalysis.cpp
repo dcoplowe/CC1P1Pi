@@ -1485,8 +1485,8 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
     //debug() << " " << endmsg;
     //debug() << "Call to save accum_level" << endmsg;
     
-    double tmp_accum_level = 0;
-    std::vector<double> accum_level;
+    int tmp_accum_level = 0;
+    std::vector<int> accum_level;
     
     //Save the lowest accum level
     
@@ -1501,11 +1501,11 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
     if(tmp_accum_level >= m_accum_level_to_save){
         //debug() << "Passed save requirement" << endmsg;
         
-        event->setIntData("accum_level", accum_level);
-        truth->setIntData("accum_level", accum_level);
+        event->setContainerIntData("accum_level", accum_level);
+        truth->setContainerIntData("accum_level", accum_level);
         markEvent(event);
         
-        PrintInfo(Form("++++ Saving Accum. Level %d ++++", m_accum_level), m_print_acc_level);
+        PrintInfo(Form("++++ Saving Accum. Level %d ++++", tmp_accum_level), m_print_acc_level);
         if(m_accum_level < m_ncuts){
           //  debug() << "Event beleived to be below cut threshold." << endmsg;
             Minerva::NeutrioInt *nuInt = new Minerva::NeutrinoInt( m_anaSignature );
@@ -1527,7 +1527,7 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
         
         debug() << "Should have saved event" << endmsg;
     }
-    else PrintInfo(Form("Failed to reach accum. level %d. Selection stopped at %d.", m_accum_level_to_save, m_accum_level), m_print_acc_level);
+    else PrintInfo(Form("Failed to reach accum. level %d. Selection stopped at %d.", m_accum_level_to_save, tmp_accum_level), m_print_acc_level);
 
     //debug() << " " << endmsg;
     //debug() << " " << endmsg;
