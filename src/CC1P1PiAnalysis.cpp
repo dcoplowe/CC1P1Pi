@@ -783,8 +783,8 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
     }
     debug() << "******************************************************************************" << endmsg;
     
-    std:vector<int> best_proton;
-    std:vector<int> best_pion;
+    std::vector<int> best_proton;
+    std::vector<int> best_pion;
     
     int count = (int)tmp_pr_score.size();
     if(count < (int)tmp_pi_score.size()) count = (int)tmp_pi_score.size();
@@ -837,7 +837,7 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
 
 bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
 {
-
+    (void)event;
    // m_LikelihoodPIDTool->makeParticles( prong, protonLikelihood, protonHypotheses );
     
     return true;
@@ -860,8 +860,8 @@ void CC1P1PiAnalysis::ResetParticles() const
     m_PionScore[0] = -999.;
     m_PionScore[1] = -999.;
     
-    m_Chi2NDF[0] = -999.;
-    m_Chi2NDF[1] = -999.;
+    m_ProtonChi2ndf = -999.;
+    m_PionChi2ndf = -999.;
     
     for(int i = 0; i < 4; i++){
         m_EX_Pion4Mom[i] = -999.;//TXYZ
@@ -1159,7 +1159,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     
     if(name == "mu"){
         prong_EX = m_MuonProng;
-        prong_EX = m_MuonParticle;
+        particle_EX = m_MuonParticle;
         mass = MinervaUnits::M_mu;
     }
     else if(name == "pr"){
@@ -1208,27 +1208,24 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         cc1p1piHyp->setDoubleData( (name + "_LL_prscore").c_str(), -888.);
         cc1p1piHyp->setDoubleData( (name + "_LL_piscore").c_str(), -888.);
         
-        FillMomDepVars( (name + "_EX").c_str(), prong_EX, particle_EX, mass, event, cc1p1piHyp);
+        FillMomDepVars( (name + "_EX").c_str(), particle_EX, mass, event, cc1p1piHyp);
         
         if(prong_LL && particle_LL){
-            FillMomDepVars( (name + "_LL").c_str(), prong_LL, particle_LL, mass, event, cc1p1piHyp);
+            FillMomDepVars( (name + "_LL").c_str(), particle_LL, mass, event, cc1p1piHyp);
         }
         else{
             error() << "CC1P1PiAnalysis::FillPartInfo :: Likelihood Prong or particle is NULL for \"" << name << "\". Please check";
         }
-        
         double hasFSI = -999;
         cc1p1piHyp->setIntData( (name + "_FSI").c_str(), hasFSI);
-        ch2ndf = m_Chi2NDF[ch2_vec_no];
-        
     }
     else{
-        FillMomDepVars(name, prong_EX, particle_EX, mass, event, cc1p1piHyp);
+        FillMomDepVars(name, particle_EX, mass, event, cc1p1piHyp);
         
         double score = particle_EX->score();
         cc1p1piHyp->setDoubleData( (name + "_score").c_str(), score );
         
-        Minerva::TrackVect tracks = (*prong_EX)->minervaTracks();
+        Minerva::TrackVect tracks = (*prong)->minervaTracks();
         if(!tracks.empty()){
             SmartRef<Minerva::Track> track = tracks[ tracks.size() - 1 ];
             tmp_chi2ndf = track->chi2PerDoF();
@@ -1382,7 +1379,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     
 }
 
-void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Prong> prong, SmartRef<Minerva::Particle> particle, double mass, const Minerva::PhysicsEvent *event, Minerva::NeutrinoInt* cc1p1piHyp) const
+void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particle> particle, double mass, const Minerva::PhysicsEvent *event, Minerva::NeutrinoInt* cc1p1piHyp) const
 {
     //Must contain EX or LL in st
     
@@ -1429,7 +1426,7 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Prong> 
     cc1p1piHyp->setDoubleData( (name + "_pTT").c_str(), pTT);
     
     double Phi = m_coordSysTool->phiWRTBeam( four_vec );
-    cc1p1piHyp->setDoubleData( (name + "_Phi").c_str(), Phi_EX);
+    cc1p1piHyp->setDoubleData( (name + "_Phi").c_str(), Phi);
     
     double Theta = m_coordSysTool->thetaWRTBeam( four_vec );
     cc1p1piHyp->setDoubleData( (name + "_Theta").c_str(), Theta);
@@ -1461,7 +1458,7 @@ void CC1P1PiAnalysis::SetAccumLevel(int split) const
     //m_accum_level++;
     
     for(int i = 0; i < m_nsplits; i++){
-        PrintInfo(Form("***** Accum. Level %d ***** ", m_accum_level), m_print_acc_level);
+        PrintInfo(Form("***** Accum. Level [%d] = %d ***** ", i, m_accum_level[i]), m_print_acc_level);
     }
 }
 
