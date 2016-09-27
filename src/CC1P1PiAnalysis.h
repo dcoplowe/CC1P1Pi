@@ -116,7 +116,7 @@ private:
     //-----------------------//
     
     //Find Proton/Pion:
-    bool FindParticles(Minerva::PhysicsEvent * event, std::string method = "LL") const;
+    bool FindParticles(Minerva::PhysicsEvent * event, int method = 0) const;//0 - EX, 1 - LL, 2 - Comparison
     
     bool IsEventContained(Minerva::PhysicsEvent * event) const;
     

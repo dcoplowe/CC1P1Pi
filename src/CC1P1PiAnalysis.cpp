@@ -90,7 +90,7 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
 
     //Run option parameters:
     declareProperty("accum_level_to_save", m_accum_level_to_save = 5);//Defualt to no of cuts so that we only save interesting events.
-    declareProperty("PID_method", m_PID_method = 2);//0 - LL, 1 - dEdX, 2 - Comparison study
+    declareProperty("PID_method", m_PID_method = 0);//0 - dEdX, 1 - LL, 2 - Comparison study
     
     if(m_PID_method < 2){
         m_nsplits = 1;
@@ -191,7 +191,7 @@ StatusCode CC1P1PiAnalysis::initialize()
         return StatusCode::FAILURE;
     }*/
     
-    debug() << "::::::::: Looking for ParticleTool :::::::::" << endmsg;
+    //debug() << "::::::::: Looking for ParticleTool :::::::::" << endmsg;
     
     try { m_LikelihoodPIDTool = tool<IParticleTool>("LikelihoodPIDTool"); }
     catch( GaudiException& e){
@@ -408,7 +408,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     //HadronSystem hadrons;
     
-    bool tFinPar = FindParticles(event);
+    bool tFinPar = FindParticles(event, m_PID_method);
     
     if(!tFinPar){
         PrintInfo("Failed to identify particles...", m_print_cuts);
@@ -422,7 +422,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     }
     
     PrintInfo("AL should be 5", m_print_acc_level);
-    SetAccumLevel();
+    //SetAccumLevel();
     
     SaveAccumLevel(event, truth);//markEvent is called in SaveAccumLevel.
     
@@ -632,7 +632,7 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     return fidVertex;
 }
 
-bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent * event, std::string method) const
+bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent * event, int method) const
 {
     //This code is currently a little messy and needs cleaning up. There are currently lots of cross checks in the code here.
     
@@ -641,8 +641,17 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent * event, std::string m
     if(!IsEventContained(event)) return false;
     
     bool success = false;
-    if(method == "LL") success = LLMethod(event);
-    else if(method == "EX") success = EXMethod(event);
+    if(method == 0) success = EXMethod(event);
+    else if(method == 1) success = LLMethod(event);
+    else if(method == 2){
+        bool sucLL = LLMethod(event);
+        bool sucEX = EXMethod(event);
+        
+        if(sucEX) SetAccumLevel(0);
+        if(sucLL) SetAccumLevel(1);
+        
+        success = (sucLL || sucEX);
+    }
     //Determine which track is most proton like and pion like:
     // 1) Get particle scores and compare which track is has the highest score for the given hypothosis.
     // 2) Look for Michel features.
