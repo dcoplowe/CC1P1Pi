@@ -1118,7 +1118,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
     //----------------------------------- dEdX vars -----------------------------------//
     if(m_PID_method != 1){
 
-        double Enu_EX = m_Muon4Mom[0] + m_EX_Proton4Mom[0] + m_EX_Pion4Mom[0] - Minerva::M_p;
+        double Enu_EX = m_Muon4Mom[0] + m_EX_Proton4Mom[0] + m_EX_Pion4Mom[0] - MinervaUnits::M_p;
         cc1p1piHyp->setDoubleData("Enu_EX", Enu_EX);
         
         double Q2_EX = -999.;
@@ -1157,7 +1157,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
     
     //------------------------------------ LL vars ------------------------------------//
     if(m_PID_method > 0){
-        double Enu_LL = m_Muon4Mom[0] + m_LL_Proton4Mom[0] + m_LL_Pion4Mom[0] - Minerva::M_p;
+        double Enu_LL = m_Muon4Mom[0] + m_LL_Proton4Mom[0] + m_LL_Pion4Mom[0] - MinervaUnits::M_p;
         cc1p1piHyp->setDoubleData("Enu_LL", Enu_LL);
         
         double Q2_LL = -999.;
@@ -1282,14 +1282,14 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     if(name == "pr" || name == "pi"){
         //Scores need changing for PID comparisons:
         if(prong_EX && particle_EX){
-            FillMomDepVars( (name + "_EX").c_str(), particle_EX, mass, event, cc1p1piHyp, particle_EX_altH);
+            FillMomDepVars( (name + "_EX").c_str(), particle_EX, event, cc1p1piHyp, particle_EX_altH);
         }
         else{
             warning() << "CC1P1PiAnalysis::FillPartInfo :: dEdX Prong or particle is NULL for \"" << name << "\". Please check";
         }
         
         if(prong_LL && particle_LL){
-            FillMomDepVars( (name + "_LL").c_str(), particle_LL, mass, event, cc1p1piHyp, particle_LL_altH);
+            FillMomDepVars( (name + "_LL").c_str(), particle_LL, event, cc1p1piHyp, particle_LL_altH);
         }
         else{
             warning() << "CC1P1PiAnalysis::FillPartInfo :: Likelihood Prong or particle is NULL for \"" << name << "\". Please check";
@@ -1304,9 +1304,10 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
 //    declareContainerDoubleBranch(m_hypMeths, (name + "_startdir").c_str(), 3, -999.); -- need to take care in how this is determined.
     SmartRef<Minerva::Prong> prong;
     
-    if(m_PID_method == 1){
+    if(m_PID_method == 1 && prong_EX != m_MuonProng){
         prong = prong_LL;
     }
+    else prong = prong_EX;
     
     double chi2ndf = -999.;
     Minerva::TrackVect tracks = prong->minervaTracks();
@@ -1537,14 +1538,33 @@ void CC1P1PiAnalysis::DefineTruthTree(){
     declareIntTruthBranch("n_tracks", -999);
     std::string part_name[ 10 ] = {"ele", "muo", "tau", "pro", "ntn" "piP", "piM", "pi0", "kPM", "kaO"};
     for(int i = 0; i < 10; i++) declareIntTruthBranch( ("n_" + part_name[i] + "_tracks").c_str(),-999);
-    
+    SetTruePart("mu");
+    SetTruePart("pr");
+    SetTruePart("pi");
 
+}
 
+void CC1P1PiAnalysis::SetTruePart(std::string name){
+    declareDoubleTruthBranch( (name + "_mom").c_str(),-999);
+    declareContainerDoubleTruthBranch( name + "_4mom").c_str(),4, -999.0);
+    declareDoubleTruthBranch( (name + "_E").c_str(), -999.);
+    declareDoubleTruthBranch( (name + "_pTMag").c_str(), -999.);
+    declareDoubleTruthBranch( (name + "_pTMag").c_str(), -999.);
+    declareContainerDoubleTruthBranch( (name + "_pT").c_str(), 3, -999.);
+    declareDoubleTruthBranch( (name + "_pTT").c_str(), -999.);
+    declareDoubleTruthBranch( (name + "_Phi").c_str(), -999.);
+    declareDoubleTruthBranch( (name + "_Theta").c_str(), -999.);
+    declareDoubleTruthBranch( (name + "_KE").c_str(), -999.);
 }
 
 void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
 {
     //Want to iterate through final states vector of particles and each for the highest mom. p/pi/mu. these should then be used to fill the true variables.
+    
+}
+
+void CC1P1PiAnalysis::FillTruePart(std::string name, Minerva::GenMinInteraction* truth) const
+{
     
 }
 

@@ -160,7 +160,9 @@ private:
     void FillMomDepVars(std::string name, SmartRef<Minerva::Particle> particle, const Minerva::PhysicsEvent *event, Minerva::NeutrinoInt* cc1p1piHyp, SmartRef<Minerva::Particle> particle_alt = NULL) const;
     
     void DefineTruthTree();
+    void SetTruePart(std::string name);
     void FillTruthTree(Minerva::GenMinInteraction* truth) const;
+    void FillTruePart(std::string name, Minerva::GenMinInteraction* truth) const;
     
     void Rotate2BeamCoords(std::vector<double> val) const;
 
