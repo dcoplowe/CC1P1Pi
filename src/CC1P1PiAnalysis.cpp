@@ -862,8 +862,9 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
     
     for(prong = prongs.begin(); prong != prongs.end(); prong++){
         if( (*prong) == m_MuonProng) continue;
-        m_LikelihoodPIDTool->makeParticles( prong, tmp_pr_particles, protonHypotheses);
-        m_LikelihoodPIDTool->makeParticles( prong, tmp_pi_particles, pionHypotheses);
+        m_LikelihoodPIDTool->makeParticles( (*prong), tmp_pr_particles, protonHypotheses);
+        m_LikelihoodPIDTool->makeParticles( (*prong), tmp_pi_particles, pionHypotheses);
+        //IParticleTool::makeParticles(Minerva::Prong*, Minerva::ParticleVect&, std::vector<Minerva::Particle::ID, std::allocator<Minerva::Particle::ID> >)
         
         tmp_pr_prongs.push_back( (*prong) );
         tmp_pi_prongs.push_back( (*prong) );
