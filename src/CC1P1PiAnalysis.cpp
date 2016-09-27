@@ -1546,9 +1546,8 @@ void CC1P1PiAnalysis::DefineTruthTree(){
 
 void CC1P1PiAnalysis::SetTruePart(std::string name){
     declareDoubleTruthBranch( (name + "_mom").c_str(),-999);
-    declareContainerDoubleTruthBranch( name + "_4mom").c_str(),4, -999.0);
+    declareContainerDoubleTruthBranch( (name + "_4mom").c_str(),4, -999.0);
     declareDoubleTruthBranch( (name + "_E").c_str(), -999.);
-    declareDoubleTruthBranch( (name + "_pTMag").c_str(), -999.);
     declareDoubleTruthBranch( (name + "_pTMag").c_str(), -999.);
     declareContainerDoubleTruthBranch( (name + "_pT").c_str(), 3, -999.);
     declareDoubleTruthBranch( (name + "_pTT").c_str(), -999.);
