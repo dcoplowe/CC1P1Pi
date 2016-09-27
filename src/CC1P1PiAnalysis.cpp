@@ -849,11 +849,9 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
     
     Minerva::ProngVect tmp_pr_prongs;
     Minerva::ParticleVect tmp_pr_particles;
-    std::vector<double> tmp_pr_score;
     
     Minerva::ProngVect tmp_pi_prongs;
     Minerva::ParticleVect tmp_pi_particles;
-    std::vector<double> tmp_pi_score;
     
     std::vector<Minerva::Particle::ID> protonHypotheses;
     std::vector<Minerva::Particle::ID> pionHypotheses;
@@ -862,8 +860,9 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
     
     for(prong = prongs.begin(); prong != prongs.end(); prong++){
         if( (*prong) == m_MuonProng) continue;
-        m_LikelihoodPIDTool->makeParticles( (*prong), tmp_pr_particles, protonHypotheses);
-        m_LikelihoodPIDTool->makeParticles( (*prong), tmp_pi_particles, pionHypotheses);
+        
+        m_LikelihoodPIDTool->makeParticles( (*prong), tmp_pr_particles , protonHypotheses);
+        m_LikelihoodPIDTool->makeParticles( (*prong), tmp_pi_particles , pionHypotheses);
         //IParticleTool::makeParticles(Minerva::Prong*, Minerva::ParticleVect&, std::vector<Minerva::Particle::ID, std::allocator<Minerva::Particle::ID> >)
         
         tmp_pr_prongs.push_back( (*prong) );
@@ -882,7 +881,7 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
         
         if(!(abs(tmp_pr_particles[i]->score()) == abs(tmp_pi_particles[i]->score()))) error() << "CC1P1PiAnalysis::LLMethod : absolute scores are different" << endmsg;
         
-        if(tmp_pr_particles[i] > 0. && tmp_pr_particles[i]->score() != 0.){
+        if(tmp_pr_particles[i]->score() > 0. && tmp_pr_particles[i]->score() != 0.){
             best_proton.push_back( i );
         }
         else{
