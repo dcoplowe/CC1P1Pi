@@ -1466,7 +1466,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     
 }
 
-void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particle> particle, const Minerva::PhysicsEvent *event, Minerva::NeutrinoInt* cc1p1piHyp, SmartRef<Minerva::Particle> particle_alt) const
+void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particle> particle, const Minerva::PhysicsEvent *event, Minerva::NeutrinoInt* cc1p1piHyp, Minerva::Particle * particle_alt) const
 {
     //Must contain EX or LL in st
     
