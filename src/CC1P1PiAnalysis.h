@@ -157,7 +157,7 @@ private:
     
     void FillCommonBranches(const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const;
 
-    void FillMomDepVars(std::string name, SmartRef<Minerva::Particle> particle, double mass, const Minerva::PhysicsEvent *event, Minerva::NeutrinoInt* cc1p1piHyp) const;
+    void FillMomDepVars(std::string name, SmartRef<Minerva::Particle> particle, const Minerva::PhysicsEvent *event, Minerva::NeutrinoInt* cc1p1piHyp, SmartRef<Minerva::Particle> particle_alt = NULL) const;
     
     void DefineTruthTree();
     void FillTruthTree(Minerva::GenMinInteraction* truth) const;
