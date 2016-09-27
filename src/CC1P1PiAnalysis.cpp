@@ -191,6 +191,8 @@ StatusCode CC1P1PiAnalysis::initialize()
         return StatusCode::FAILURE;
     }*/
     
+    debug() << "::::::::: Looking for ParticleTool :::::::::" << endmsg;
+    
     try { m_LikelihoodPIDTool = tool<IParticleTool>("ParticleTool"); }
     catch( GaudiException& e){
         error() << "Could not obtain IParticleTool: " << endmsg;
@@ -1539,9 +1541,16 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
 
 void CC1P1PiAnalysis::DefineTruthTree(){
     
+    declareIntTruthBranch("reco_target",-999);
+    declareIntTruthBranch("n_tracks", -999);
+    std::string part_name[ 10 ] = {"ele", "muo", "tau", "pro", "ntn" "piP", "piM", "pi0", "kPM", "kaO"};
+    for(int i = 0; i < 10; i++) declareIntTruthBranch( ("n_" + part_name[i] + "_tracks").c_str(),-999);
+    
+
+
 }
 
-void CC1P1PiAnalysis::FillTruthTree() const
+void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
 {
     //Want to iterate through final states vector of particles and each for the highest mom. p/pi/mu. these should then be used to fill the true variables.
     
