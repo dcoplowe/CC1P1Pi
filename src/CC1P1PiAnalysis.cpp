@@ -873,7 +873,7 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
     std::vector<int> best_pion;
     
     int count = (int)tmp_pi_particles.size();
-    if(count < (int)tmp_pr_particles.size()) count = (int)tmp_pr_score.size();
+    if(count < (int)tmp_pr_particles.size()) count = (int)tmp_pr_particles.size();
     
     debug() << "tmp_pi_particles.size() == " << tmp_pi_particles.size() << "     tmp_pr_particles.size() == " << tmp_pr_particles.size() << endmsg;
     
