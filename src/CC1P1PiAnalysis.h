@@ -50,19 +50,22 @@ private:
     
     mutable SmartRef<Minerva::Prong> m_EX_ProtonProng;
     mutable SmartRef<Minerva::Particle> m_EX_ProtonParticle;
+    mutable SmartRef<Minerva::Particle> m_EX_ProtonParticle_AltH;
     double * m_EX_Proton4Mom;
 
     mutable SmartRef<Minerva::Prong> m_EX_PionProng;
     mutable SmartRef<Minerva::Particle> m_EX_PionParticle;
+    mutable SmartRef<Minerva::Particle> m_EX_PionParticle_AltH;
     double * m_EX_Pion4Mom;
     
     mutable SmartRef<Minerva::Prong> m_LL_ProtonProng;
     mutable SmartRef<Minerva::Particle> m_LL_ProtonParticle;
+    mutable SmartRef<Minerva::Particle> m_LL_ProtonParticle_AltH;
     double * m_LL_Proton4Mom;
-    double * m_LL_Pion_dir;
     
     mutable SmartRef<Minerva::Prong> m_LL_PionProng;
     mutable SmartRef<Minerva::Particle> m_LL_PionParticle;
+    mutable SmartRef<Minerva::Particle> m_LL_PionParticle_AltH;
     double * m_LL_Pion4Mom;
 
     double * m_Protontrue4Mom;
@@ -170,7 +173,7 @@ private:
     void ResetAccumLevel() const;
     void SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::GenMinInteraction* truth) const;
     
-    bool m_PID_method;
+    int m_PID_method;
     std::string m_PID_tool;
     
     //Determine the truth information from the track:

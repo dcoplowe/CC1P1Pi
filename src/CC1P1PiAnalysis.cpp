@@ -88,24 +88,22 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("n_cuts", m_ncuts = 5);
     m_accum_level = 0;// = new int [ m_ncuts ]; -- no need for N dim. as we only have one branch.
 
-    m_nsplits = 2;
+    //Run option parameters:
+    declareProperty("accum_level_to_save", m_accum_level_to_save = 5);//Defualt to no of cuts so that we only save interesting events.
+    declareProperty("PID_method", m_PID_method = 2);//0 - LL, 1 - dEdX, 2 - Comparison study
+    
+    if(m_PID_method < 2){
+        m_nsplits = 1;
+    }
+    else{
+        m_nsplits = 2;
+    }
     m_accum_level = new int [m_nsplits];
     
     //Mean Parent Decay Point in metres
     declareProperty("PDP_X", m_PDP_X = 0.231135);
     declareProperty("PDP_Y", m_PDP_Y = 45.368069);
     declareProperty("PDP_Z", m_PDP_Z = 766.384058);
-    
-    //Run option parameters:
-    declareProperty("accum_level_to_save", m_accum_level_to_save = 5);//Defualt to no of cuts so that we only save interesting events.
-    declareProperty("PID_method", m_PID_method = false);
-    
-    if(m_PID_method){
-        m_PID_tool = "dEdXTool";
-    }
-    else{
-        m_PID_tool = "dEdXTool";//What is the name? Check Phil's analysis
-    }
     
     declareProperty("print_cuts", m_print_cuts = false);
     declareProperty("print_cut_verbose", m_print_cut_verbose = false);
@@ -811,7 +809,11 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
         
         m_EX_PionProng = tmp_pi_prongs[ best_pion[0] ];
         m_EX_PionParticle = tmp_pi_particles[ best_pion[0] ];
+
+        m_EX_ProtonParticle_AltH = tmp_pi_particles[ best_proton[0] ];
+        m_EX_PionParticle_AltH = tmp_pr_particles[ best_pion[0] ];
     
+        //Dont need to pass these arrays around now:
         //0 score is the actual proton score
         //1 is the pion score.
         m_ProtonScore[ 0 ] = tmp_pr_score[ best_proton[0] ];
@@ -826,9 +828,11 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
         debug() << "Proton Prong: " << endmsg;
         debug() << "             m_ProtonScore[ 0 ] = tmp_pr_score[ best_proton[0] = " << best_proton[0] << "] = " << m_ProtonScore[0] << endmsg;
         debug() << "             m_ProtonScore[ 1 ] = tmp_pi_score[ best_proton[0] = " << best_proton[0] << "] = " << m_ProtonScore[1] << endmsg;
+        debug() << "        m_EX_ProtonParticle_AltH->score() = m_ProtonScore[ 1 ] = " << m_EX_ProtonParticle_AltH->score() << endmsg;
         debug() << "  Pion Prong: " << endmsg;
         debug() << "             m_PionScore[ 0 ] = tmp_pr_score[ best_pion[0] = " << best_pion[0] << "] = " << m_PionScore[0] << endmsg;
         debug() << "             m_PionScore[ 1 ] = tmp_pi_score[ best_pion[0] = " << best_pion[0] << "] = " << m_PionScore[1] << endmsg;
+        debug() << "        m_EX_PionParticle_AltH->score() = m_PionScore[ 0 ] = " << m_EX_PionParticle_AltH->score() << endmsg;
         debug() << "****************************************************************************************" << endmsg;
         
         return true;
@@ -839,10 +843,76 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
 
 bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
 {
-    (void)event;
-   // m_LikelihoodPIDTool->makeParticles( prong, protonLikelihood, protonHypotheses );
     
-    return true;
+    Minerva::ProngVect prongs = event->primaryProngs();
+    Minerva::ProngVect::iterator prong;
+    
+    Minerva::ProngVect tmp_pr_prongs;
+    Minerva::ParticleVect tmp_pr_particles;
+    std::vector<double> tmp_pr_score;
+    
+    Minerva::ProngVect tmp_pi_prongs;
+    Minerva::ParticleVect tmp_pi_particles;
+    std::vector<double> tmp_pi_score;
+    
+    std::vector<Minerva::Particle::ID> protonHypotheses;
+    std::vector<Minerva::Particle::ID> pionHypotheses;
+    protonHypotheses.push_back( Minerva::Particle::Proton );
+    pionHypotheses.push_back( Minerva::Particle::Pion );
+    
+    for(prong = prongs.begin(); prong != prongs.end(); prong++){
+        if( (*prong) == m_MuonProng) continue;
+        m_LikelihoodPIDTool->makeParticles( prong, tmp_pr_particles, protonHypotheses);
+        m_LikelihoodPIDTool->makeParticles( prong, tmp_pi_particles, pionHypotheses);
+        
+        tmp_pr_prongs.push_back( (*prong) );
+        tmp_pi_prongs.push_back( (*prong) );
+    }
+    
+    std::vector<int> best_proton;
+    std::vector<int> best_pion;
+    
+    int count = (int)tmp_pi_particles.size();
+    if(count < (int)tmp_pr_particles.size()) count = (int)tmp_pr_score.size();
+    
+    debug() << "tmp_pi_particles.size() == " << tmp_pi_particles.size() << "     tmp_pr_particles.size() == " << tmp_pr_particles.size() << endmsg;
+    
+    for(int i = 0; i < count; i++){
+        
+        if(!(abs(tmp_pr_particles[i]->score()) == abs(tmp_pi_particles[i]->score()))) error() << "CC1P1PiAnalysis::LLMethod : absolute scores are different" << endmsg;
+        
+        if(tmp_pr_particles[i] > 0. && tmp_pr_particles[i]->score() != 0.){
+            best_proton.push_back( i );
+        }
+        else{
+            best_pion.push_back( i );
+        }
+    }
+    
+    if( (int)best_proton.size() == (int)best_pion.size() && (int)best_proton.size() == 1){
+        m_LL_ProtonProng = tmp_pr_prongs[ best_proton[0] ];
+        m_LL_ProtonParticle = tmp_pr_particles[ best_proton[0] ];
+        
+        m_LL_PionProng = tmp_pi_prongs[ best_pion[0] ];
+        m_LL_PionParticle = tmp_pi_particles[ best_pion[0] ];
+
+        m_LL_ProtonParticle_AltH = tmp_pi_particles[ best_proton[0] ];
+        m_LL_PionParticle_AltH = tmp_pr_particles[ best_pion[0] ];
+        
+        debug() << "******************************** LL PID Check *****************************************" << endmsg;
+        debug() << "                   The following should be positive " << endmsg;
+        debug() << "Proton Prong: " << endmsg;
+        debug() << "                                          m_LL_ProtonParticle->score() = " << m_LL_ProtonParticle->score() << ", best_proton = " << best_proton[0] << endmsg;
+        debug() << "    m_LL_ProtonParticle_AltH->score() = - m_LL_ProtonParticle->score() = " << m_LL_ProtonParticle_AltH->score() << endmsg;
+        debug() << "  Pion Prong: " << endmsg;
+        debug() << "                                            m_LL_PionParticle->score() = " << m_LL_PionParticle->score() << ", best_pion = " << best_pion[0] << endmsg;
+        debug() << "        m_LL_PionParticle_AltH->score() = - m_LL_PionParticle->score() = " << m_LL_PionParticle_AltH->score() << endmsg;
+        debug() << "****************************************************************************************" << endmsg;
+        
+        return true;
+    }
+    else return false;
+    
 }
 
 void CC1P1PiAnalysis::ResetParticles() const
@@ -855,6 +925,18 @@ void CC1P1PiAnalysis::ResetParticles() const
     
     m_EX_PionProng = NULL;
     m_EX_PionParticle = NULL;
+    
+    m_LL_ProtonProng = NULL;
+    m_LL_ProtonParticle = NULL;
+    
+    m_LL_PionProng = NULL;
+    m_LL_PionParticle = NULL;
+    
+    m_EX_ProtonParticle_AltH = NULL;
+    m_LL_ProtonParticle_AltH = NULL;
+    
+    m_EX_PionParticle_AltH = NULL;
+    m_LL_PionParticle_AltH = NULL;
     
     m_ProtonScore[0] = -999.;
     m_ProtonScore[1] = -999.;
