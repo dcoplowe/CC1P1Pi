@@ -13,7 +13,7 @@
 #include "DetDesc/Material.h"
 #include "GeoUtils/INuclearTargetTool.h"
 #include "AnaUtils/IProtonUtils.h"
-#include "ParticleMaker/IParticleMakerTool.h"
+//#include "ParticleMaker/IParticleMakerTool.h"
 #include "ParticleMaker/IParticleTool.h"
 #include "TruthMatcher/ITruthMatcher.h"
 
@@ -72,7 +72,7 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("det_upZ", m_det_upZ = 4000.0);//Same as Proton utils:
     declareProperty("det_downZ", m_det_downZ = 10000.0);//Same as Proton utils:
     
-    declareProperty("ParticleMakerAlias", m_particleMakerAlias = "CC1P1PiParticleMaker");
+   // declareProperty("ParticleMakerAlias", m_particleMakerAlias = "CC1P1PiParticleMaker");
     
     //These values are taken from ProtonUtils:
     declareProperty("minProtonScore", m_minProtonScore = 0.05);
@@ -185,11 +185,11 @@ StatusCode CC1P1PiAnalysis::initialize()
         return StatusCode::FAILURE;
     }
     
-    try { m_particleMaker = tool<IParticleMakerTool>("ParticleMakerTool", m_particleMakerAlias); }
+   /* try { m_particleMaker = tool<IParticleMakerTool>("ParticleMakerTool", m_particleMakerAlias); }
     catch( GaudiException& e){
         error() << "Could not obtain ParticleMakerTool: " << m_particleMakerAlias << endmsg;
         return StatusCode::FAILURE;
-    }
+    }*/
     
     try { m_LikelihoodPIDTool = tool<IParticleTool>("ParticleTool"); }
     catch( GaudiException& e){
@@ -989,7 +989,10 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
         
         declareDoubleBranch(m_hypMeths, (name + "_EX_mom").c_str(), -999.);
         declareDoubleBranch(m_hypMeths, (name + "_LL_mom").c_str(), -999.);
-
+        
+        declareDoubleBranch(m_hypMeths, (name + "_EX_mom_altH").c_str(), -999.);
+        declareDoubleBranch(m_hypMeths, (name + "_LL_mom_altH").c_str(), -999.);
+        
         declareContainerDoubleBranch(m_hypMeths, (name + "_EX_4mom").c_str(), 4, -999.);
         declareContainerDoubleBranch(m_hypMeths, (name + "_LL_4mom").c_str(), 4, -999.);
 
@@ -1233,10 +1236,11 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
 {
     SmartRef<Minerva::Prong> prong_EX;
     SmartRef<Minerva::Particle> particle_EX;
+    SmartRef<Minerva::Particle> particle_EX_altH;
     
     SmartRef<Minerva::Prong> prong_LL;
     SmartRef<Minerva::Particle> particle_LL;
-    
+    SmartRef<Minerva::Particle> particle_LL_altH;
     double mass = 0.0;
     double tmp_chi2ndf = -999.;
     double tmp_scores[2] = {-999.};
@@ -1247,31 +1251,35 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         mass = MinervaUnits::M_mu;
     }
     else if(name == "pr"){
-        prong_EX = m_EX_ProtonProng;
-        particle_EX = m_EX_ProtonParticle;
+        prong_EX         = m_EX_ProtonProng;
+        particle_EX      = m_EX_ProtonParticle;
+        particle_EX_altH = m_EX_ProtonParticle_AltH;
+
+        prong_LL         = m_LL_ProtonProng;
+        particle_LL      = m_LL_ProtonParticle;
+        particle_LL_altH = m_LL_ProtonParticle_AltH;
     
         tmp_scores[0] = m_ProtonScore[0];
         tmp_scores[1] = m_ProtonScore[1];
         
         tmp_chi2ndf = m_ProtonChi2ndf[0];
-        
-        prong_LL = m_LL_ProtonProng;
-        particle_LL = m_LL_ProtonParticle;
 
         mass = MinervaUnits::M_p;
     }
     else if(name == "pi"){
-        prong_EX = m_EX_PionProng;
-        particle_EX = m_EX_PionParticle;
-    
+        prong_EX         = m_EX_PionProng;
+        particle_EX      = m_EX_PionParticle;
+        particle_EX_altH = m_EX_PionParticle_AltH;
+        
+        prong_LL         = m_LL_PionProng;
+        particle_LL      = m_LL_PionParticle;
+        particle_LL_altH = m_LL_PionParticle_AltH;
+        
         tmp_scores[0] = m_PionScore[0];
         tmp_scores[1] = m_PionScore[1];
         
         tmp_chi2ndf = m_PionChi2ndf[0];
 
-        prong_LL = m_LL_PionProng;
-        particle_LL = m_LL_PionParticle;
-        
         mass = MinervaUnits::M_pion;
     }
     else{
