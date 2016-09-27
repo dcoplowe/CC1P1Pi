@@ -193,7 +193,7 @@ StatusCode CC1P1PiAnalysis::initialize()
     
     debug() << "::::::::: Looking for ParticleTool :::::::::" << endmsg;
     
-    try { m_LikelihoodPIDTool = tool<IParticleTool>("ParticleTool"); }
+    try { m_LikelihoodPIDTool = tool<IParticleTool>("LikelihoodPIDTool"); }
     catch( GaudiException& e){
         error() << "Could not obtain IParticleTool: " << endmsg;
         return StatusCode::FAILURE;
