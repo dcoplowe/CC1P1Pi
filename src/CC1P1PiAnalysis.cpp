@@ -245,6 +245,7 @@ StatusCode CC1P1PiAnalysis::initialize()
     declareBoolEventBranch("isMinosMatchTrack");
     declareBoolEventBranch("isMinosMatchStub");
     
+    declareIntEventBranch("new_tracks", -999);
     declareIntEventBranch("n_anchored_long_trk_prongs", -999);
     declareIntEventBranch("n_anchored_short_trk_prongs", -999);
     declareIntEventBranch("n_iso_trk_prongs", -999);
@@ -560,9 +561,16 @@ void CC1P1PiAnalysis::FindShortTracks(Minerva::PhysicsEvent * event) const
 {
     int n_anchored_long_trk_prongs = event->primaryProngs().size() - 1;
     
+    int n_tracks_pre = (int)event->primaryProngs().size();
+    
     PrintInfo("Making short tracks", m_print_cuts);
     m_ccPionIncUtils->makeShortTracks(event);
     PrintInfo("Finished making short tracks", m_print_cuts);
+    
+    int n_tracks_post = (int)event->primaryProngs().size();
+    
+    if( (n_tracks_post - n_tracks_pre) > 0) event->setIntData("new_tracks", (n_tracks_post - n_tracks_pre) );
+    else event->setIntData("new_tracks", 0);
     
     int n_anchored_short_trk_prongs = event->primaryProngs().size() - n_anchored_long_trk_prongs - 1;
     //int n_iso_trk_prongs = (event->select<Prong>("Used:Unused","All")).size() - event->primaryProngs().size();
@@ -1632,12 +1640,17 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
 {
     //Must contain EX or LL in st
     
+    debug() << "CC1P1PiAnalysis::FillMomDepVars" << endmsg;
+    debug() << "Particle beleived to be " << name << endmsg;
+    
     double chi2ndf = -888.;//Need to add this at some point, can take end of track ch2ndf but is it what useful? Also, what is it's interpretation for LL fit, if it even has one.
     cc1p1piHyp->setDoubleData( (name + "_chi2ndf").c_str(), chi2ndf);
     
     cc1p1piHyp->setDoubleData( (name + "_score").c_str(), particle->score());
     
     Gaudi::LorentzVector four_vec = particle->momentumVec();
+    
+    debug() << "Has 4-Mom: E = " << four_vec.E() << ", Px = " << four_vec.px() << ", Py = " << four_vec.py() << ", Pz = " << four_vec.pz() << endmsg;
     
     double Energy = four_vec.E();
     cc1p1piHyp->setDoubleData( (name + "_E").c_str(), Energy);
