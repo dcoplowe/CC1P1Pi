@@ -1483,7 +1483,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         if(prong_LL && particle_LL){
             debug() << "Called FillMomDepVars( " << name << "_LL, particle_LL, event, cc1p1piHyp, particle_EX_altH)" <<endmsg;
             FillMomDepVars( (name + "_LL").c_str(), particle_LL, event, cc1p1piHyp, particle_LL_altH);
-            cc1p1piHyp->setIntData( (name + "_LL_michel").c_str(), prong_LL->getIntData("michel"));
+            cc1p1piHyp->setIntData( (name + "_LL_michel").c_str(), prong_LL->getIntData("has_michel"));
         }
         else{
             warning() << "CC1P1PiAnalysis::FillPartInfo :: Likelihood Prong or particle is NULL for \"" << name << "\". Please check";
