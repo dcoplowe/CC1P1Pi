@@ -87,7 +87,7 @@ MessageSvc.OutputLevel                               = 3;
 
 PhysicsEventCreatorAlg.OutputLevel                   = 3;
 PhysicsEventAnalysisAlg.OutputLevel                  = 3;
-ToolSvc.CC1P1PiAnalysis.OutputLevel                  = 2;
+ToolSvc.CC1P1PiAnalysis.OutputLevel                  = 3;
 
 //Verbosity in the debug for analysis:
 ToolSvc.CC1P1PiAnalysis.print_cuts              = true;
