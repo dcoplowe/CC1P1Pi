@@ -90,7 +90,7 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
 
     //Run option parameters:
     declareProperty("accum_level_to_save", m_accum_level_to_save = 5);//Defualt to no of cuts so that we only save interesting events.
-    declareProperty("PID_method", m_PID_method = 0);//0 - dEdX, 1 - LL, 2 - Comparison study
+    declareProperty("PID_method", m_PID_method = 1);//0 - dEdX, 1 - LL, 2 - Comparison study. Default is LL.
     
     if(m_PID_method < 2){
         m_nsplits = 1;
@@ -256,6 +256,8 @@ StatusCode CC1P1PiAnalysis::initialize()
     declareBoolTruthBranch("reco_isMinosMatch");
     declareIntTruthBranch("should_be_accepted", 0); // Inherited from Template
     
+    DefineTruthTree();
+    
     return sc;
 }
 
@@ -316,7 +318,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     //Only want a total of three outgoing tracks therefore total number of
     //tracks is equal to no. of outgoing tracks.
     PrintInfo("2) Three tracks", m_print_cuts);
-    SmartRef<Minerva::Vertex> reco_vertex = event->interactionVertex();
+    SmartRef<Minerva::Vertex> reco_vertex = event->interactionVertex();//This is the interaction vertex, only has tracks originating from it.
     
     if( !reco_vertex ) {
         bool pass = true; std::string tag = "BadObject";
@@ -424,7 +426,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     PrintInfo("AL should be 5", m_print_acc_level);
     //SetAccumLevel();
     
-    SaveAccumLevel(event, truth);//markEvent is called in SaveAccumLevel.
+    SaveAccumLevel(event, truth);//markEvent is called in SaveAccumLevel, as is the filling of the truth tree.
     
     // Set the PhysicsEvent reconstructionSignature to m_anaSignature, so I know that this tool reconstructed this event.
     // If you mark the event it will go to your analysis DST.  If you don't want it to go there, don't mark it!
@@ -1401,10 +1403,15 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
             
             double nu_3vec_mag = sqrt(nu_4vec.px()*nu_4vec.px() + nu_4vec.py()*nu_4vec.py() + nu_4vec.pz()*nu_4vec.pz());
-            double nu_3vec[3] = { nu_4vec.px()/nu_3vec_mag, nu_4vec.py()/nu_3vec_mag, nu_4vec.pz()/nu_3vec_mag };
+            std::vector<double> nu_3vec;
+            nu_3vec.push_back( (nu_4vec.px()/nu_3vec_mag) );
+            nu_3vec.push_back( (nu_4vec.py()/nu_3vec_mag) );
+            nu_3vec.push_back( (nu_4vec.pz()/nu_3vec_mag) );
+            Rotate2BeamCoords(nu_3vec);//Now the neutrino direction is also in correct beam coords.
+
             
             const TVector3 * true_mom_vec = new TVector3(true4mom[1], true4mom[2], true4mom[3]);
-            const TVector3 * truepT_3vec = GetPT(nu_3vec, true_mom_vec);
+            const TVector3 * truepT_3vec = GetPT(nu_3vec, true_mom_vec, true);
 
             cc1p1piHyp->setDoubleData( (name + "_truepTMag").c_str(), truepT_3vec->Mag());
             
@@ -1535,16 +1542,31 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
 void CC1P1PiAnalysis::DefineTruthTree(){
     
     declareIntTruthBranch("reco_target",-999);
-    declareIntTruthBranch("n_tracks", -999);
-    std::string part_name[ 10 ] = {"ele", "muo", "tau", "pro", "ntn" "piP", "piM", "pi0", "kPM", "kaO"};
-    for(int i = 0; i < 10; i++) declareIntTruthBranch( ("n_" + part_name[i] + "_tracks").c_str(),-999);
+    //declareIntTruthBranch("n_tracks", -999);
+    std::string part_name[ 11 ] = {"ele", "muo", "tau", "pro", "ntn", "piP", "piM", "pi0", "kPM", "kaO", "pho"};
+    for(int i = 0; i < 11; i++) declareIntTruthBranch( ("n_" + part_name[i]).c_str(),-999);
     SetTruePart("mu");
     SetTruePart("pr");
     SetTruePart("pi");
+    
+    declareDoubleTruthBranch("trueEnu", -999);
+    declareDoubleTruthBranch("trueQ2", -999);
+    
+    declareDoubleTruthBranch("truedpTT", -999);
+    declareDoubleTruthBranch("truedpT", -999);
+    declareDoubleTruthBranch("truedalphaT", -999);
+    declareDoubleTruthBranch("truedphiT", -999);
+    declareContainerDoubleTruthBranch("truedpT_vec", 3, -999);
+    
+    declareDoubleTruthBranch("truedpTT_pr_dir", -999);//this and
+    declareDoubleTruthBranch("truedpTT_pi_dir", -999);
+    declareDoubleTruthBranch("truedpTT_pr", -999);// this are the same...
+    declareDoubleTruthBranch("truedpTT_pi", -999);
 
 }
 
-void CC1P1PiAnalysis::SetTruePart(std::string name){
+void CC1P1PiAnalysis::SetTrueParticle(std::string name){
+    
     declareDoubleTruthBranch( (name + "_mom").c_str(),-999);
     declareContainerDoubleTruthBranch( (name + "_4mom").c_str(),4, -999.0);
     declareDoubleTruthBranch( (name + "_E").c_str(), -999.);
@@ -1554,19 +1576,198 @@ void CC1P1PiAnalysis::SetTruePart(std::string name){
     declareDoubleTruthBranch( (name + "_Phi").c_str(), -999.);
     declareDoubleTruthBranch( (name + "_Theta").c_str(), -999.);
     declareDoubleTruthBranch( (name + "_KE").c_str(), -999.);
+
 }
 
 void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
 {
     //Want to iterate through final states vector of particles and each for the highest mom. p/pi/mu. these should then be used to fill the true variables.
     
+    //Want to tag the Carbon, Scintillator targets. --> Use same numbering convention as reco. (obvs.)
     
+//    const int n_part = (int)truth->nParticlesFS();
     
+    const std::vector<double> fs_Pe = truth->fsParticlesE();
+    const std::vector<double> fs_Px = truth->fsParticlesPx();
+    const std::vector<double> fs_Py = truth->fsParticlesPy();
+    const std::vector<double> fs_Pz = truth->fsParticlesPz();
+    const std::vector<int>   fs_PDG = truth->fSpdg();
+    
+    //Set the 3vecs:
+    int s_mu = -1;
+    int s_pr = -1;
+    int s_pi = -1;
+    
+    int n_ele = 0;
+    int n_muo = 0;
+    int n_tau = 0;
+    int n_pro = 0;
+    int n_ntn = 0;
+    int n_piP = 0;
+    int n_piM = 0;
+    int n_pi0 = 0;
+    int n_kPM = 0;
+    int n_ka0 = 0;
+    int n_pho = 0;
+    int n_unk = 0;
+    
+    double mu_mom_mag = -999.;
+    double pr_mom_mag = -999.;
+    double pi_mom_mag = -999.;
+    
+    //Avoid seg faults -- check that the arrays are the same size:
+    if(fs_Pe.size() == fs_Px.size() && fs_Px.size() == fs_Py.size() && fs_Py.size() == fs_Pz.size() && fs_Pz.size() == fs_PDG.size()){
+        
+        for(int i = 0; i < (int)fs_PDG.size(); i++){
+            
+            bool check_mom = false;
+            
+            switch (fs_PDG[i]) {
+                case   22:  n_pho++;                    break;
+                case   11:  n_ele++;                    break;
+                case   13:  n_muo++; check_mom = true;  break;
+                case   15:  n_tau++;                    break;
+                case 2212:  n_pro++; check_mom = true;  break;
+                case 2112:  n_ntn++;                    break;
+                case  211:  n_piP++; check_mom = true;  break;
+                case -211:  n_piM++;                    break;
+                case  111:  n_pi0++;                    break;
+                case  321:  n_kPM++;                    break;
+                case  311:  n_ka0++;                    break;
+                default: check_mom = false; break;
+            }
+        
+            if(check_mom){
+                double mom = sqrt(fs_Px[i]*fs_Px[i] + fs_Py[i]*fs_Py[i] + fs_Pz[i]*fs_Pz[i]);
+                if(fs_PDG[i] == 13 && mom > mu_mom_mag)         s_mu = i;
+                else if(fs_PDG[i] == 2212 && mom > pr_mom_mag)  s_pr = i;
+                else if(fs_PDG[i] == 211 && mom > pi_mom_mag)   s_pi = i;
+            }
+        }
+    }
+    
+    std::string part_name[ 11 ] = {"ele", "muo", "tau", "pro", "ntn", "piP", "piM", "pi0", "kPM", "kaO", "pho"};
+    int counters[ 11 ] =        { n_ele, n_muo, n_tau, n_pro, n_ntn, n_piP, n_piM, n_pi0, n_kPM, n_ka0, n_pho };
+    for(int i = 0; i < 11; i++) truth->setIntData( ("n_" + part_name[i]).c_str(), counters[ i ]);
+    
+    bool all_fsp = true;
+    if(s_mu != -1) FillTrueParticles("mu", fs_Pe[s_mu], fs_Px[s_mu], fs_Py[s_mu], fs_Pz[s_mu], truth);
+    else all_fsp = false;
+    
+    if(s_pr != -1) FillTrueParticles("pr", fs_Pe[s_pr], fs_Px[s_pr], fs_Py[s_pr], fs_Pz[s_pr], truth);
+    else all_fsp = false;
+    
+    if(s_pi != -1) FillTrueParticles("pi", fs_Pe[s_pi], fs_Px[s_pi], fs_Py[s_pi], fs_Pz[s_pi],  truth);
+    else all_fsp = false;
+    
+    if(all_fsp){
+        
+        double trueEnu = fs_Pe[s_mu] + fs_Pe[s_pr] + fs_Pe[s_pi] - MinervaUnits::M_p;
+        truth->setDoubleData("trueEnu", trueEnu);
+        
+        double trueQ2 = -999.;
+        truth->setDoubleData("trueQ2", trueQ2);
+        
+        const TVector3 * truemu_p = Rotate2BeamCoords(fs_Px[s_mu], fs_Py[s_mu], fs_Pz[s_mu]);
+        const TVector3 * truepr_p = Rotate2BeamCoords(fs_Px[s_pr], fs_Py[s_pr], fs_Pz[s_pr]);
+        const TVector3 * truepi_p = Rotate2BeamCoords(fs_Px[s_pi], fs_Py[s_pi], fs_Pz[s_pi]);
+        
+        const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
+        double nu_3vec_mag = sqrt(nu_4vec.px()*nu_4vec.px() + nu_4vec.py()*nu_4vec.py() + nu_4vec.pz()*nu_4vec.pz());
+        std::vector<double> vertex_true;
+        vertex_true.push_back( (nu_4vec.px()/nu_3vec_mag) );
+        vertex_true.push_back( (nu_4vec.py()/nu_3vec_mag) );
+        vertex_true.push_back( (nu_4vec.pz()/nu_3vec_mag) );
+        Rotate2BeamCoords(vertex_true);
+        
+        double truedpTT = -999.;
+        double truedpT = -999.;
+        double truedalphaT = -999.;
+        double truedphiT = -999.;
+        
+        TVector3 * dpT_3mom_true = GetTransverseVars(vertex_true, truemu_p, truepr_p, truepi_p, truedpTT, truedpT, truedalphaT, truedphiT, true);
+        std::vector<double> vec_dpT_3mom_true;
+        vec_dpT_3mom_true.push_back(dpT_3mom_true->X());
+        vec_dpT_3mom_true.push_back(dpT_3mom_true->Y());
+        vec_dpT_3mom_true.push_back(dpT_3mom_true->Z());
+        
+        truth->setDoubleData("truedpTT", truedpTT);
+        truth->setDoubleData("truedpT", truedpT);
+        truth->setDoubleData("truedalphaT", truedalphaT);
+        truth->setDoubleData("truedphiT", truedphiT);
+        truth->setContainerDoubleData("truedpT_vec", vec_dpT_3mom_true);
+        
+        double truedpTT_pi = GetDPTT(vertex_true, truepi_p, truemu_p, truepr_p, true);
+        truth->setDoubleData("truedpTT_pi", truedpTT_pi);
+        
+        double truedpTT_pr = GetDPTT(vertex_true, truepr_p, truepi_p, truemu_p, true);
+        truth->setDoubleData("truedpTT_pr", truedpTT_pr);
+        
+        double truepi_dir_norm = sqrt(fs_Px[s_pi]*fs_Px[s_pi] + fs_Py[s_pi]*fs_Py[s_pi] + fs_Pz[s_pi]*fs_Pz[s_pi]);
+        const TVector3 * truepi_dir = new TVector3( (fs_Px[s_pi]/truepi_dir_norm), (fs_Py[s_pi]/truepi_dir_norm), (fs_Pz[s_pi]/truepi_dir_norm));
+        
+        double truedpTT_pi_dir = GetDPTT(vertex_true, truepi_dir, truemu_p, truepr_p, true);
+        truth->setDoubleData("truedpTT_pi_dir", truedpTT_pi_dir);
+        
+        double truepr_dir_norm = sqrt(fs_Px[s_pr]*fs_Px[s_pr] + fs_Py[s_pr]*fs_Py[s_pr] + fs_Pz[s_pr]*fs_Pz[s_pr]);
+        const TVector3 * truepr_dir = new TVector3( (fs_Px[s_pr]/truepr_dir_norm), (fs_Py[s_pr]/truepr_dir_norm), (fs_Pz[s_pr]/truepr_dir_norm));
+        double truedpTT_pr_dir = GetDPTT(vertex_true, truepr_dir, truepi_p, truemu_p, true);
+        truth->setDoubleData("truedpTT_pr_dir", truedpTT_pr_dir);
+    }
+
 }
 
-void CC1P1PiAnalysis::FillTruePart(std::string name, Minerva::GenMinInteraction* truth) const
+void CC1P1PiAnalysis::FillTrueParticle(std::string name, double E, double Px, double Py, double Pz, Minerva::GenMinInteraction* truth) const
 {
     
+    double mom_mag = sqrt(Px*Px + Py*Py + Pz*Pz);
+    truth->setDoubleData( (name + "_mom").c_str(), mom_mag);
+    
+    std::vector<double> mom;
+    mom.push_back( E  );
+    mom.push_back( Px );
+    mom.push_back( Py );
+    mom.push_back( Pz );
+    Rotate2BeamCoords(mom);
+    truth->setContainerDoubleData( (name + "_4mom").c_str(), mom);
+    truth->setDoubleData( (name + "_E").c_str(), E);
+    
+    const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
+    
+    double nu_3vec_mag = sqrt(nu_4vec.px()*nu_4vec.px() + nu_4vec.py()*nu_4vec.py() + nu_4vec.pz()*nu_4vec.pz());
+    std::vector<double> nu_3vec;
+    nu_3vec.push_back( (nu_4vec.px()/nu_3vec_mag) );
+    nu_3vec.push_back( (nu_4vec.py()/nu_3vec_mag) );
+    nu_3vec.push_back( (nu_4vec.pz()/nu_3vec_mag) );
+    Rotate2BeamCoords(nu_3vec);//Now the neutrino direction is also in correct beam coords.
+    
+    const TVector3 * true_mom_vec = new TVector3(mom[1], mom[2], mom[3]);
+    const TVector3 * truepT_3vec = GetPT(nu_3vec, true_mom_vec, true);
+    
+    truth->setDoubleData( (name + "_pTMag").c_str(), truepT_3vec->Mag());
+    
+    std::vector<double> truepT;
+    truepT.push_back(truepT_3vec->X());
+    truepT.push_back(truepT_3vec->Y());
+    truepT.push_back(truepT_3vec->Z());
+    truth->setContainerDoubleData( (name + "_pT").c_str(), truepT);
+    
+    truth->setDoubleData( (name + "_pTT").c_str(), -999.);
+    
+    Gaudi::LorentzVector four_vec(Px, Py, Pz, E);
+    double Phi = m_coordSysTool->phiWRTBeam( four_vec );
+    truth->setDoubleData( (name + "_Phi").c_str(), Phi);
+    
+    double Theta = m_coordSysTool->thetaWRTBeam( four_vec );
+    truth->setDoubleData( (name + "_Theta").c_str(), Theta);
+    
+    double mass = 0.;
+    if(name == "mu") mass = MinervaUnits::M_mu;
+    else if(name == "pr") mass = MinervaUnits::M_p;
+    else if(name == "pi") mass = MinervaUnits::M_pion;
+    
+    double KE = E - mass;
+    truth->setDoubleData( (name + "_KE").c_str(), KE);
 }
 
 void CC1P1PiAnalysis::SetAccumLevel(int split) const
@@ -1618,6 +1819,7 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
         
         event->setContainerIntData("accum_level", accum_level);
         truth->setContainerIntData("accum_level", accum_level);
+        FillTruthTree(truth);
         markEvent(event);
         
         PrintInfo(Form("++++ Saving Accum. Level %d ++++", tmp_accum_level), m_print_acc_level);
@@ -1659,23 +1861,46 @@ void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
     //Determine size of 4 vec at some point...
     PrintInfo("CC1P1PiAnalysis::Rotate2BeamCoords", m_print_other);
 
-    if(!((int)val.size() == 4)){
-        PrintInfo(Form("Warning : Not a 4 vector! Vector has dimension %d", (int)val.size()), m_print_other);
-    }
-    
     PrintInfo(Form("Initial 4Vec: P_E %f P_X %f P_Y %f P_Z %f", val[0], val[1], val[2], val[3]), m_print_other);
     
-    double py = val[2];
-    double pz = val[3];
-    //! momentum rotated to beam coordinate system
-    double py_prime = -1.0 *sin( MinervaUnits::numi_beam_angle_rad )*pz + cos( MinervaUnits::numi_beam_angle_rad )*py;
-    double pz_prime = cos( MinervaUnits::numi_beam_angle_rad )*pz + sin( MinervaUnits::numi_beam_angle_rad )*py;
-    
-    val[2] = py_prime;
-    val[3] = pz_prime;
+    if(((int)val.size() == 4)){
+        
+        double py = val[2];
+        double pz = val[3];
+        //! momentum rotated to beam coordinate system
+        double py_prime = -1.0 *sin( MinervaUnits::numi_beam_angle_rad )*pz + cos( MinervaUnits::numi_beam_angle_rad )*py;
+        double pz_prime = cos( MinervaUnits::numi_beam_angle_rad )*pz + sin( MinervaUnits::numi_beam_angle_rad )*py;
+        
+        val[2] = py_prime;
+        val[3] = pz_prime;
+        
+    }
+    else if(((int)val.size() == 3)){
+        double py = val[1];
+        double pz = val[2];
+        //! momentum rotated to beam coordinate system
+        double py_prime = -1.0 *sin( MinervaUnits::numi_beam_angle_rad )*pz + cos( MinervaUnits::numi_beam_angle_rad )*py;
+        double pz_prime = cos( MinervaUnits::numi_beam_angle_rad )*pz + sin( MinervaUnits::numi_beam_angle_rad )*py;
+        
+        val[1] = py_prime;
+        val[2] = pz_prime;
+    }
+    else PrintInfo(Form("Warning : Not a 3/4-vector! Vector has dimension %d", (int)val.size()), m_print_other);
     
     PrintInfo(Form("Rotated 4Vec: P_E %f P_X %f P_Y %f P_Z %f", val[0], val[1], val[2], val[3]), m_print_other);
+}
+
+TVector3 * CC1P1PiAnalysis::Rotate2BeamCoords(double x, double y, double z) const
+{
+    std::vector<double> vec;
+    vec.push_back( x );
+    vec.push_back( y );
+    vec.push_back( z );
+    Rotate2BeamCoords(vec);
     
+    TVector3 * vector = new TVector3(vec[0], vec[1], vec[2]);
+    
+    return vector;
 }
 
 void CC1P1PiAnalysis::SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, bool truth) const
@@ -1797,6 +2022,12 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 *& mu
     return deltapt;
 }
 
+TVector3 * CC1P1PiAnalysis::GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth) const
+{
+    double vector[3] = { vtx[0], vtx[1], vtx[2] };
+    
+    return GetTransverseVars(vector, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT, is_truth);
+}
 
 TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], const TVector3 *& mom, bool is_truth) const
 {
@@ -1815,6 +2046,12 @@ TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], const TVector3 *& mom, bool is_t
     TVector3 * pT = GetVecT(neutrino_dir, mom);
     
     return pT;
+}
+
+TVector3 * CC1P1PiAnalysis::GetPT(std::vector<double> vtx, const TVector3 *& mom, bool is_truth) const
+{
+    double vertex[3] = { vtx[0], vtx[1], vtx[2] };
+    return GetPT(vertex, mom, is_truth);
 }
 
 void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion) const

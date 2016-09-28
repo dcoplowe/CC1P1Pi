@@ -160,11 +160,12 @@ private:
     void FillMomDepVars(std::string name, SmartRef<Minerva::Particle> particle, const Minerva::PhysicsEvent *event, Minerva::NeutrinoInt* cc1p1piHyp, Minerva::Particle * particle_alt =  NULL) const;
     
     void DefineTruthTree();
-    void SetTruePart(std::string name);
+    void SetTrueParticle(std::string name);
     void FillTruthTree(Minerva::GenMinInteraction* truth) const;
-    void FillTruePart(std::string name, Minerva::GenMinInteraction* truth) const;
+    void FillTrueParticle(std::string name, double E, double Px, double Py, double Pz, Minerva::GenMinInteraction* truth) const;
     
     void Rotate2BeamCoords(std::vector<double> val) const;
+    TVector3 * Rotate2BeamCoords(double x, double y, double z) const;
 
     //Accumulation level counter:
     int m_ncuts;// = 5;
@@ -185,7 +186,6 @@ private:
     void SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, bool truth = false) const;
     void SetGlobal4Vec(std::string name, std::vector<double> vec, bool truth = false) const;
     
-    
     //Transverse variables:
     //Parent Decay Point Var:
     double m_PDP_X;
@@ -196,7 +196,9 @@ private:
     TVector3 * GetNuDirRec(double vtx[]) const;
     
     TVector3 * GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false) const;
+    TVector3 * GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth) const;
     TVector3 * GetPT(double vtx[], const TVector3 *& mom, bool is_truth = false) const;
+    TVector3 * GetPT(std::vector<double> vtx, const TVector3 *& mom, bool is_truth  = false) const;
     void SetDPT(TVector3 * deltapt, const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion) const;
     TVector3 * GetVecT(const TVector3 *& refdir, const TVector3 *& mom) const;
     double GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth = false) const;
