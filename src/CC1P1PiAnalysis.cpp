@@ -15,6 +15,8 @@
 #include "AnaUtils/IProtonUtils.h"
 //#include "ParticleMaker/IParticleMakerTool.h"
 #include "ParticleMaker/IParticleTool.h"
+#include "ProngMaker/IMichelTool.h"
+#include "MinervaUtils/IMinervaObjectAssociator.h"
 #include "TruthMatcher/ITruthMatcher.h"
 
 //Root headers:
@@ -38,9 +40,9 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     
     declareInterface<IInteractionHypothesis>(this);
     
-    m_anaSignature = "CC1P1Pi";
+    m_anaSignature = "sel";// was CC1P1Pi now sel to make things easier to access
+    m_hypMeths.push_back( "sel" );// was CC1P1Pi now sel to make things easier to access
     
-    m_hypMeths.push_back( "CC1P1Pi" );
     //m_hypMeths.push_back( "InterpretationB" );
     declareProperty("HypothesisMethods", m_hypMeths);
     
@@ -91,6 +93,7 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     //Run option parameters:
     declareProperty("accum_level_to_save", m_accum_level_to_save = 5);//Defualt to no of cuts so that we only save interesting events.
     declareProperty("PID_method", m_PID_method = 1);//0 - dEdX, 1 - LL, 2 - Comparison study. Default is LL.
+    declareProperty("NCutsM1", m_NCutsM1 = false);
     
     if(m_PID_method < 2){
         m_nsplits = 1;
@@ -175,7 +178,7 @@ StatusCode CC1P1PiAnalysis::initialize()
         m_nuclearTargetTool->addAllPassiveNuclearTargets();
         m_nuclearTargetTool->lock();
     } catch( GaudiException& e ) {
-        error() << "Could not obtain NuclearTargetTool: " << m_nuclearTargetToolAlias << endmsg;
+        error() << "Could not obtain NuclearTargetTool " << m_nuclearTargetToolAlias << endmsg;
         return StatusCode::FAILURE;
     }
     
@@ -199,9 +202,23 @@ StatusCode CC1P1PiAnalysis::initialize()
         return StatusCode::FAILURE;
     }
     
+    try {
+        m_michelTrkTool = tool<IMichelTool>("MichelTool");
+    } catch(GaudiException& e){
+        error()<<"Could not obtain tool MichelTool" << endmsg;
+        return StatusCode::FAILURE;
+    }
+    
+    try {
+        m_objectAssociator = tool<IMinervaObjectAssociator>("MinervaObjectAssociator");
+    } catch( GaudiException& e ) {
+        error() << "Could not obtain tool MinervaObjectAssociator" << endmsg;
+        return StatusCode::FAILURE;
+    }
+    
     try { m_truthMatcher = tool<ITruthMatcher>("TruthMatcher"); }
     catch( GaudiException& e){
-        error() << "Could not obtain TruthMather! " << endmsg;
+        error() << "Could not obtain TruthMather" << endmsg;
         return StatusCode::FAILURE;
     }
     
@@ -410,24 +427,31 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     
     //HadronSystem hadrons;
     
-    bool tFinPar = FindParticles(event, m_PID_method);
-    
-    if(!tFinPar){
+    if(!FindParticles(event, m_PID_method)){//Accum Level dealt with in function
         PrintInfo("Failed to identify particles...", m_print_cuts);
         PrintInfo("AL save 4 ?", m_print_acc_level);
         SaveAccumLevel(event, truth);
         EventFinished();
         return StatusCode::SUCCESS;
     }
-    else{
-        PrintInfo("Finished Selection Successfully. Pheeewwww ;)", m_print_cuts);
+    else PrintInfo("------- Found Proton and Pion -------", m_print_cuts);
+    
+    PrintInfo("AL one should be 5", m_print_acc_level);
+    
+    //----------- 5 : PID on p/pi+ -----------//
+    PrintInfo("5) Michel Tag Hadron tracks", m_print_cuts);
+    
+    if(!FindEndTrackMichels(Minerva::PhysicsEvent event)){//Accum Level dealt with in function
+        PrintInfo("Failed to identify particles...", m_print_cuts);
+        PrintInfo("AL one should be saved at 5 ?", m_print_acc_level);
+        SaveAccumLevel(event, truth);
+        EventFinished();
+        return StatusCode::SUCCESS;
     }
-    
-    PrintInfo("AL should be 5", m_print_acc_level);
-    //SetAccumLevel();
-    
+    else PrintInfo("Finished Selection Successfully. Pheeewwww ;)", m_print_cuts);
+
+    PrintInfo("AL one should be 6", m_print_cuts);
     SaveAccumLevel(event, truth);//markEvent is called in SaveAccumLevel, as is the filling of the truth tree.
-    
     // Set the PhysicsEvent reconstructionSignature to m_anaSignature, so I know that this tool reconstructed this event.
     // If you mark the event it will go to your analysis DST.  If you don't want it to go there, don't mark it!
     //markEvent( event );
@@ -933,6 +957,100 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
     }
     else return false;
     
+}
+
+bool CC1P1PiAnalysis::FindEndTrackMichels(Minerva::PhysicsEvent * event) const
+{
+    //Will have this after PID -- this doesn't really make it great for NCuts - 1...
+    //I want to do this on both hadronic prongs -- see if this rids us of proton mis-PID.
+    
+    //For now we we are only cutting on events where the proton prong has michel like properties at the end of the track.
+    
+    bool correct_michels = true;
+    bool corEX = true;
+    bool corLL = true;
+    
+    if(m_PID_method != 1){
+        Minerva::ProngVect EXprongs;
+        EXprongs.push_back(m_EX_ProtonProng);
+        EXprongs.push_back(m_EX_PionProng);
+        
+        Minerva::ProngVect::iterator prong;
+        for(prong = EXprongs.begin(); prong != EXprongs.end(); prong++){
+
+            SmartRef<Minerva::Vertex> endpoint_vtx;
+            m_objectAssociator->getVertex_fromTrackBack( endpoint_vtx, (*prong)->minervaTracks().back() );
+            
+            if (!endpoint_vtx) {
+                warning()<<"Could not find a back vertex for this prong!"<<endmsg;
+                continue;
+            }
+            
+            Minerva::Prong michelProng;
+            bool foundMichel = m_michelTrkTool->findMichel( endpoint_vtx, michelProng );
+
+            int fmichel = -999;
+            
+            if(foundMichel){
+                fmichel = 1;
+                if( (*prong) == m_EX_ProtonProng){
+                    correct_michels = false;
+                    corEX = false;
+                }
+            }
+            else fmichel = 0;
+            
+            (*prong)->setIntData("has_michel", fmichel);
+            
+        }
+        
+    }
+    
+    if(m_PID_method > 0){
+    
+        Minerva::ProngVect LLprongs;
+        LLprongs.push_back(m_LL_ProtonProng);
+        LLprongs.push_back(m_LL_PionProng);
+    
+        Minerva::ProngVect::iterator prong;
+        for(prong = LLprongs.begin(); prong != LLprongs.end(); prong++){
+            
+            SmartRef<Minerva::Vertex> endpoint_vtx;
+            m_objectAssociator->getVertex_fromTrackBack( endpoint_vtx, (*prong)->minervaTracks().back() );
+            
+            if (!endpoint_vtx) {
+                warning()<<"Could not find a back vertex for this prong!"<<endmsg;
+                continue;
+            }
+            
+            Minerva::Prong michelProng;
+            bool foundMichel = m_michelTrkTool->findMichel( endpoint_vtx, michelProng );
+            
+            int fmichel = -999;
+            
+            if(foundMichel){
+                fmichel = 1;
+                if( (*prong) == m_LL_ProtonProng){
+                    correct_michels = false;
+                    corEX = false;
+                }
+            }
+            else fmichel = 0;
+            
+            (*prong)->setIntData("has_michel", fmichel);
+        }
+    }
+    
+    if(m_PID_method < 2){
+        SetAccumLevel();
+        return correct_michels;
+    }
+    else{
+        if(corEX) SetAccumLevel(0);
+        if(corLL) SetAccumLevel(1);
+        
+        return (corEX || corLL);
+    }
 }
 
 void CC1P1PiAnalysis::ResetParticles() const

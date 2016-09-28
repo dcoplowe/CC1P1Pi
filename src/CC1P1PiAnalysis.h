@@ -4,16 +4,26 @@
 #include "AnaUtils/MinervaAnalysisTool.h"
 
 //Forward declarations:
+//--
 class ICCPionIncUtils;
+//-- Muon PID:
 class IMuonUtils;
+//-- Vertex location:
 class IMinervaCoordSysTool;
 class INuclearTargetTool;
+//-- Hadron PID:
 class IProtonUtils;
 //class IParticleMakerTool;
 class IParticleTool;//This is for LL PID
+//-- Prong to truth matching
 class ITruthMatcher;
+//-- Mihel Tag:
+class IMichelTool;
+class IMinervaObjectAssociator;
+//-- Root Specific:
 class TString;
 class TVector3;
+
 
 class CC1P1PiAnalysis : public MinervaAnalysisTool
 {
@@ -148,6 +158,24 @@ private:
     int m_Proton_PDG;// = 2212;//proton
     int m_Pion_PDG;// = 211;//pi+
     
+    //Michel Tag:
+    bool FindEndTrackMichels(Minerva::PhysicsEvent * event) const;
+    IMichelTool * m_michelTrkTool;
+    IMinervaObjectAssociator * m_objectAssociator;
+
+    //Accumulation level counter:
+    int m_ncuts;// = 5;
+    int m_nsplits;
+    mutable int * m_accum_level;
+    int m_accum_level_to_save;
+    void SetAccumLevel(int split = -999) const;
+    void ResetAccumLevel() const;
+    void SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::GenMinInteraction* truth) const;
+    
+    int m_PID_method;
+    bool m_NCutsM1;
+    
+    
     //Generic Particle information builder:
     void SetPartInfo(std::string name);
     
@@ -166,18 +194,6 @@ private:
     
     void Rotate2BeamCoords(std::vector<double> val) const;
     TVector3 * Rotate2BeamCoords(double x, double y, double z) const;
-
-    //Accumulation level counter:
-    int m_ncuts;// = 5;
-    int m_nsplits;
-    mutable int * m_accum_level;
-    int m_accum_level_to_save;
-    void SetAccumLevel(int split = -999) const;
-    void ResetAccumLevel() const;
-    void SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::GenMinInteraction* truth) const;
-    
-    int m_PID_method;
-    std::string m_PID_tool;
     
     //Determine the truth information from the track:
     ITruthMatcher * m_truthMatcher;
