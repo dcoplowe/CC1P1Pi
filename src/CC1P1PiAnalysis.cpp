@@ -1545,9 +1545,9 @@ void CC1P1PiAnalysis::DefineTruthTree(){
     //declareIntTruthBranch("n_tracks", -999);
     std::string part_name[ 11 ] = {"ele", "muo", "tau", "pro", "ntn", "piP", "piM", "pi0", "kPM", "kaO", "pho"};
     for(int i = 0; i < 11; i++) declareIntTruthBranch( ("n_" + part_name[i]).c_str(),-999);
-    SetTruePart("mu");
-    SetTruePart("pr");
-    SetTruePart("pi");
+    SetTrueParticle("mu");
+    SetTrueParticle("pr");
+    SetTrueParticle("pi");
     
     declareDoubleTruthBranch("trueEnu", -999);
     declareDoubleTruthBranch("trueQ2", -999);
