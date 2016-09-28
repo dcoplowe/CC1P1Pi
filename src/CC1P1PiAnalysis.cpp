@@ -987,7 +987,7 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
     
 }
 
-bool CC1P1PiAnalysis::FindEndTrackMichels(Minerva::PhysicsEvent * event) const
+bool CC1P1PiAnalysis::FindEndTrackMichels() const
 {
     //Will have this after PID -- this doesn't really make it great for NCuts - 1...
     //I want to do this on both hadronic prongs -- see if this rids us of proton mis-PID.
@@ -1465,6 +1465,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         cc1p1piHyp->setIntData( (name + "_FSI").c_str(), hasFSI);
     }
     else{
+        
         FillMomDepVars(name, particle_EX, event, cc1p1piHyp);
     }
     

@@ -159,7 +159,7 @@ private:
     int m_Pion_PDG;// = 211;//pi+
     
     //Michel Tag:
-    bool FindEndTrackMichels(Minerva::PhysicsEvent * event) const;
+    bool FindEndTrackMichels() const;
     IMichelTool * m_michelTrkTool;
     IMinervaObjectAssociator * m_objectAssociator;
 
