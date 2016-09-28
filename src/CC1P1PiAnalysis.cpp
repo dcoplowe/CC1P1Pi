@@ -87,7 +87,7 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("Proton_PDG", m_Proton_PDG = 2212);//proton
     declareProperty("Pion_PDG", m_Pion_PDG = 211);//pi+
     
-    declareProperty("n_cuts", m_ncuts = 5);
+    declareProperty("n_cuts", m_ncuts = 6);
     m_accum_level = 0;// = new int [ m_ncuts ]; -- no need for N dim. as we only have one branch.
 
     //Run option parameters:
@@ -1474,7 +1474,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             debug() << "Called FillMomDepVars( " << name << "_EX, particle_EX, event, cc1p1piHyp, particle_EX_altH)" <<endmsg;
             FillMomDepVars( (name + "_EX").c_str(), particle_EX, event, cc1p1piHyp, particle_EX_altH);
             //if();
-            //cc1p1piHyp->setIntData( (name + "_EX_michel").c_str(), prong_EX->getIntData("michel"));
+            cc1p1piHyp->setIntData( (name + "_EX_michel").c_str(), prong_EX->getIntData("has_michel"));
         }
         else{
             warning() << "CC1P1PiAnalysis::FillPartInfo :: dEdX Prong or particle is NULL for \"" << name << "\". Please check";
