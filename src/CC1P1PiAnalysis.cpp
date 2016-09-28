@@ -974,7 +974,7 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
         m_LL_ProtonParticle_AltH = tmp_pi_particles[ best_proton[0] ];
         m_LL_PionParticle_AltH = tmp_pr_particles[ best_pion[0] ];
         
-        //Gaudi::LorentzVector four_vec = tmp_pr_particles[ best_proton[0] ]->momentumVec();
+        Gaudi::LorentzVector four_vec = tmp_pr_particles[ best_proton[0] ]->momentumVec();
         
         debug() << "******************************** LL PID Check *****************************************" << endmsg;
         debug() << "                   The following should be positive " << endmsg;
