@@ -1129,6 +1129,9 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
             declareDoubleBranch(m_hypMeths, (name + "_EX_Phi").c_str(), -999.);
             declareDoubleBranch(m_hypMeths, (name + "_EX_Theta").c_str(), -999.);
             declareDoubleBranch(m_hypMeths, (name + "_EX_KE").c_str(), -999.);
+            
+            //Detector based vars:
+            declareIntBranch(m_hypMeths, (name + "_EX_michel").c_str() , -999);
         }
         
         if(m_PID_method > 0){
@@ -1145,6 +1148,9 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
             declareDoubleBranch(m_hypMeths, (name + "_LL_Phi").c_str(), -999.);
             declareDoubleBranch(m_hypMeths, (name + "_LL_Theta").c_str(), -999.);
             declareDoubleBranch(m_hypMeths, (name + "_LL_KE").c_str(), -999.);
+            
+            //Detector based vars:
+            declareIntBranch(m_hypMeths, (name + "_LL_michel").c_str() , -999);
         }
         
         declareIntBranch(m_hypMeths, (name + "_FSI").c_str(), -999);
@@ -1162,6 +1168,8 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
         declareDoubleBranch(m_hypMeths, (name + "_Theta").c_str(), -999.);
         declareDoubleBranch(m_hypMeths, (name + "_KE").c_str(), -999.);
         
+        //Detector based vars:
+        declareIntBranch(m_hypMeths, (name + "_michel").c_str() , -999);
     }
     
     declareDoubleBranch(m_hypMeths, (name + "_chi2ndf").c_str(), -999.);
@@ -1410,6 +1418,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         //Scores need changing for PID comparisons:
         if(prong_EX && particle_EX){
             FillMomDepVars( (name + "_EX").c_str(), particle_EX, event, cc1p1piHyp, particle_EX_altH);
+            cc1p1piHyp->setIntData( (name + "_EX_michel").c_str(), prong_EX->getIntData("michel"));
         }
         else{
             warning() << "CC1P1PiAnalysis::FillPartInfo :: dEdX Prong or particle is NULL for \"" << name << "\". Please check";
@@ -1417,6 +1426,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         
         if(prong_LL && particle_LL){
             FillMomDepVars( (name + "_LL").c_str(), particle_LL, event, cc1p1piHyp, particle_LL_altH);
+            cc1p1piHyp->setIntData( (name + "_LL_michel").c_str(), prong_LL->getIntData("michel"));
         }
         else{
             warning() << "CC1P1PiAnalysis::FillPartInfo :: Likelihood Prong or particle is NULL for \"" << name << "\". Please check";
