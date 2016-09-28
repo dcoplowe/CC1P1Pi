@@ -1,0 +1,31 @@
+//toolsToUse
+        m_LL_ProtonProng = tmp_pr_prongs[ best_proton[0] ];
+        m_LL_ProtonParticle = MakeParticle(m_LL_ProtonProng, Minerva::Particle::Proton, "LikelihoodPIDTool"); // tmp_pr_particles[ best_proton[0] ];
+        m_LL_ProtonParticle_AltH = MakeParticle(m_LL_ProtonProng, Minerva::Particle::Pion, "LikelihoodPIDTool");// tmp_pi_particles[ best_proton[0] ];
+        
+        m_LL_PionProng = tmp_pi_prongs[ best_pion[0] ];
+        m_LL_PionParticle = MakeParticle(m_LL_PionProng, Minerva::Particle::Pion, "LikelihoodPIDTool");//tmp_pi_particles[ best_pion[0] ];
+        m_LL_PionParticle_AltH =  //tmp_pr_particles[ best_pion[0] ];
+        m_LL_PionParticle_AltH = MakeParticle(m_LL_ProtonProng, Minerva::Particle::Pion, "LikelihoodPIDTool");// tmp_pr_particles[ best_pion[0] ];
+        m_LL_ProtonProng = tmp_pr_prongs[ best_proton[0] ];
+        m_LL_ProtonParticle = tmp_pr_particles[ best_proton[0] ];
+        
+        bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses, toolsToUse);
+
+SmartRef<Minerva::Particle> CC1P1PiAnalysis::MakeParticle(Minerva::Prong prong, Minerva::Particle::ID part_id, std::string tool_type) const
+{
+    std::vector<Minerva::Particle::ID> hypotheses;
+    hypotheses.push_back(part_id);
+    IParticleMakerTool::NameAliasListType toolsToUse;
+    toolsToUse.push_back( std::make_pair(tool_type,tool_type) );
+    bool found_particle = m_particleMaker->makeParticles( prong, hypotheses, toolsToUse);
+    
+    Minerva::Particle particle;// =;
+    if(found_particle){
+        Minerva::ParticleVect particles = prong->GetParticles();
+        if( (int)particles.size() == 1) particle = particles[0];
+    }
+    else particle = NULL;
+    
+    return particle;
+}
