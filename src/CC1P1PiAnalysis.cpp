@@ -440,7 +440,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     PrintInfo("AL one should be 5", m_print_acc_level);
     
     //----------- 5 : PID on p/pi+ -----------//
-   /* PrintInfo("5) Michel Tag Hadron tracks", m_print_cuts);
+    PrintInfo("5) Michel Tag Hadron tracks", m_print_cuts);
     
     if(!FindEndTrackMichels(event)){//Accum Level dealt with in function
         PrintInfo("Proton prong seems to have michel tag...", m_print_cuts);
@@ -452,7 +452,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     else PrintInfo("Finished Selection Successfully. Pheeewwww ;)", m_print_cuts);
 
     PrintInfo("AL one should be 6", m_print_acc_level);
-    */
+    
     SaveAccumLevel(event, truth);//markEvent is called in SaveAccumLevel, as is the filling of the truth tree.
     // Set the PhysicsEvent reconstructionSignature to m_anaSignature, so I know that this tool reconstructed this event.
     // If you mark the event it will go to your analysis DST.  If you don't want it to go there, don't mark it!
@@ -1003,25 +1003,35 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
     
 }
 
-bool CC1P1PiAnalysis::FindEndTrackMichels() const
+bool CC1P1PiAnalysis::FindEndTrackMichels(Minerva::PhysicsEvent * event) const
 {
     //Will have this after PID -- this doesn't really make it great for NCuts - 1...
     //I want to do this on both hadronic prongs -- see if this rids us of proton mis-PID.
     
     //For now we we are only cutting on events where the proton prong has michel like properties at the end of the track.
+    debug() << "CC1P1PiAnalysis::FindEndTrackMichels()" << endmsg;
+
+    (void)event;
     
     bool correct_michels = true;
     bool corEX = true;
     bool corLL = true;
     
     if(m_PID_method != 1){
+        debug() << "PID Method dEdX" << endmsg;
+        
+        debug() << "Michels 0)" << endmsg;
+        
         Minerva::ProngVect EXprongs;
         EXprongs.push_back(m_EX_ProtonProng);
         EXprongs.push_back(m_EX_PionProng);
         
+        debug() << "Michels 1)" << endmsg;
+        
         Minerva::ProngVect::iterator prong;
         for(prong = EXprongs.begin(); prong != EXprongs.end(); prong++){
 
+            debug() << "Michels 2)" << endmsg;
             SmartRef<Minerva::Vertex> endpoint_vtx;
             m_objectAssociator->getVertex_fromTrackBack( endpoint_vtx, (*prong)->minervaTracks().back() );
             
@@ -1045,13 +1055,13 @@ bool CC1P1PiAnalysis::FindEndTrackMichels() const
             else fmichel = 0;
             
             (*prong)->setIntData("has_michel", fmichel);
-            
+            debug() << "Michels 3)" << endmsg;
         }
-        
     }
     
     if(m_PID_method > 0){
-    
+        debug() << "PID Method dEdX" << endmsg;
+
         Minerva::ProngVect LLprongs;
         LLprongs.push_back(m_LL_ProtonProng);
         LLprongs.push_back(m_LL_PionProng);
