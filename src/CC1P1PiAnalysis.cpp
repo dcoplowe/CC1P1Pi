@@ -1651,13 +1651,13 @@ void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
     for(int i = 0; i < 11; i++) truth->setIntData( ("n_" + part_name[i]).c_str(), counters[ i ]);
     
     bool all_fsp = true;
-    if(s_mu != -1) FillTrueParticles("mu", fs_Pe[s_mu], fs_Px[s_mu], fs_Py[s_mu], fs_Pz[s_mu], truth);
+    if(s_mu != -1) FillTrueParticle("mu", fs_Pe[s_mu], fs_Px[s_mu], fs_Py[s_mu], fs_Pz[s_mu], truth);
     else all_fsp = false;
     
-    if(s_pr != -1) FillTrueParticles("pr", fs_Pe[s_pr], fs_Px[s_pr], fs_Py[s_pr], fs_Pz[s_pr], truth);
+    if(s_pr != -1) FillTrueParticle("pr", fs_Pe[s_pr], fs_Px[s_pr], fs_Py[s_pr], fs_Pz[s_pr], truth);
     else all_fsp = false;
     
-    if(s_pi != -1) FillTrueParticles("pi", fs_Pe[s_pi], fs_Px[s_pi], fs_Py[s_pi], fs_Pz[s_pi],  truth);
+    if(s_pi != -1) FillTrueParticle("pi", fs_Pe[s_pi], fs_Px[s_pi], fs_Py[s_pi], fs_Pz[s_pi],  truth);
     else all_fsp = false;
     
     if(all_fsp){
@@ -2104,6 +2104,12 @@ double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVe
     TVector3 sum_vec = *prmom + *pimom;
     
     return sum_vec.Dot(tmp1_vec);
+}
+
+double CC1P1PiAnalysis::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const
+{
+    double vertex[3] = { vtx[0], vtx[1], vtx[2] };
+    return GetDPTT(vertex, mumom, prmom, pimom, is_truth);
 }
 
 TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
