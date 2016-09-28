@@ -13,7 +13,7 @@
 #include "DetDesc/Material.h"
 #include "GeoUtils/INuclearTargetTool.h"
 #include "AnaUtils/IProtonUtils.h"
-//#include "ParticleMaker/IParticleMakerTool.h"
+#include "ParticleMaker/IParticleMakerTool.h"
 #include "ParticleMaker/IParticleTool.h"
 #include "ProngMaker/IMichelTool.h"
 #include "MinervaUtils/IMinervaObjectAssociator.h"
@@ -74,7 +74,7 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("det_upZ", m_det_upZ = 4000.0);//Same as Proton utils:
     declareProperty("det_downZ", m_det_downZ = 10000.0);//Same as Proton utils:
     
-   // declareProperty("ParticleMakerAlias", m_particleMakerAlias = "CC1P1PiParticleMaker");
+    declareProperty("ParticleMakerAlias", m_particleMakerAlias = "CC1P1PiParticleMaker");
     
     //These values are taken from ProtonUtils:
     declareProperty("minProtonScore", m_minProtonScore = 0.05);
@@ -188,11 +188,11 @@ StatusCode CC1P1PiAnalysis::initialize()
         return StatusCode::FAILURE;
     }
     
-   /* try { m_particleMaker = tool<IParticleMakerTool>("ParticleMakerTool", m_particleMakerAlias); }
+    try { m_particleMaker = tool<IParticleMakerTool>("ParticleMakerTool", m_particleMakerAlias); }
     catch( GaudiException& e){
         error() << "Could not obtain ParticleMakerTool: " << m_particleMakerAlias << endmsg;
         return StatusCode::FAILURE;
-    }*/
+    }
     
     //debug() << "::::::::: Looking for ParticleTool :::::::::" << endmsg;
     
@@ -784,6 +784,16 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
     
         if( (*prong) == m_MuonProng) continue;
         
+        std::vector<Minerva::Particle::ID> hypotheses;
+        hypotheses.push_back(Minerva::Particle::Pion);
+        hypotheses.push_back(Minerva::Particle::Proton);
+        IParticleMakerTool::NameAliasListType toolsToUse;
+        toolsToUse.push_back( std::make_pair("dEdXTool","dEdXTool") );
+        
+        bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses, toolsToUse);
+        
+        if(!found_particle) continue;
+        
         Minerva::ParticleVect partHypVec = (*prong)->particles();
         Minerva::ParticleVect::iterator part;
         
@@ -974,12 +984,12 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
         m_LL_ProtonParticle_AltH = tmp_pi_particles[ best_proton[0] ];
         m_LL_PionParticle_AltH = tmp_pr_particles[ best_pion[0] ];
         
-        Gaudi::LorentzVector four_vec = tmp_pr_particles[ best_proton[0] ]->momentumVec();
+        //Gaudi::LorentzVector four_vec = tmp_pr_particles[ best_proton[0] ]->momentumVec();
         
         debug() << "******************************** LL PID Check *****************************************" << endmsg;
         debug() << "                   The following should be positive " << endmsg;
         debug() << "Proton Prong: " << endmsg;
-        debug() << "              E = " << four_vec.E() << ", Px = " << four_vec.px() << ", Py = " << four_vec.pz() << ", Pz = " << four_vec.pz() << endmsg;
+        //debug() << "              E = " << four_vec.E() << ", Px = " << four_vec.px() << ", Py = " << four_vec.pz() << ", Pz = " << four_vec.pz() << endmsg;
         debug() << "                                          m_LL_ProtonParticle->score() = " << m_LL_ProtonParticle->score() << ", best_proton = " << best_proton[0] << endmsg;
         debug() << "    m_LL_ProtonParticle_AltH->score() = - m_LL_ProtonParticle->score() = " << m_LL_ProtonParticle_AltH->score() << endmsg;
         debug() << "  Pion Prong: " << endmsg;

@@ -13,7 +13,7 @@ class IMinervaCoordSysTool;
 class INuclearTargetTool;
 //-- Hadron PID:
 class IProtonUtils;
-//class IParticleMakerTool;
+class IParticleMakerTool;//This is being used for dEdX.
 class IParticleTool;//This is for LL PID
 //-- Prong to truth matching
 class ITruthMatcher;
@@ -137,8 +137,8 @@ private:
     //dEdX method:
     bool EXMethod(Minerva::PhysicsEvent * event) const;
     IProtonUtils * m_protonUtils;
-    //IParticleMakerTool * m_particleMaker;
-    //std::string          m_particleMakerAlias;
+    IParticleMakerTool * m_particleMaker;
+    std::string          m_particleMakerAlias;
     
     //Likelihood method:
     bool LLMethod(Minerva::PhysicsEvent * event) const;
