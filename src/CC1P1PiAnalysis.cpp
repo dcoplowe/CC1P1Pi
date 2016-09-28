@@ -971,9 +971,12 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
         m_LL_ProtonParticle_AltH = tmp_pi_particles[ best_proton[0] ];
         m_LL_PionParticle_AltH = tmp_pr_particles[ best_pion[0] ];
         
+        Gaudi::LorentzVector four_vec = tmp_pr_particles[ best_proton[0] ]->momentumVec();
+        
         debug() << "******************************** LL PID Check *****************************************" << endmsg;
         debug() << "                   The following should be positive " << endmsg;
         debug() << "Proton Prong: " << endmsg;
+        debug() << "              E = " << four_vec.E() << ", Px = " << four_vec.px() << ", Py = " << four_vec.pz() << ", Pz = " << four_vec.pz() << endmsg;
         debug() << "                                          m_LL_ProtonParticle->score() = " << m_LL_ProtonParticle->score() << ", best_proton = " << best_proton[0] << endmsg;
         debug() << "    m_LL_ProtonParticle_AltH->score() = - m_LL_ProtonParticle->score() = " << m_LL_ProtonParticle_AltH->score() << endmsg;
         debug() << "  Pion Prong: " << endmsg;
@@ -1420,7 +1423,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         prong_EX = m_MuonProng;
         particle_EX = m_MuonParticle;
     }
-    else if(name == "pr"){
+    else if( name == "pr" ){ //|| name == "pr_EX" || name == "pr_LL")
         prong_EX         = m_EX_ProtonProng;
         particle_EX      = m_EX_ProtonParticle;
         particle_EX_altH = m_EX_ProtonParticle_AltH;
@@ -1429,7 +1432,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         particle_LL      = m_LL_ProtonParticle;
         particle_LL_altH = m_LL_ProtonParticle_AltH;
     }
-    else if(name == "pi"){
+    else if( name == "pi" ){//|| name == "pi_EX" || name == "pi_LL")
         prong_EX         = m_EX_PionProng;
         particle_EX      = m_EX_PionParticle;
         particle_EX_altH = m_EX_PionParticle_AltH;
@@ -1447,14 +1450,15 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         if(prong_EX && particle_EX){
             debug() << "Called FillMomDepVars( " << name << "_EX, particle_EX, event, cc1p1piHyp, particle_EX_altH)" <<endmsg;
             FillMomDepVars( (name + "_EX").c_str(), particle_EX, event, cc1p1piHyp, particle_EX_altH);
-            cc1p1piHyp->setIntData( (name + "_EX_michel").c_str(), prong_EX->getIntData("michel"));
+            //if();
+            //cc1p1piHyp->setIntData( (name + "_EX_michel").c_str(), prong_EX->getIntData("michel"));
         }
         else{
             warning() << "CC1P1PiAnalysis::FillPartInfo :: dEdX Prong or particle is NULL for \"" << name << "\". Please check";
         }
         
         if(prong_LL && particle_LL){
-            debug() << "Called FillMomDepVars( " << name << "_LL, particle_EX, event, cc1p1piHyp, particle_EX_altH)" <<endmsg;
+            debug() << "Called FillMomDepVars( " << name << "_LL, particle_LL, event, cc1p1piHyp, particle_EX_altH)" <<endmsg;
             FillMomDepVars( (name + "_LL").c_str(), particle_LL, event, cc1p1piHyp, particle_LL_altH);
             cc1p1piHyp->setIntData( (name + "_LL_michel").c_str(), prong_LL->getIntData("michel"));
         }
