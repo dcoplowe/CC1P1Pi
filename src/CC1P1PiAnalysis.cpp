@@ -1445,6 +1445,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     if(name == "pr" || name == "pi"){
         //Scores need changing for PID comparisons:
         if(prong_EX && particle_EX){
+            debug() << "Called FillMomDepVars( " << name << "_EX, particle_EX, event, cc1p1piHyp, particle_EX_altH)" <<endmsg;
             FillMomDepVars( (name + "_EX").c_str(), particle_EX, event, cc1p1piHyp, particle_EX_altH);
             cc1p1piHyp->setIntData( (name + "_EX_michel").c_str(), prong_EX->getIntData("michel"));
         }
@@ -1453,6 +1454,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         }
         
         if(prong_LL && particle_LL){
+            debug() << "Called FillMomDepVars( " << name << "_LL, particle_EX, event, cc1p1piHyp, particle_EX_altH)" <<endmsg
             FillMomDepVars( (name + "_LL").c_str(), particle_LL, event, cc1p1piHyp, particle_LL_altH);
             cc1p1piHyp->setIntData( (name + "_LL_michel").c_str(), prong_LL->getIntData("michel"));
         }
