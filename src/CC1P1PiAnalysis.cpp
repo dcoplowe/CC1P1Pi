@@ -439,7 +439,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     PrintInfo("AL one should be 5", m_print_acc_level);
     
     //----------- 5 : PID on p/pi+ -----------//
-    PrintInfo("5) Michel Tag Hadron tracks", m_print_cuts);
+   /* PrintInfo("5) Michel Tag Hadron tracks", m_print_cuts);
     
     if(!FindEndTrackMichels(event)){//Accum Level dealt with in function
         PrintInfo("Proton prong seems to have michel tag...", m_print_cuts);
@@ -451,6 +451,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     else PrintInfo("Finished Selection Successfully. Pheeewwww ;)", m_print_cuts);
 
     PrintInfo("AL one should be 6", m_print_acc_level);
+    */
     SaveAccumLevel(event, truth);//markEvent is called in SaveAccumLevel, as is the filling of the truth tree.
     // Set the PhysicsEvent reconstructionSignature to m_anaSignature, so I know that this tool reconstructed this event.
     // If you mark the event it will go to your analysis DST.  If you don't want it to go there, don't mark it!
@@ -526,6 +527,25 @@ bool CC1P1PiAnalysis::truthIsPlausible( const Minerva::PhysicsEvent * event ) co
     // SEE DOCDB 10471 IF YOU ARE UNSURE HOW TO IMPLEMENT THIS METHOD.
     
     // in a MINOS-matched-muon analysis, for example, you usually just want the muon to be plausible
+    
+    //My own truth check: I am doing an exclusive selection and therefore want to make sure that the the three particle final state
+    //has at least 3, true, mc prongs associated to it and not just data overlay.
+    /*
+    bool plausible = true;
+    
+    if(m_PID_method != 1){
+        plausible = ( muonIsPlausible(m_MuonProng) && prongIsMC(m_EX_ProtonProng) && prongIsMC(m_EX_PionProng) );
+    }
+    
+    if(m_PID_method > 0){
+        if (!plausible) return false;
+        
+        plausible = ( muonIsPlausible(m_MuonProng) && prongIsMC(m_LL_ProtonProng) && prongIsMC(m_LL_PionProng) );
+    }
+    
+    return plausible;*/
+    
+    //Old method:
     SmartRef<Minerva::Prong> muonProng;
     SmartRef<Minerva::Particle> muonPart;
     if ( ! MuonUtils->findMuonProng(event, muonProng, muonPart) )  // returns false if it can't find a muon
