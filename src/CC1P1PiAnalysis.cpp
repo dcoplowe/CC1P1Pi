@@ -1706,6 +1706,8 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
     
     SetGlobal4Vec(name, sel4mom);
     
+    debug() << "WORKING 1" << endmsg;
+    
     cc1p1piHyp->setContainerDoubleData( (name + "_4mom").c_str(), sel4mom);
     
     SmartRef<Minerva::Vertex> vertex = event->interactionVertex();
@@ -1715,6 +1717,9 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
     const TVector3 * mom_vec = new TVector3(sel4mom[1], sel4mom[2], sel4mom[3]);
     const TVector3 * pT = GetPT(vtx, mom_vec);
     
+    debug() << "WORKING 2" << endmsg;
+
+    
     cc1p1piHyp->setDoubleData( (name + "_pTMag").c_str(), pT->Mag());
     
     std::vector<double> selpT;
@@ -1723,6 +1728,8 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
     selpT.push_back(pT->Z());
     
     cc1p1piHyp->setContainerDoubleData( (name + "_pT").c_str(), selpT);
+    
+    debug() << "WORKING 3" << endmsg;
     
     double pTT = -999.;
     cc1p1piHyp->setDoubleData( (name + "_pTT").c_str(), pTT);
@@ -1735,6 +1742,8 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
     
     double KE = four_vec.E() - particle->mass();
     cc1p1piHyp->setDoubleData( (name + "_KE").c_str(), KE);
+    
+    debug() << "WORKING 4" << endmsg;
 }
 
 void CC1P1PiAnalysis::DefineTruthTree(){
