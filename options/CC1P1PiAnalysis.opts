@@ -40,7 +40,7 @@ PhysicsEventAnalysisAlg.Analyses = { "CC1P1PiAnalysis" };
 //Set the save level, equivalent to the number of cuts:
 ToolSvc.CC1P1PiAnalysis.accum_level_to_save = 0;
 //Set PID choice: 0 - dEdX, 1 - LLR, 2 - Comparison
-ToolSvc.CC1P1PiAnalysus.PID_method = 1;
+ToolSvc.CC1P1PiAnalysus.PID_method = 2;
 
 //------------------------------------------------------------
 // Configure the PhysicsEventMaker

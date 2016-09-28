@@ -681,14 +681,19 @@ bool CC1P1PiAnalysis::IsEventContained(Minerva::PhysicsEvent * event) const
         
         if( tracks.empty() ) {
             PrintInfo("  This prong contains an empty vector of tracks, skipping!", m_print_cut_verbose);
-            continue;
+            return false;
+            //continue;
             //Return false statement if found to minos match.
         }
         else if( (*prong)->MinosTrack() || (*prong)->MinosStub() ) {
             PrintInfo("  This is a MINOS matched prong, skipping!", m_print_cut_verbose);
-            continue;
+            return false;
+            //continue;
             //Return false statement if found to minos match.
         }
+        
+        //Look at including a check for multimass prongs --> Include in PID cut.
+        if( (*part)->isMultiMass() ) return false;
         
         SmartRef<Minerva::Track> track = tracks[tracks.size() - 1];
         Gaudi::XYZPoint endpoint = track->lastState().position();
@@ -737,7 +742,8 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
         
             debug() << "   Found a " << (*part)->idcode() << " with signature: " << (*part)->methodSignature() << " and score: " << (*part)->score() << endmsg;
             
-            if( (*part)->isMultiMass() && (*part)->methodSignature().find("dEdX") == std::string::npos ) continue;
+            if( (*part)->methodSignature().find("dEdX") == std::string::npos ) continue;
+            //(*part)->isMultiMass() && <--This is done in previous step;
             
             //Minerva::Prong tmp_prong = (*prong);
             //Minerva::Particle tmp_particle = (*part);
@@ -873,6 +879,8 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
     
     for(prong = prongs.begin(); prong != prongs.end(); prong++){
         if( (*prong) == m_MuonProng) continue;
+        
+        //if( (*part)->isMultiMass() ) continue;
         
         m_LikelihoodPIDTool->makeParticles( (*prong), tmp_pr_particles , protonHypotheses);
         m_LikelihoodPIDTool->makeParticles( (*prong), tmp_pi_particles , pionHypotheses);
@@ -1609,7 +1617,6 @@ void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
     int n_kPM = 0;
     int n_ka0 = 0;
     int n_pho = 0;
-    int n_unk = 0;
     
     double mu_mom_mag = -999.;
     double pr_mom_mag = -999.;
