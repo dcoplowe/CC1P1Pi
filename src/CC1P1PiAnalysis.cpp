@@ -693,7 +693,6 @@ bool CC1P1PiAnalysis::IsEventContained(Minerva::PhysicsEvent * event) const
         }
         
         //Look at including a check for multimass prongs --> Include in PID cut.
-        if( (*part)->isMultiMass() ) return false;
         
         SmartRef<Minerva::Track> track = tracks[tracks.size() - 1];
         Gaudi::XYZPoint endpoint = track->lastState().position();
@@ -742,7 +741,7 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
         
             debug() << "   Found a " << (*part)->idcode() << " with signature: " << (*part)->methodSignature() << " and score: " << (*part)->score() << endmsg;
             
-            if( (*part)->methodSignature().find("dEdX") == std::string::npos ) continue;
+            if( (*part)->isMultiMass() && (*part)->methodSignature().find("dEdX") == std::string::npos ) continue;
             //(*part)->isMultiMass() && <--This is done in previous step;
             
             //Minerva::Prong tmp_prong = (*prong);
@@ -880,11 +879,11 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
     for(prong = prongs.begin(); prong != prongs.end(); prong++){
         if( (*prong) == m_MuonProng) continue;
         
-        //if( (*part)->isMultiMass() ) continue;
-        
         m_LikelihoodPIDTool->makeParticles( (*prong), tmp_pr_particles , protonHypotheses);
         m_LikelihoodPIDTool->makeParticles( (*prong), tmp_pi_particles , pionHypotheses);
         //IParticleTool::makeParticles(Minerva::Prong*, Minerva::ParticleVect&, std::vector<Minerva::Particle::ID, std::allocator<Minerva::Particle::ID> >)
+        
+        //if( (*part)->isMultiMass() ) continue; <-- Can we use this at some point? In the filling of the particles
         
         tmp_pr_prongs.push_back( (*prong) );
         tmp_pi_prongs.push_back( (*prong) );
