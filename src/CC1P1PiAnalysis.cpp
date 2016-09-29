@@ -796,6 +796,8 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
         bool found_particle = m_particleMaker->makeParticles((*prong), hypotheses, toolsToUse);
         
         if(!found_particle) continue;
+//        if(!found_particle) return false;
+
         
         Minerva::ParticleVect partHypVec = (*prong)->particles();
         Minerva::ParticleVect::iterator part;
@@ -869,8 +871,10 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
     std::vector<int> best_proton;
     std::vector<int> best_pion;
     
-    int count = (int)tmp_pr_score.size();
-    if(count < (int)tmp_pi_score.size()) count = (int)tmp_pi_score.size();
+    if(tmp_pr_particles.size() != 2 && tmp_pi_particles.size() != 2) return false;//Make sure that particle hyps can be made.
+    
+    int count = 2; //(int)tmp_pr_score.size();
+    //if(count < (int)tmp_pi_score.size()) count = (int)tmp_pi_score.size();
     
     for(int i = 0; i < count; i++){
         
@@ -1063,15 +1067,20 @@ bool CC1P1PiAnalysis::FindEndTrackMichels(Minerva::PhysicsEvent * event) const
     }
     
     if(m_PID_method > 0){
-        debug() << "PID Method dEdX" << endmsg;
+        debug() << "PID Method LL" << endmsg;
+
+        debug() << "Michels 0)" << endmsg;
 
         Minerva::ProngVect LLprongs;
         LLprongs.push_back(m_LL_ProtonProng);
         LLprongs.push_back(m_LL_PionProng);
     
+        debug() << "Michels 1)" << endmsg;
+
         Minerva::ProngVect::iterator prong;
         for(prong = LLprongs.begin(); prong != LLprongs.end(); prong++){
             
+            debug() << "Michels 2)" << endmsg;
             SmartRef<Minerva::Vertex> endpoint_vtx;
             m_objectAssociator->getVertex_fromTrackBack( endpoint_vtx, (*prong)->minervaTracks().back() );
             
@@ -1095,6 +1104,7 @@ bool CC1P1PiAnalysis::FindEndTrackMichels(Minerva::PhysicsEvent * event) const
             else fmichel = 0;
             
             (*prong)->setIntData("has_michel", fmichel);
+            debug() << "Michels 3)" << endmsg;
         }
     }
     
