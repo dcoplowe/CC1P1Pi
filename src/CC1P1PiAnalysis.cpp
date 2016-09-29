@@ -103,6 +103,8 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     }
     m_accum_level = new int [m_nsplits];
     
+    debug() << "m_nsplits = " << m_nsplits << endmsg;
+    
     //Mean Parent Decay Point in metres
     declareProperty("PDP_X", m_PDP_X = 0.231135);
     declareProperty("PDP_Y", m_PDP_Y = 45.368069);
@@ -2007,6 +2009,7 @@ void CC1P1PiAnalysis::SetAccumLevel(int split) const
     for(int i = 0; i < m_nsplits; i++){
         PrintInfo(Form("***** Accum. Level [%d] = %d ***** ", i, m_accum_level[i]), m_print_acc_level);
     }
+
 }
 
 void CC1P1PiAnalysis::ResetAccumLevel() const
