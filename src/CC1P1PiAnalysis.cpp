@@ -1473,17 +1473,20 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         if(prong_EX && particle_EX){
             debug() << "Called FillMomDepVars( " << name << "_EX, particle_EX, event, cc1p1piHyp, particle_EX_altH)" <<endmsg;
             FillMomDepVars( (name + "_EX").c_str(), particle_EX, event, cc1p1piHyp, particle_EX_altH);
-            //if();
-            cc1p1piHyp->setIntData( (name + "_EX_michel").c_str(), prong_EX->getIntData("has_michel"));
+            if( prong_EX->hasIntData("has_michel") ){ cc1p1piHyp->setIntData( (name + "_EX_michel").c_str(), prong_EX->getIntData("has_michel"));
+                debug() << "Michel Tagged" << endmsg;
+            }
         }
         else{
             warning() << "CC1P1PiAnalysis::FillPartInfo :: dEdX Prong or particle is NULL for \"" << name << "\". Please check";
         }
         
         if(prong_LL && particle_LL){
-            debug() << "Called FillMomDepVars( " << name << "_LL, particle_LL, event, cc1p1piHyp, particle_EX_altH)" <<endmsg;
+            debug() << "Called FillMomDepVars( " << name << "_LL, particle_LL, event, cc1p1piHyp, particle_LL_altH)" <<endmsg;
             FillMomDepVars( (name + "_LL").c_str(), particle_LL, event, cc1p1piHyp, particle_LL_altH);
-            cc1p1piHyp->setIntData( (name + "_LL_michel").c_str(), prong_LL->getIntData("has_michel"));
+            if( prong_LL->hasIntData("has_michel") ){ cc1p1piHyp->setIntData( (name + "_LL_michel").c_str(), prong_LL->getIntData("has_michel"));
+                debug() << "Michel Tagged" << endmsg;
+            }
         }
         else{
             warning() << "CC1P1PiAnalysis::FillPartInfo :: Likelihood Prong or particle is NULL for \"" << name << "\". Please check";
