@@ -871,7 +871,7 @@ bool CC1P1PiAnalysis::EXMethod(Minerva::PhysicsEvent * event) const
     std::vector<int> best_proton;
     std::vector<int> best_pion;
     
-    if(tmp_pr_particles.size() != 2 && tmp_pi_particles.size() != 2) return false;//Make sure that particle hyps can be made.
+    if( !((int)tmp_pr_particles.size() == 2 && (int)tmp_pi_particles.size() == 2)) return false;//Make sure that particle hyps can be made.
     
     int count = 2; //(int)tmp_pr_score.size();
     //if(count < (int)tmp_pi_score.size()) count = (int)tmp_pi_score.size();
