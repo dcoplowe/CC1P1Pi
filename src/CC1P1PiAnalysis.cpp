@@ -1522,29 +1522,31 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     }
     else prong = prong_EX;
     
-    double chi2ndf = -999.;
-    Minerva::TrackVect tracks = prong->minervaTracks();
-    if(!tracks.empty()){
-        SmartRef<Minerva::Track> track = tracks[ tracks.size() - 1 ];
-        chi2ndf = track->chi2PerDoF();
+    if(prong){
+        double chi2ndf = -999.;
+        Minerva::TrackVect tracks = prong->minervaTracks();
+        if(!tracks.empty()){
+            SmartRef<Minerva::Track> track = tracks[ tracks.size() - 1 ];
+            chi2ndf = track->chi2PerDoF();
+        }
+        
+        cc1p1piHyp->setDoubleData( (name + "_chi2ndf").c_str(), chi2ndf);
+    
+        Gaudi::XYZPoint upstream = ( *prong->minervaTracks().front() ).upstreamState().position();
+        std::vector<double> sel_start_xyz;
+        sel_start_xyz.push_back(upstream.x());
+        sel_start_xyz.push_back(upstream.y());
+        sel_start_xyz.push_back(upstream.z());
+        cc1p1piHyp->setContainerDoubleData( (name + "_startpos_xyz").c_str(), sel_start_xyz);
+        
+        Gaudi::XYZPoint downstream = (*prong->minervaTracks().front() ).downstreamState().position();
+        std::vector<double> sel_end_xyz;
+        sel_end_xyz.push_back(downstream.x());
+        sel_end_xyz.push_back(downstream.y());
+        sel_end_xyz.push_back(downstream.z());
+        cc1p1piHyp->setContainerDoubleData( (name + "_endpos_xyz").c_str(), sel_end_xyz);
+        
     }
-    
-    cc1p1piHyp->setDoubleData( (name + "_chi2ndf").c_str(), chi2ndf);
-
-    
-    Gaudi::XYZPoint upstream = ( *prong->minervaTracks().front() ).upstreamState().position();
-    std::vector<double> sel_start_xyz;
-    sel_start_xyz.push_back(upstream.x());
-    sel_start_xyz.push_back(upstream.y());
-    sel_start_xyz.push_back(upstream.z());
-    cc1p1piHyp->setContainerDoubleData( (name + "_startpos_xyz").c_str(), sel_start_xyz);
-    
-    Gaudi::XYZPoint downstream = (*prong->minervaTracks().front() ).downstreamState().position();
-    std::vector<double> sel_end_xyz;
-    sel_end_xyz.push_back(downstream.x());
-    sel_end_xyz.push_back(downstream.y());
-    sel_end_xyz.push_back(downstream.z());
-    cc1p1piHyp->setContainerDoubleData( (name + "_endpos_xyz").c_str(), sel_end_xyz);
     
     //True vars:
     if(truth){
