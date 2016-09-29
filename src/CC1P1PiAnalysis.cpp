@@ -1032,8 +1032,8 @@ bool CC1P1PiAnalysis::FindEndTrackMichels(Minerva::PhysicsEvent * event) const
         debug() << "Michels 0)" << endmsg;
         
         Minerva::ProngVect EXprongs;
-        EXprongs.push_back(m_EX_ProtonProng);
-        EXprongs.push_back(m_EX_PionProng);
+        if(m_EX_ProtonProng) EXprongs.push_back(m_EX_ProtonProng);
+        if(m_EX_PionProng)   EXprongs.push_back(m_EX_PionProng);
         
         debug() << "Michels 1)" << endmsg;
         
@@ -1072,11 +1072,11 @@ bool CC1P1PiAnalysis::FindEndTrackMichels(Minerva::PhysicsEvent * event) const
         debug() << "PID Method LL" << endmsg;
 
         debug() << "Michels 0)" << endmsg;
-
+        
         Minerva::ProngVect LLprongs;
-        LLprongs.push_back(m_LL_ProtonProng);
-        LLprongs.push_back(m_LL_PionProng);
-    
+        if(m_LL_ProtonProng) LLprongs.push_back(m_LL_ProtonProng);
+        if(m_LL_PionProng)   LLprongs.push_back(m_LL_PionProng);
+        
         debug() << "Michels 1)" << endmsg;
 
         Minerva::ProngVect::iterator prong;
