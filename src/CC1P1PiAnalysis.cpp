@@ -699,8 +699,11 @@ bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent * event, int method) c
     else if(method == 1) success = LLMethod(event);
     else if(method == 2){
         bool sucLL = LLMethod(event);
+        debug() << "CC1P1PiAnalysis::FindParticles : Called LLMethod _SUCCESS_" << endmsg;
+
         bool sucEX = EXMethod(event);
-        
+        debug() << "CC1P1PiAnalysis::FindParticles : Called EXMethod _SUCCESS_" << endmsg;
+
         if(sucEX) SetAccumLevel(0);
         if(sucLL) SetAccumLevel(1);
         
