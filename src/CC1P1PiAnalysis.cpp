@@ -1549,7 +1549,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     }
     
     //True vars:
-    if(truth){
+    if(truth && prong){
         //********************** Old Truth Infromation **********************//
        /* std::vector<const Minerva::TG4Trajectory*> trajectories;
         
