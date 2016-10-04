@@ -95,15 +95,14 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("PID_method", m_PID_method = 2);//0 - dEdX, 1 - LL, 2 - Comparison study. Default is LL.
     declareProperty("NCutsM1", m_NCutsM1 = false);
     
-    /*if(m_PID_method < 2){
+    if(m_PID_method < 2){
         m_nsplits = 1;
     }
     else{
         m_nsplits = 2;
     }
     m_accum_level = new int [m_nsplits];
-    */
-
+    
     debug() << "m_nsplits = " << m_nsplits << endmsg;
     
     //Mean Parent Decay Point in metres
@@ -224,18 +223,6 @@ StatusCode CC1P1PiAnalysis::initialize()
         error() << "Could not obtain TruthMather" << endmsg;
         return StatusCode::FAILURE;
     }
-    
-    //Check to see if the correct size of the accum_level array will be given once called here:
-    
-    if(m_PID_method < 2){
-        m_nsplits = 1;
-    }
-    else{
-        m_nsplits = 2;
-    }
-    m_accum_level = new int [m_nsplits];
-    debug() << "m_nsplits = " << m_nsplits << endmsg;
-    
     
     //---------------------------------------------------------------------
     // Declare the Interpretations block branches
