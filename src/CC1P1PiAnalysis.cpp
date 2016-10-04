@@ -1665,7 +1665,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         cc1p1piHyp->setContainerDoubleData( (name + "_startdir").c_str(), sel_dir);
         
         int iskinked = 0;
-        if( *prong->Kinked()) iskinked = 1;
+        if( prong->Kinked()) iskinked = 1;
         cc1p1piHyp->setIntData( (name + "_isKinked").c_str(), iskinked);
     }
     
