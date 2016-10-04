@@ -104,7 +104,7 @@ private:
     //-----------------------//
     
     //------ Determine if vertex is in FV of either scintillator or carbon ------//
-    bool VertIsIn(TString targetRegion, Minerva::PhysicsEvent* event, const Minerva::GenMinInteraction *truth, bool tag_truth = false) const;
+    bool VertIsIn(TString targetRegion, Minerva::PhysicsEvent* event, Minerva::GenMinInteraction *truth, bool tag_truth = false) const;
     IMinervaCoordSysTool * m_coordSysTool;
     INuclearTargetTool *   m_nuclearTargetTool;
     std::string m_nuclearTargetToolAlias;

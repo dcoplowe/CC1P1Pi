@@ -1406,8 +1406,8 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
     double vertex[3] = {vert_3vec.x(), vert_3vec.y(), vert_3vec.z()};//{0.};
     
     //Set Proton and Pion directions:
-    TVector3 * pi_d = new TVector3(m_Pion_dir[0], m_Pion_dir[1], m_Pion_dir[2]);
-    TVector3 * pr_d = new TVector3(m_Proton_dir[0], m_Proton_dir[1], m_Proton_dir[2]);
+    const TVector3 * pi_d = new TVector3(m_Pion_dir[0], m_Pion_dir[1], m_Pion_dir[2]);
+    const TVector3 * pr_d = new TVector3(m_Proton_dir[0], m_Proton_dir[1], m_Proton_dir[2]);
 
     //----------------------------------- dEdX vars -----------------------------------//
     if(m_PID_method != 1){
@@ -2472,10 +2472,10 @@ Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoRir(Minerva::Prong * prong) const
 {
     //Produce a unit normalised direction
     
-    Gaudi::XYZPoint upstream = ( prong->minervaTracks().front() ).upstreamState().position();
-    Gaudi::XYZPoint downstream = ( prong->minervaTracks().front() ).downstreamState().position();
+    Gaudi::XYZPoint upstream = ( *prong->minervaTracks().front() ).upstreamState().position();
+    Gaudi::XYZPoint downstream = ( *prong->minervaTracks().front() ).downstreamState().position();
     
-    Gaudi::XYZPoint direction = downstream - upstream;
+    Gaudi::XYZPoint direction = *downstream - *upstream;
     //Gaudi::XYZPoint is actually a ROOT::Math::XYZPoint this only has a mag. squared member. --> sqrt this myself.
     direction *= 1/sqrt(direction.Mag2());
     
