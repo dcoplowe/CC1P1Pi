@@ -670,10 +670,6 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     //This function checks if the vertex is in the target region specified by the string and in the fiducial volume. Currently this works for only
     //carbon and scintillator but can be fixed to work with any target.
     
-    double apothem = m_default_apothem;
-    double upZ = m_default_upZ;
-    double downZ = m_default_downZ;
-    
     //Determine the true vertex is located in either scintillator/passive carbon target.
     //1 - Scint, 2 - carbon, 3 - other <-- Want to save truth output with these tags
     if(truth && tag_truth){
@@ -682,15 +678,19 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
         
         int vert_tag = INIVALUE;
         
+        double apothem_true = m_default_apothem;
+        double upZ_true = m_default_upZ;
+        double downZ_true = m_default_downZ;
+
         int i = 0;
         while(i < 2){ //for(int i = 0; i < 2; i++){
             
             bool true_mat = false;
             
             if(i = 0){//Scintilator
-                apothem = m_scint_apothem;
-                upZ = m_scint_upZ;
-                downZ = m_scint_downZ;
+                apothem_true = m_scint_apothem;
+                upZ_true = m_scint_upZ;
+                downZ_true = m_scint_downZ;
             }
             else{//Carbon
                 const Material * material = m_nuclearTargetTool->getSectionMaterial(truevertex);
@@ -704,12 +704,12 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
                 
                 if(materialZ == 6) true_mat =  true;
                 
-                apothem = m_carbon_apothem;
-                upZ = m_carbon_upZ;
-                downZ = m_carbon_downZ;
+                apothem_true = m_carbon_apothem;
+                upZ_true = m_carbon_upZ;
+                downZ_true = m_carbon_downZ;
             }
         
-            bool fidtrueVertex = m_coordSysTool->inFiducial( truevertex.x(), truevertex.y(), truevertex.z(), apothem, upZ, downZ );
+            bool fidtrueVertex = m_coordSysTool->inFiducial( truevertex.x(), truevertex.y(), truevertex.z(), apothem_true, upZ_true, downZ_true);
             
             if(fidtrueVertex){
                 if(i == 0){
@@ -730,6 +730,10 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     }
     
     //Reco Information, the cut takes place here:
+    double apothem = m_default_apothem;
+    double upZ = m_default_upZ;
+    double downZ = m_default_downZ;
+    
     SmartRef<Minerva::Vertex> vertex = event->interactionVertex();
     
     if(targetRegion.Contains("Scint", TString::kIgnoreCase)){
