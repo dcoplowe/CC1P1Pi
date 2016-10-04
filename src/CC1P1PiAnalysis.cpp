@@ -678,7 +678,7 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     //1 - Scint, 2 - carbon, 3 - other <-- Want to save truth output with these tags
     if(truth && tag_truth){
         Gaudi::LorentzVector truevertex_4v = truth->Vtx();//Get the true vertex
-        const Gaudi::XYZPoint truevertex = truevertex_4v.Vect();//Make it a 3-vec
+        const Gaudi::XYZPoint truevertex(truevertex_4v.x(), truevertex_4v.y(), truevertex_4v.z());// = truevertex_4v.Vect();//Make it a 3-vec
         
         int vert_tag = INIVALUE;
         
