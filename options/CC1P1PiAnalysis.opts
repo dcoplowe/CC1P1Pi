@@ -41,7 +41,7 @@ PhysicsEventAnalysisAlg.Analyses = { "CC1P1PiAnalysis" };
 ToolSvc.CC1P1PiAnalysis.accum_level_to_save = 0;
 
 //Set PID choice: 0 - dEdX, 1 - LLR, 2 - Comparison
-ToolSvc.CC1P1PiAnalysis.PID_method = 1;
+ToolSvc.CC1P1PiAnalysis.PID_method = 2;
 
 //Run in NCuts - 1 mode: This is for studying the effectiveness/use of the cut
 //and can be used to optimise the selection.
@@ -88,7 +88,7 @@ MessageSvc.OutputLevel                               = 3;
 PhysicsEventCreatorAlg.OutputLevel                   = 3;
 PhysicsEventAnalysisAlg.OutputLevel                  = 3;
 
-ToolSvc.CC1P1PiAnalysis.OutputLevel                  = 2;
+ToolSvc.CC1P1PiAnalysis.OutputLevel                  = 3;
 
 //Verbosity in the debug for analysis:
 ToolSvc.CC1P1PiAnalysis.print_cuts              = true;
