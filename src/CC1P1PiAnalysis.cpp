@@ -521,7 +521,7 @@ StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, 
     
     FillCommonBranches(event, interaction, nuInt);
     
-    if(truth){
+    if(interaction){
         if(m_PID_method != 1){//0 - dEdX, 1 - LL, 2 - Comparison study. Default is LL.
             if(m_EX_PionParticle) interaction->setDoubleData("pi_EX_score", m_EX_PionParticle->score());
             if(m_EX_PionParticle_AltH) interaction->setDoubleData("pi_EX_score_altH", m_EX_PionParticle_AltH->score());
