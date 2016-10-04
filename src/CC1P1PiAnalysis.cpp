@@ -32,6 +32,10 @@
 #define EPSILON  1e-10
 #endif
 
+#ifndef INIVALUE
+#define INIVALUE -999
+#endif
+
 //this command allows other parts of Gaudi to use the tool
 DECLARE_TOOL_FACTORY( CC1P1PiAnalysis );
 
@@ -256,16 +260,19 @@ StatusCode CC1P1PiAnalysis::initialize()
     declareIntEventBranch("n_tracks3", -999);
     declareIntEventBranch("vert_exists", -999);
     declareIntEventBranch("target_region", -999);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
+    declareIntEventBranch("true_target_region", INIVALUE);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
+    declareIntTruthBranch("true_target_region", INIVALUE);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
     //  declareContainerDoubleEventBranch( "shower_momentum", 4, -999. );
     declareBoolEventBranch("isMinosMatchTrack");
     declareBoolEventBranch("isMinosMatchStub");
-    
     declareIntEventBranch("new_tracks", -999);
     declareIntEventBranch("n_anchored_long_trk_prongs", -999);
     declareIntEventBranch("n_anchored_short_trk_prongs", -999);
     declareIntEventBranch("n_iso_trk_prongs", -999);
     declareIntEventBranch("n_prongs", -999);
     declareIntEventBranch("contained_evt", -999);
+    declareIntEventBranch("muon_charge", INIVALUE);
+    declareIntTruthBranch("muon_charge", INIVALUE);
 //    declareIntTruthBranch("contained_evt", -999);
 
     SetCommonBranches();
@@ -385,7 +392,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
         return StatusCode::SUCCESS;
     }
     
-    counter("c_3tracks")++;
+    counter("c_3tracks")++;//Change counters to run things faster -- future work.
     PrintInfo("AL should be 2", m_print_acc_level);
     SetAccumLevel();
     
@@ -415,12 +422,12 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     //----------- 4 : Vertex in active tracker or carbon target -----------//
     //Not a cut but an action to determine the location of the vertex.
     PrintInfo("4) Vertex in Carbon or Scintillator", m_print_cuts);
-    if(VertIsIn("Scint", event)){
+    if(VertIsIn("Scint", event, truth)){
         PrintInfo("Yes in SCINTILLATOR", m_print_cuts);
         event->setIntData("target_region", 1);
         counter("c_tar_scint")++;
     }
-    else if (VertIsIn("Carbon", event)){
+    else if (VertIsIn("Carbon", event, truth)){
         PrintInfo("Yes in CARBON TARGET", m_print_cuts);
         event->setIntData("target_region", 2);
         counter("c_tar_carbon")++;
@@ -650,10 +657,15 @@ bool CC1P1PiAnalysis::FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInte
         return false;
     }
     
+    int muon_charge = 0;
+    m_muonUtils->muonCharge(muonProng, muon_charge);
+    event->setIntData("muon_charge", muon_charge);
+    if(truth) truth->setIntData("muon_charge", muon_charge);
+    
     return true;
 }
 
-bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* event) const
+bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth ) const
 {
     //This function checks if the vertex is in the target region specified by the string and in the fiducial volume. Currently this works for only
     //carbon and scintillator but can be fixed to work with any target.
@@ -662,6 +674,62 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     double upZ = m_default_upZ;
     double downZ = m_default_downZ;
     
+    //Determine the true vertex is located in either scintillator/passive carbon target.
+    //1 - Scint, 2 - carbon, 3 - other <-- Want to save truth output with these tags
+    if(truth){
+        Gaudi::LorentzVector truevertex_4v = truth->Vtx();//Get the true vertex
+        const Gaudi::XYZPoint truevertex = truevertex_4v.Vect();//Make it a 3-vec
+        
+        int vert_tag = INIVALUE;
+        
+        int i = 0;
+        while(i < 2){ //for(int i = 0; i < 2; i++){
+            
+            bool true_mat = false;
+            
+            if(i = 0){//Scintilator
+                apothem = m_scint_apothem;
+                upZ = m_scint_upZ;
+                downZ = m_scint_downZ;
+            }
+            else{//Carbon
+                const Material * material = m_nuclearTargetTool->getSectionMaterial(truevertex);
+                int materialZ = -999;
+                
+                if(material){
+                    materialZ = (int)(material->Z()+0.5);//Why + 0.5 -- This was taken from another analysis... I should check this out.
+                    debug() << "  retrieve the target's section material name = " << material->name() << ", and Z = " << material->Z() << endmsg;
+                }
+                //Carbon is in target region 3 and has Z == 6.
+                
+                if(materialZ == 6) true_mat =  true;
+                
+                apothem = m_carbon_apothem;
+                upZ = m_carbon_upZ;
+                downZ = m_carbon_downZ;
+            }
+        
+            bool fidtrueVertex = m_coordSysTool->inFiducial( truevertex.x(), truevertex.y(), truevertex.z(), apothem, upZ, downZ );
+            
+            if(fidtrueVertex){
+                if(i == 0){
+                    vert_tag = 1;
+                    break;
+                }//The following at the end of the loop so no need to break it:
+                else if(i == 1 && true_mat){
+                    vert_tag = 2;
+                }
+            }
+            else{
+                vert_tag = 3;
+            }
+            i++;
+        }
+        event->setIntData("true_target_region", vert_tag);
+        truth->setIntData("true_target_region", vert_tag);
+    }
+    
+    //Reco Information, the cut takes place here:
     SmartRef<Minerva::Vertex> vertex = event->interactionVertex();
     
     if(targetRegion.Contains("Scint", TString::kIgnoreCase)){
@@ -697,6 +765,8 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     if(fidVertex){
         PrintInfo("Vertex is in fiducial volume", m_print_cut_verbose);
     }
+    
+    
     
     return fidVertex;
 }
@@ -1214,6 +1284,7 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
             
             //Detector based vars:
             declareIntBranch(m_hypMeths, (name + "_EX_michel").c_str() , -999);
+            
         }
         
         if(m_PID_method > 0){
@@ -1271,11 +1342,13 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
     declareDoubleBranch(m_hypMeths, (name + "_chi2ndf").c_str(), -999.);
     declareContainerDoubleBranch(m_hypMeths, (name + "_startdir").c_str(), 3, -999.);
     declareContainerDoubleBranch(m_hypMeths, (name + "_truestartdir").c_str(), 3, -999.);
+    
     declareIntBranch(m_hypMeths, (name + "_PDG").c_str(), -999);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_startpos_xyz").c_str(), 3, -999.);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_truestartpos_xyz").c_str(), 3, -999.);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_endpos_xyz").c_str(), 3, -999.);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_trueendpos_xyz").c_str(), 3, -999.);
+    
+    declareContainerDoubleBranch(m_hypMeths, (name + "_startpos").c_str(), 3, INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_truestartpos").c_str(), 3, INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_endpos").c_str(), 3, INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_trueendpos").c_str(), 3, INIVALUE);
     
 }
 
@@ -1332,6 +1405,10 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
     const Gaudi::XYZPoint vert_3vec = int_vert->position();
     double vertex[3] = {vert_3vec.x(), vert_3vec.y(), vert_3vec.z()};//{0.};
     
+    //Set Proton and Pion directions:
+    TVector3 * pi_d = new TVector3(m_Pion_dir[0], m_Pion_dir[1], m_Pion_dir[2]);
+    TVector3 * pr_d = new TVector3(m_Proton_dir[0], m_Proton_dir[1], m_Proton_dir[2]);
+
     //----------------------------------- dEdX vars -----------------------------------//
     if(m_PID_method != 1){
 
@@ -1360,13 +1437,21 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         cc1p1piHyp->setDoubleData("dalphaT_EX", dalphaT_EX);
         cc1p1piHyp->setDoubleData("dphiT_EX", dphiT_EX);
         cc1p1piHyp->setContainerDoubleData("dpT_vec_EX", vec_dpT_3mom_EX);
-        
+    
+        //Hadron Direction method:
         double dpTT_pi_EX = GetDPTT(vertex, pi_EX_p, mu_p, pr_EX_p);
-        
         cc1p1piHyp->setDoubleData("dpTT_pi_EX", dpTT_pi_EX);
+        
+        //Pi direction:
+        double dpTT_pi_dir_EX = GetDPTT(vertex, pi_d, mu_p, pr_EX_p);
+        cc1p1piHyp->setDoubleData("dpTT_pi_dir_EX", dpTT_pi_dir_EX);
+        
         
         double dpTT_pr_EX = GetDPTT(vertex, pr_EX_p, pi_EX_p, mu_p);
         cc1p1piHyp->setDoubleData("dpTT_pr_EX", dpTT_pr_EX);
+        //Proton direction:
+        double dpTT_pr_dir_EX = GetDPTT(vertex, pr_d, pi_EX_p, mu_p);
+        cc1p1piHyp->setDoubleData("dpTT_pr_dir_EX", dpTT_pr_dir_EX);
         
     }
     //---------------------------------------END---------------------------------------//
@@ -1400,12 +1485,20 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         cc1p1piHyp->setDoubleData("dphiT_LL", dphiT_LL);
         cc1p1piHyp->setContainerDoubleData("dpT_vec_LL", vec_dpT_3mom_LL);
         
+        //Hadron Direction method:
         double dpTT_pi_LL = GetDPTT(vertex, pi_LL_p, mu_p, pr_LL_p);
-        
         cc1p1piHyp->setDoubleData("dpTT_pi_LL", dpTT_pi_LL);
+        
+        //Pi direction:
+        double dpTT_pi_dir_LL = GetDPTT(vertex, pi_d, mu_p, pr_LL_p);
+        cc1p1piHyp->setDoubleData("dpTT_pi_dir_LL", dpTT_pi_dir_LL);
         
         double dpTT_pr_LL = GetDPTT(vertex, pr_LL_p, pi_LL_p, mu_p);
         cc1p1piHyp->setDoubleData("dpTT_pr_LL", dpTT_pr_LL);
+        
+        //Proton direction:
+        double dpTT_pr_dir_LL = GetDPTT(vertex, pr_d, pi_LL_p, mu_p);
+        cc1p1piHyp->setDoubleData("dpTT_pr_dir_LL", dpTT_pr_dir_LL);
         
     }
     //---------------------------------------END---------------------------------------//
@@ -1527,7 +1620,6 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         FillMomDepVars(name, particle_EX, event, cc1p1piHyp);
     }
     
-//    declareContainerDoubleBranch(m_hypMeths, (name + "_startdir").c_str(), 3, -999.); -- need to take care in how this is determined.
     SmartRef<Minerva::Prong> prong;
     
     if(m_PID_method == 1 && prong_EX != m_MuonProng){
@@ -1550,42 +1642,27 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         sel_start_xyz.push_back(upstream.x());
         sel_start_xyz.push_back(upstream.y());
         sel_start_xyz.push_back(upstream.z());
-        cc1p1piHyp->setContainerDoubleData( (name + "_startpos_xyz").c_str(), sel_start_xyz);
+        cc1p1piHyp->setContainerDoubleData( (name + "_startpos").c_str(), sel_start_xyz);
         
         Gaudi::XYZPoint downstream = (*prong->minervaTracks().front() ).downstreamState().position();
         std::vector<double> sel_end_xyz;
         sel_end_xyz.push_back(downstream.x());
         sel_end_xyz.push_back(downstream.y());
         sel_end_xyz.push_back(downstream.z());
-        cc1p1piHyp->setContainerDoubleData( (name + "_endpos_xyz").c_str(), sel_end_xyz);
+        cc1p1piHyp->setContainerDoubleData( (name + "_endpos").c_str(), sel_end_xyz);
+        
+        Gaudi::XYZPoint recodir = GetRecoRir(prong);
+        SetGlobalStartDir(name, recodir);
+        std::vector<double> sel_dir;
+        sel_dir.push_back( recodir.x() );
+        sel_dir.push_back( recodir.y() );
+        sel_dir.push_back( recodir.z() );
+        cc1p1piHyp->setContainerDoubleData( (name + "_startdir").c_str(), sel_dir);
         
     }
     
     //True vars:
     if(truth && prong){
-        //********************** Old Truth Infromation **********************//
-       /* std::vector<const Minerva::TG4Trajectory*> trajectories;
-        
-        const Minerva::TG4Trajectory* tj = NULL;
-        double other_energy = 0.0;
-        std::map<const Minerva::TG4Trajectory*,double>::iterator it;
-        std::map<const Minerva::TG4Trajectory*,double> trajMap = m_truthMatcher->getTG4Trajectories(prong, other_energy);
-        if( !(trajMap.empty()) ){
-            for(it = trajMap.begin(); it != trajMap.end(); it++) {
-                tj = (*it).first;
-                trajectories.push_back(tj);
-            }
-        }
-        
-        if(trajectories.size() == 1){
-            debug() << "Prong has one tragectory!" << endmsg;
-        }
-        else{
-            debug() << "Prong has " << trajectories.size() << " trajectories!" << endmsg;
-        }*/
-        
-        //const Minerva::TG4Trajectory* traj = trajectories[0];
-        //****************************** END ******************************//
         
         const Minerva::TG4Trajectory * traj = NULL;
         double fraction = -999.;
@@ -1686,14 +1763,14 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             tru_start_xyz.push_back(inipos.x());
             tru_start_xyz.push_back(inipos.y());
             tru_start_xyz.push_back(inipos.z());
-            cc1p1piHyp->setContainerDoubleData( (name + "_truestartpos_xyz").c_str(), tru_start_xyz);
+            cc1p1piHyp->setContainerDoubleData( (name + "_truestartpos").c_str(), tru_start_xyz);
             
             Gaudi::LorentzVector finpos = traj->GetFinalPosition();
             std::vector<double> tru_end_xyz;
             tru_end_xyz.push_back(finpos.x());
             tru_end_xyz.push_back(finpos.y());
             tru_end_xyz.push_back(finpos.z());
-            cc1p1piHyp->setContainerDoubleData( (name + "_trueendpos_xyz").c_str(), tru_end_xyz);
+            cc1p1piHyp->setContainerDoubleData( (name + "_trueendpos").c_str(), tru_end_xyz);
         }
     }
     
@@ -2214,9 +2291,31 @@ void CC1P1PiAnalysis::SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, 
             m_LL_Pion4Mom[3] = vec.pz();
         }
         else{
-            error() << "SetGlobal4Vec::FillPartInfo :: Could not determine particle hyp. Please check" << endmsg;
+            error() << "SetGlobal4Vec::SetGlobal4Vec :: Could not determine particle hyp. Please check..." << endmsg;
         }
 
+    }
+}
+
+void CC1P1PiAnalysis::SetGlobalStartDir(std::string name, Gaudi::XYZPoint vec) const
+{
+    if(name == "mu"){
+        m_Muon_dir[0] = vec.x();
+        m_Muon_dir[1] = vec.y();
+        m_Muon_dir[2] = vec.z();
+    }
+    else if(name.find("pr") != std::string::npos){//New method of searching strings --> A move away from TStrings?
+        m_Proton_dir[0] = vec.x();
+        m_Proton_dir[1] = vec.y();
+        m_Proton_dir[2] = vec.z();
+    }
+    else if(name.find("pi") != std::string::npos){
+        m_Pion_dir[0] = vec.x();
+        m_Pion_dir[1] = vec.y();
+        m_Pion_dir[2] = vec.z();
+    }
+    else{
+        error() << "SetGlobalStartDir::FillPartInfo :: Could not determine particle hyp. Please check..." << endmsg;
     }
 }
 
@@ -2367,6 +2466,20 @@ TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
     (*nuDirCalc) *= 1./nuDirCalc->Mag();
     
     return nuDirCalc;
+}
+
+Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoRir(Minerva::Prong * prong) const
+{
+    //Produce a unit normalised direction
+    
+    Gaudi::XYZPoint upstream = ( prong->minervaTracks().front() ).upstreamState().position();
+    Gaudi::XYZPoint downstream = ( prong->minervaTracks().front() ).downstreamState().position();
+    
+    Gaudi::XYZPoint direction = downstream - upstream;
+    //Gaudi::XYZPoint is actually a ROOT::Math::XYZPoint this only has a mag. squared member. --> sqrt this myself.
+    direction *= 1/sqrt(direction.Mag2());
+    
+    return direction;
 }
 
 void CC1P1PiAnalysis::PrintInfo(std::string var, bool print) const

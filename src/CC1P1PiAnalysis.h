@@ -202,6 +202,8 @@ private:
     void SetGlobal4Vec(std::string name, Gaudi::LorentzVector vec, bool truth = false) const;
     void SetGlobal4Vec(std::string name, std::vector<double> vec, bool truth = false) const;
     
+    void SetGlobalStartDir(std::string name, Gaudi::XYZPoint vec) const;
+    
     //Transverse variables:
     //Parent Decay Point Var:
     double m_PDP_X;
@@ -210,6 +212,8 @@ private:
     
     TVector3 * m_PDP;
     TVector3 * GetNuDirRec(double vtx[]) const;
+    
+    Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoRir(Minerva::Prong * prong) const;
     
     TVector3 * GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false) const;
     TVector3 * GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth) const;
