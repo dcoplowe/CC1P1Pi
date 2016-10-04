@@ -687,7 +687,7 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
             
             bool true_mat = false;
             
-            if(i = 0){//Scintilator
+            if(i == 0){//Scintilator
                 apothem_true = m_scint_apothem;
                 upZ_true = m_scint_upZ;
                 downZ_true = m_scint_downZ;
@@ -2479,7 +2479,7 @@ Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoRir(Minerva::Prong * prong) const
     Gaudi::XYZPoint upstream = ( *prong->minervaTracks().front() ).upstreamState().position();
     Gaudi::XYZPoint downstream = ( *prong->minervaTracks().front() ).downstreamState().position();
     
-    Gaudi::XYZPoint direction = downstream - upstream;
+    Gaudi::XYZPoint direction = (downstream - upstream);
     //Gaudi::XYZPoint is actually a ROOT::Math::XYZPoint this only has a mag. squared member. --> sqrt this myself.
     direction *= 1/sqrt(direction.Mag2());
     
