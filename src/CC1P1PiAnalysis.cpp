@@ -148,7 +148,6 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     m_Muontrue_dir = new double [3];
     m_Protontrue_dir = new double [3];
     m_Piontrue_dir = new double [3];
-    
 }
 
 //! Initialize
@@ -281,6 +280,20 @@ StatusCode CC1P1PiAnalysis::initialize()
     SetPartInfo("pi");
     SetPartInfo("pr");
 
+    if(m_PID_method != 1){//0 - dEdX, 1 - LL, 2 - Comparison study. Default is LL.
+        declareDoubleTruthBranch("pi_EX_score");
+        declareDoubleTruthBranch("pi_EX_score_altH");
+        declareDoubleTruthBranch("pr_EX_score");
+        declareDoubleTruthBranch("pr_EX_score_altH");
+    }
+    
+    if(m_PID_method > 0){
+        declareDoubleTruthBranch("pi_LL_score");
+        declareDoubleTruthBranch("pi_LL_score_altH");
+        declareDoubleTruthBranch("pr_LL_score");
+        declareDoubleTruthBranch("pr_LL_score_altH");
+    }
+    
     //---------------------------------------------------------------------
     // Declare the Truth block branches.
     // Truth branches contain information matched to a GenMinInteraction
@@ -508,6 +521,21 @@ StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, 
     
     FillCommonBranches(event, interaction, nuInt);
     
+    if(truth){
+        if(m_PID_method != 1){//0 - dEdX, 1 - LL, 2 - Comparison study. Default is LL.
+            if(m_EX_PionParticle) interaction->setDoubleData("pi_EX_score", m_EX_PionParticle->score());
+            if(m_EX_PionParticle_AltH) interaction->setDoubleData("pi_EX_score_altH", m_EX_PionParticle_AltH->score());
+            if(m_EX_ProtonParticle) interaction->setDoubleData("pr_EX_score", m_EX_ProtonParticle->score());
+            if(m_EX_ProtonParticle_AltH) interaction->setDoubleData("pr_EX_score_altH", m_EX_ProtonParticle_AltH->score() );
+        }
+        
+        if(m_PID_method > 0){
+            if(m_LL_PionParticle) interaction->setDoubleData("pi_LL_score", m_LL_PionParticle->score());
+            if(m_LL_PionParticle_AltH) interaction->setDoubleData("pi_LL_score_altH", m_LL_PionParticle_AltH->score());
+            if(m_LL_ProtonParticle) interaction->setDoubleData("pr_LL_score", m_LL_ProtonParticle->score());
+            if(m_LL_ProtonParticle_AltH) interaction->setDoubleData("pr_LL_score_altH", m_LL_ProtonParticle_AltH->score());
+        }
+    }
     // Add the NeutrinoInt to the vector in return value
     nuInts.push_back( nuInt );
     
@@ -1354,7 +1382,6 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
     declareContainerDoubleBranch(m_hypMeths, (name + "_endpos").c_str(), 3, INIVALUE);
     declareContainerDoubleBranch(m_hypMeths, (name + "_trueendpos").c_str(), 3, INIVALUE);
     
-    
 }
 
 void CC1P1PiAnalysis::SetCommonBranches()
@@ -1719,7 +1746,6 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             nu_3vec.push_back( (nu_4vec.py()/nu_3vec_mag) );
             nu_3vec.push_back( (nu_4vec.pz()/nu_3vec_mag) );
             Rotate2BeamCoords(nu_3vec);//Now the neutrino direction is also in correct beam coords.
-
             
             const TVector3 * true_mom_vec = new TVector3(true4mom[1], true4mom[2], true4mom[3]);
             const TVector3 * truepT_3vec = GetPT(nu_3vec, true_mom_vec, true);
