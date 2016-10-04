@@ -104,7 +104,7 @@ private:
     //-----------------------//
     
     //------ Determine if vertex is in FV of either scintillator or carbon ------//
-    bool VertIsIn(TString targetRegion, Minerva::PhysicsEvent* event) const;
+    bool VertIsIn(TString targetRegion, Minerva::PhysicsEvent* event, const Minerva::GenMinInteraction *truth, bool tag_truth = false) const;
     IMinervaCoordSysTool * m_coordSysTool;
     INuclearTargetTool *   m_nuclearTargetTool;
     std::string m_nuclearTargetToolAlias;
@@ -213,7 +213,7 @@ private:
     TVector3 * m_PDP;
     TVector3 * GetNuDirRec(double vtx[]) const;
     
-    Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoRir(Minerva::Prong * prong) const;
+    Gaudi::XYZPoint GetRecoRir(Minerva::Prong * prong) const;
     
     TVector3 * GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false) const;
     TVector3 * GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth) const;

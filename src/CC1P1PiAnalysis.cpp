@@ -422,7 +422,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     //----------- 4 : Vertex in active tracker or carbon target -----------//
     //Not a cut but an action to determine the location of the vertex.
     PrintInfo("4) Vertex in Carbon or Scintillator", m_print_cuts);
-    if(VertIsIn("Scint", event, truth)){
+    if(VertIsIn("Scint", event, truth, true)){
         PrintInfo("Yes in SCINTILLATOR", m_print_cuts);
         event->setIntData("target_region", 1);
         counter("c_tar_scint")++;
@@ -665,7 +665,7 @@ bool CC1P1PiAnalysis::FindMuon(Minerva::PhysicsEvent* event, Minerva::GenMinInte
     return true;
 }
 
-bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth ) const
+bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* event, Minerva::GenMinInteraction* truth, bool tag_truth) const
 {
     //This function checks if the vertex is in the target region specified by the string and in the fiducial volume. Currently this works for only
     //carbon and scintillator but can be fixed to work with any target.
@@ -676,7 +676,7 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     
     //Determine the true vertex is located in either scintillator/passive carbon target.
     //1 - Scint, 2 - carbon, 3 - other <-- Want to save truth output with these tags
-    if(truth){
+    if(truth && tag_truth){
         Gaudi::LorentzVector truevertex_4v = truth->Vtx();//Get the true vertex
         const Gaudi::XYZPoint truevertex = truevertex_4v.Vect();//Make it a 3-vec
         
