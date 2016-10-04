@@ -1347,11 +1347,13 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
     declareContainerDoubleBranch(m_hypMeths, (name + "_truestartdir").c_str(), 3, -999.);
     
     declareIntBranch(m_hypMeths, (name + "_PDG").c_str(), -999);
+    declareIntBranch(m_hypMeths, (name + "_isKinked").c_str(), INIVALUE);
     
     declareContainerDoubleBranch(m_hypMeths, (name + "_startpos").c_str(), 3, INIVALUE);
     declareContainerDoubleBranch(m_hypMeths, (name + "_truestartpos").c_str(), 3, INIVALUE);
     declareContainerDoubleBranch(m_hypMeths, (name + "_endpos").c_str(), 3, INIVALUE);
     declareContainerDoubleBranch(m_hypMeths, (name + "_trueendpos").c_str(), 3, INIVALUE);
+    
     
 }
 
@@ -1662,6 +1664,9 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         sel_dir.push_back( recodir.z() );
         cc1p1piHyp->setContainerDoubleData( (name + "_startdir").c_str(), sel_dir);
         
+        int iskinked = 0;
+        if( *prong->Kinked()) iskinked = 1;
+        cc1p1piHyp->setIntData( (name + "_isKinked").c_str(), iskinked);
     }
     
     //True vars:
