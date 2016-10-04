@@ -108,7 +108,7 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     m_accum_level = new int [m_nsplits];
     */
 
-    debug() << "m_nsplits = " << m_nsplits << endmsg;
+    debug() << "|---------------- CC1P1PiAnalysis::CC1P1PiAnalysis() m_nsplits = " << m_nsplits << " ----------------|" << endmsg;
     
     //Mean Parent Decay Point in metres
     declareProperty("PDP_X", m_PDP_X = 0.231135);
@@ -238,8 +238,8 @@ StatusCode CC1P1PiAnalysis::initialize()
         m_nsplits = 2;
     }
     m_accum_level = new int [m_nsplits];
-    debug() << "m_nsplits = " << m_nsplits << endmsg;
-    
+    debug() << "|---------------- CC1P1PiAnalysis::initialise() m_nsplits = " << m_nsplits << " ----------------|" << endmsg;
+
     
     //---------------------------------------------------------------------
     // Declare the Interpretations block branches
@@ -575,7 +575,6 @@ bool CC1P1PiAnalysis::truthIsPlausible( const Minerva::PhysicsEvent * event ) co
         return false;
     return muonIsPlausible(muonProng);
 }
-
 
 //Selection Functions:
 
