@@ -2476,14 +2476,19 @@ Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoRir(Minerva::Prong * prong) const
 {
     //Produce a unit normalised direction
     
-    Gaudi::XYZPoint upstream = ( *prong->minervaTracks().front() ).upstreamState().position();
-    Gaudi::XYZPoint downstream = ( *prong->minervaTracks().front() ).downstreamState().position();
+    Gaudi::XYZPoint upstream_gd = ( *prong->minervaTracks().front() ).upstreamState().position();
+    Gaudi::XYZPoint downstream_gd = ( *prong->minervaTracks().front() ).downstreamState().position();
     
-    Gaudi::XYZPoint direction = (downstream - upstream);
+    TVector3 upstream( upstream_gd.x(), upstream_gd.y(), upstream_gd.z() );
+    TVector3 downstream( downstream_gd.x(), downstream_gd.y(), downstream_gd.z());
+    
+    TVector3 direction = downstream - upstream;
     //Gaudi::XYZPoint is actually a ROOT::Math::XYZPoint this only has a mag. squared member. --> sqrt this myself.
-    direction *= 1/sqrt(direction.Mag2());
+    direction *= 1/(direction.Mag());
     
-    return direction;
+    Gaudi::XYZPoint direction_gd(direction.X(), direction.Y(), direction.Z());
+    
+    return direction_gd;
 }
 
 void CC1P1PiAnalysis::PrintInfo(std::string var, bool print) const
