@@ -1707,7 +1707,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
             for(int i = me_low; i < me_hig; i++){
                 std::string method_name;
                 TVector3 * pr_mom_v;
-                TVector3 * pr_mom_v;
+                TVector3 * pi_mom_v;
                 
                 if(i = 0){
                     method_name = "EX";
