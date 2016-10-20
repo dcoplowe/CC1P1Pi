@@ -96,8 +96,9 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
 
     //Run option parameters:
     declareProperty("accum_level_to_save", m_accum_level_to_save = 5);//Defualt to no of cuts so that we only save interesting events.
-    declareProperty("PID_method", m_PID_method = 2);//0 - dEdX, 1 - LL, 2 - Comparison study. Default is LL.
+    declareProperty("PID_method", m_PID_method = 2);//0 - dEdX, 1 - LLR, 2 - Comparison study. Default is LL.
     declareProperty("NCutsM1", m_NCutsM1 = false);
+    declareProperty("rtswap", m_rtswap = false);
     
     /*if(m_PID_method < 2){
         m_nsplits = 1;
@@ -238,7 +239,6 @@ StatusCode CC1P1PiAnalysis::initialize()
     }
     m_accum_level = new int [m_nsplits];
     debug() << "|---------------- CC1P1PiAnalysis::initialise() m_nsplits = " << m_nsplits << " ----------------|" << endmsg;
-
     
     //---------------------------------------------------------------------
     // Declare the Interpretations block branches
@@ -1298,6 +1298,48 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
 {
     if(name == "pr" || name == "pi"){
         
+        int me_low = 0;
+        int me_hig = 2;
+        
+        if(m_PID_method == 0){
+            me_low = 0;
+            me_hig = 1;
+        }
+        else if(m_PID_method == 1){
+            me_low = 1;
+            me_hig = 2;
+        }
+        
+        for(int i = me_low; i < me_hig; i++){
+            std::string method_name = "EX";
+            if(i == 1) method_name = "LL";
+            
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_score").c_str() , -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_score_altH").c_str() , -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_E").c_str() , -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_E_altH").c_str() , -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_mom").c_str(), -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_mom_altH").c_str(), -999.);
+            declareContainerDoubleBranch(m_hypMeths,    (name + "_" + method_name + "_4mom").c_str(), 4, -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTMag").c_str(), -999.);
+            declareContainerDoubleBranch(m_hypMeths,    (name + "_" + method_name + "_pT").c_str(), 3, -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTT").c_str(), -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_Phi").c_str(), -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_Theta").c_str(), -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_KE").c_str(), -999.);
+            //Detector based vars:
+            declareIntBranch(m_hypMeths,                (name + "_" + method_name + "_michel").c_str() , -999);
+        
+            if(m_rtswap){
+                declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTMag_tnudir").c_str(), -999.);
+                declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTMag_t" + name + "mom").c_str(), -999.);
+                declareContainerDoubleBranch(m_hypMeths,    (name + "_" + method_name + "_pT_tnudir").c_str(), 3, -999.);
+                declareContainerDoubleBranch(m_hypMeths,    (name + "_" + method_name + "_pT_t" + name + "mom").c_str(), 3, -999.);
+                declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTT_tnudir").c_str(), -999.);
+                declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTT_t" + name + "mom").c_str(), -999.);
+            }
+        }
+        /*
         if(m_PID_method != 1){
             declareDoubleBranch(m_hypMeths, (name + "_EX_score").c_str() , -999.);
             declareDoubleBranch(m_hypMeths, (name + "_EX_score_altH").c_str() , -999.);
@@ -1335,25 +1377,34 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
             
             //Detector based vars:
             declareIntBranch(m_hypMeths, (name + "_LL_michel").c_str() , -999);
-        }
+        }*/
         
         declareIntBranch(m_hypMeths, (name + "_FSI").c_str(), -999);
     }
     else{
         
-        declareDoubleBranch(m_hypMeths, (name + "_score").c_str() , -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_E").c_str() , -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_mom").c_str(), -999.);
-        declareContainerDoubleBranch(m_hypMeths, (name + "_4mom").c_str(), 4, -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_pTMag").c_str(), -999.);
-        declareContainerDoubleBranch(m_hypMeths, (name + "_pT").c_str(), 3, -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_pTT").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_Phi").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_Theta").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths, (name + "_KE").c_str(), -999.);
-        
+        declareDoubleBranch(m_hypMeths,             (name + "_score").c_str() , -999.);
+        declareDoubleBranch(m_hypMeths,             (name + "_E").c_str() , -999.);
+        declareDoubleBranch(m_hypMeths,             (name + "_mom").c_str(), -999.);
+        declareContainerDoubleBranch(m_hypMeths,    (name + "_4mom").c_str(), 4, -999.);
+        declareDoubleBranch(m_hypMeths,             (name + "_pTMag").c_str(), -999.);
+        declareContainerDoubleBranch(m_hypMeths,    (name + "_pT").c_str(), 3, -999.);
+        declareDoubleBranch(m_hypMeths,             (name + "_pTT").c_str(), -999.);
+        declareDoubleBranch(m_hypMeths,             (name + "_Phi").c_str(), -999.);
+        declareDoubleBranch(m_hypMeths,             (name + "_Theta").c_str(), -999.);
+        declareDoubleBranch(m_hypMeths,             (name + "_KE").c_str(), -999.);
         //Detector based vars:
-        declareIntBranch(m_hypMeths, (name + "_michel").c_str() , -999);
+        declareIntBranch(m_hypMeths,                (name + "_michel").c_str() , -999);
+        
+        if(m_rtswap){
+            declareDoubleBranch(m_hypMeths,             (name + "_pTMag_tnudir").c_str(), -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_pTMag_t" + name + "mom").c_str(), -999.);
+            declareContainerDoubleBranch(m_hypMeths,    (name + "_pT_tnudir").c_str(), 3, -999.);
+            declareContainerDoubleBranch(m_hypMeths,    (name + "_pT_t" + name + "mom").c_str(), 3, -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_pTT_tnudir").c_str(), -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_pTT_t" + name + "mom").c_str(), -999.);
+        }
+        
     }
     
     declareDoubleBranch(m_hypMeths, (name + "_chi2ndf").c_str(), -999.);
@@ -1386,7 +1437,64 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
 
 void CC1P1PiAnalysis::SetCommonBranches()
 {
-    if(m_PID_method != 1){
+    
+    int me_low = 0;
+    int me_hig = 2;
+    
+    if(m_PID_method == 0){
+        me_low = 0;
+        me_hig = 1;
+    }
+    else if(m_PID_method == 1){
+        me_low = 1;
+        me_hig = 2;
+    }
+    
+    for(int i = me_low; i < me_hig; i++){
+        std::string method_name = "EX";
+        if(i == 1) method_name = "LL";
+     
+        declareDoubleBranch(m_hypMeths,             ("Enu_"         + method_name).c_str(), -999.);
+        declareDoubleBranch(m_hypMeths,             ("Q2_"          + method_name).c_str(), -999.0);
+        declareDoubleBranch(m_hypMeths,             ("dpTT_"        + method_name).c_str(), -999.0);
+        declareDoubleBranch(m_hypMeths,             ("dpTT_pi_"     + method_name).c_str(), -999.0);
+        declareDoubleBranch(m_hypMeths,             ("dpTT_pi_dir_" + method_name).c_str(), -999.0);
+        declareDoubleBranch(m_hypMeths,             ("dpTT_pr_"     + method_name).c_str(), -999.0);
+        declareDoubleBranch(m_hypMeths,             ("dpTT_pr_dir_" + method_name).c_str(), -999.0);
+        declareDoubleBranch(m_hypMeths,             ("dpT_"         + method_name).c_str(), -999.0);
+        declareContainerDoubleBranch(m_hypMeths,    ("dpT_vec_"     + method_name).c_str(), 3, -999.0);
+        declareDoubleBranch(m_hypMeths,             ("dalphaT_"     + method_name).c_str(), -999.0);
+        declareDoubleBranch(m_hypMeths,             ("dphiT_"       + method_name).c_str(), -999.0);
+
+        if(m_rtswap){
+            declareDoubleBranch(m_hypMeths,     ("dpTT_"        + method_name + "_tnudir").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_"        + method_name + "_tprmom").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_"        + method_name + "_tpimom").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_"        + method_name + "_tmumom").c_str(), -999.0);
+            
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_"     + method_name + "_tnudir").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_"     + method_name + "_tprmom").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_"     + method_name + "_tpimom").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_"     + method_name + "_tmumom").c_str(), -999.0);
+            
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_dir_" + method_name + "_tnudir").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_dir_" + method_name + "_tprmom").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_dir_" + method_name + "_tpidir").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_dir_" + method_name + "_tmumom").c_str(), -999.0);
+            
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_"     + method_name + "_tnudir").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_"     + method_name + "_tprmom").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_"     + method_name + "_tpimon").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_"     + method_name + "_tmumom").c_str(), -999.0);
+
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_dir_" + method_name + "_tnudir").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_dir_" + method_name + "_tprdir").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_dir_" + method_name + "_tpimom").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_dir_" + method_name + "_tmumom").c_str(), -999.0);
+        }
+    }
+    
+/*    if(m_PID_method != 1){
         declareDoubleBranch(m_hypMeths, "Enu_EX", -999.);
         declareDoubleBranch(m_hypMeths, "Q2_EX", -999.0);
         declareDoubleBranch(m_hypMeths, "dpTT_EX", -999.0);
@@ -1412,7 +1520,7 @@ void CC1P1PiAnalysis::SetCommonBranches()
         declareContainerDoubleBranch(m_hypMeths, "dpT_vec_LL", 3, -999.0);
         declareDoubleBranch(m_hypMeths, "dalphaT_LL", -999.0);
         declareDoubleBranch(m_hypMeths, "dphiT_LL", -999.0);
-    }
+    }*/
         
     declareDoubleBranch(m_hypMeths, "trueEnu", -999.);
     declareDoubleBranch(m_hypMeths, "trueQ2", -999.0);
@@ -1581,6 +1689,90 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         const TVector3 * truepr_dir = new TVector3(m_Protontrue_dir[1], m_Protontrue_dir[2], m_Protontrue_dir[3]);
         double truedpTT_pr_dir = GetDPTT(vertex_true, truepr_dir, truepi_p, truemu_p, true);
         cc1p1piHyp->setDoubleData("truedpTT_pr_dir", truedpTT_pr_dir);
+        
+        if(m_rtswap){
+            
+            int me_low = 0;
+            int me_hig = 2;
+            
+            if(m_PID_method == 0){
+                me_low = 0;
+                me_hig = 1;
+            }
+            else if(m_PID_method == 1){
+                me_low = 1;
+                me_hig = 2;
+            }
+            
+            for(int i = me_low; i < me_hig; i++){
+                std::string method_name;
+                TVector3 * pr_mom_v;
+                TVector3 * pr_mom_v;
+                
+                if(i = 0){
+                    method_name = "EX";
+                    pr_mom_v = new TVector3(m_EX_Proton4Mom[1], m_EX_Proton4Mom[2], m_EX_Proton4Mom[3]);
+                    pi_mom_v = new TVector3(m_EX_Pion4Mom[1],   m_EX_Pion4Mom[2],   m_EX_Pion4Mom[3]);
+                }
+                if(i = 1){
+                    method_name = "LL";
+                    pr_mom_v = new TVector3(m_LL_Proton4Mom[1], m_LL_Proton4Mom[2], m_LL_Proton4Mom[3]);
+                    pi_mom_v = new TVector3(m_LL_Pion4Mom[1],   m_LL_Pion4Mom[2],   m_LL_Pion4Mom[3]);
+                }//pi_d pr_d
+                
+                double dpTT_tnudir = GetDPTT(vertex_true, mu_p, pr_mom_v, pi_mom_v, true);
+                double dpTT_tprmom = GetDPTT(vertex, mu_p, truepr_p, pi_mom_v);
+                double dpTT_tpimom = GetDPTT(vertex, mu_p, pr_mom_v, truepi_p);
+                double dpTT_tmumom = GetDPTT(vertex, truemu_p, pr_mom_v, pi_mom_v);
+                
+                cc1p1piHyp->setDoubleData( ("dpTT_"        + method_name + "_tnudir").c_str(), dpTT_tnudir);
+                cc1p1piHyp->setDoubleData( ("dpTT_"        + method_name + "_tprmom").c_str(), dpTT_tprmom);
+                cc1p1piHyp->setDoubleData( ("dpTT_"        + method_name + "_tpimom").c_str(), dpTT_tpimom);
+                cc1p1piHyp->setDoubleData( ("dpTT_"        + method_name + "_tmumom").c_str(), dpTT_tmumom);
+                
+                double dpTT_pi_tnudir = GetDPTT(vertex_true, pi_mom_v, pr_mom_v, mu_p, true);
+                double dpTT_pi_tprmom = GetDPTT(vertex, pi_mom_v, truepr_p, mu_p);
+                double dpTT_pi_tpimom = GetDPTT(vertex, truepi_p, pr_mom_v, mu_p);
+                double dpTT_pi_tmumom = GetDPTT(vertex, pi_mom_v, pr_mom_v, truemu_p);
+                
+                cc1p1piHyp->setDoubleData( ("dpTT_pi_"     + method_name + "_tnudir").c_str(), dpTT_pi_tnudir);
+                cc1p1piHyp->setDoubleData( ("dpTT_pi_"     + method_name + "_tprmom").c_str(), dpTT_pi_tprmom);
+                cc1p1piHyp->setDoubleData( ("dpTT_pi_"     + method_name + "_tpimom").c_str(), dpTT_pi_tpimom);
+                cc1p1piHyp->setDoubleData( ("dpTT_pi_"     + method_name + "_tmumom").c_str(), dpTT_pi_tmumom);
+                
+                double dpTT_pi_dir_tnudir = GetDPTT(vertex_true, pi_d, pr_mom_v, mu_p, true);
+                double dpTT_pi_dir_tprmom = GetDPTT(vertex, pi_d, truemu_p, mu_p);
+                double dpTT_pi_dir_tpidir = GetDPTT(vertex, truepi_dir, pr_mom_v, mu_p);
+                double dpTT_pi_dir_tmumom = GetDPTT(vertex, pi_d, pr_mom_v, truemu_p);
+                
+                double cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tnudir").c_str(), dpTT_pi_dir_tnudir);
+                double cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tprmom").c_str(), dpTT_pi_dir_tprmom);
+                double cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tpidir").c_str(), dpTT_pi_dir_tpidir);
+                double cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tmumom").c_str(), dpTT_pi_dir_tmumom);
+                
+                
+                double dpTT_pr_tnudir = GetDPTT(vertex_true, pr_mom_v, mu_p, pi_mom_v, true);
+                double dpTT_pr_tprmom = GetDPTT(vertex, truepr_p, mu_p, pi_mom_v);
+                double dpTT_pr_tpimom = GetDPTT(vertex, pr_mom_v, mu_p, truepi_p);
+                double dpTT_pr_tmumom = GetDPTT(vertex, pr_mom_v, truemu_p, pi_mom_v);
+                
+                cc1p1piHyp->setDoubleData( ("dpTT_pr_"     + method_name + "_tnudir").c_str(), dpTT_pr_tnudir);
+                cc1p1piHyp->setDoubleData( ("dpTT_pr_"     + method_name + "_tprmom").c_str(), dpTT_pr_tprmom);
+                cc1p1piHyp->setDoubleData( ("dpTT_pr_"     + method_name + "_tpimon").c_str(), dpTT_pr_tpimom);
+                cc1p1piHyp->setDoubleData( ("dpTT_pr_"     + method_name + "_tmumom").c_str(), dpTT_pr_tmumom);
+                
+                double dpTT_pr_dir_tnudir = GetDPTT(vertex_true, pr_d, mu_p, pi_mom_v, true);
+                double dpTT_pr_dir_tprdir = GetDPTT(vertex, truepr_dir, mu_p, pi_mom_v);
+                double dpTT_pr_dir_tpimom = GetDPTT(vertex, pr_d, mu_p, truepi_p);
+                double dpTT_pr_dir_tmumom = GetDPTT(vertex, pr_d, truemu_p, pi_mom_v);
+                
+                cc1p1piHyp->setDoubleData( ("dpTT_pr_dir_" + method_name + "_tnudir").c_str(), dpTT_pr_dir_tnudir);
+                cc1p1piHyp->setDoubleData( ("dpTT_pr_dir_" + method_name + "_tprdir").c_str(), dpTT_pr_dir_tprdir);
+                cc1p1piHyp->setDoubleData( ("dpTT_pr_dir_" + method_name + "_tpimom").c_str(), dpTT_pr_dir_tpimom);
+                cc1p1piHyp->setDoubleData( ("dpTT_pr_dir_" + method_name + "_tmumom").c_str(), dpTT_pr_dir_tmumom);
+            }
+        }
+        
     }
     
 }

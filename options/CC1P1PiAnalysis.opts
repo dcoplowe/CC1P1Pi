@@ -47,6 +47,11 @@ ToolSvc.CC1P1PiAnalysis.PID_method = 2;
 //and can be used to optimise the selection.
 ToolSvc.CC1P1PiAnalysis.NCutsM1 = false;
 
+//Test reconstruction abilities by swaping out various reco. variables with thier true counterpart.
+//Good way to identify the effects of miss-reconstruction.
+ToolSvc.CC1P1PiAnalysis.rtswap = true;
+
+
 //------------------------------------------------------------
 // Configure the PhysicsEventMaker
 //------------------------------------------------------------

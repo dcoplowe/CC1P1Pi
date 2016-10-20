@@ -172,9 +172,9 @@ private:
     void ResetAccumLevel() const;
     void SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::GenMinInteraction* truth) const;
     
-    int m_PID_method;
-    bool m_NCutsM1;
-    
+    int  m_PID_method;  //This selects the PID method: 0 - dEdX, 1 - LLR, 2 - both
+    bool m_NCutsM1;     //This runs without making hard cuts and can be used to access the effectiveness of the cut
+    bool m_rtswap;      //When trying to understand the recon. of the transverse variables swap one reco varaible with it's true counterpart. 
     
     //Generic Particle information builder:
     void SetPartInfo(std::string name);
