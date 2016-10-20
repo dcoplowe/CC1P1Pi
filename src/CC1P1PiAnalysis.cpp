@@ -1745,11 +1745,10 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
                 double dpTT_pi_dir_tpidir = GetDPTT(vertex, truepi_dir, pr_mom_v, mu_p);
                 double dpTT_pi_dir_tmumom = GetDPTT(vertex, pi_d, pr_mom_v, truemu_p);
                 
-                double cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tnudir").c_str(), dpTT_pi_dir_tnudir);
-                double cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tprmom").c_str(), dpTT_pi_dir_tprmom);
-                double cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tpidir").c_str(), dpTT_pi_dir_tpidir);
-                double cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tmumom").c_str(), dpTT_pi_dir_tmumom);
-                
+                cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tnudir").c_str(), dpTT_pi_dir_tnudir);
+                cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tprmom").c_str(), dpTT_pi_dir_tprmom);
+                cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tpidir").c_str(), dpTT_pi_dir_tpidir);
+                cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tmumom").c_str(), dpTT_pi_dir_tmumom);
                 
                 double dpTT_pr_tnudir = GetDPTT(vertex_true, pr_mom_v, mu_p, pi_mom_v, true);
                 double dpTT_pr_tprmom = GetDPTT(vertex, truepr_p, mu_p, pi_mom_v);
