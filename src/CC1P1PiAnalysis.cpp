@@ -1116,15 +1116,22 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
         m_LL_ProtonParticle_AltH = tmp_pi_particles[ best_proton[0] ];
         m_LL_PionParticle_AltH = tmp_pr_particles[ best_pion[0] ];
         
-        //Gaudi::LorentzVector four_vec = tmp_pr_particles[ best_proton[0] ]->momentumVec();
-        
+        m_MomByRange->buildMomentum(m_LL_ProtonProng, Minerva::Particle::Proton);
+        m_LL_ProtonParticle->setMomentumVec( m_MomByRange->get4Mom() );
+        m_MomByRange->buildMomentum(m_LL_PionProng, Minerva::Particle::Pion);
+        m_LL_PionParticle->setMomentumVec( m_MomByRange->get4Mom() );
+
+        Gaudi::LorentzVector four_vec_pr = m_LL_ProtonParticle->momentumVec();
+        Gaudi::LorentzVector four_vec_pi = m_LL_PionParticle->momentumVec();
+
         debug() << "******************************** LL PID Check *****************************************" << endmsg;
         debug() << "                   The following should be positive " << endmsg;
         debug() << "Proton Prong: " << endmsg;
-        //debug() << "              E = " << four_vec.E() << ", Px = " << four_vec.px() << ", Py = " << four_vec.pz() << ", Pz = " << four_vec.pz() << endmsg;
+        debug() << "              E = " << four_vec_pr.E() << ", Px = " << four_vec_pr.px() << ", Py = " << four_vec_pr.pz() << ", Pz = " << four_vec_pr.pz() << endmsg;
         debug() << "                                          m_LL_ProtonParticle->score() = " << m_LL_ProtonParticle->score() << ", best_proton = " << best_proton[0] << endmsg;
         debug() << "    m_LL_ProtonParticle_AltH->score() = - m_LL_ProtonParticle->score() = " << m_LL_ProtonParticle_AltH->score() << endmsg;
         debug() << "  Pion Prong: " << endmsg;
+        debug() << "              E = " << four_vec_pi.E() << ", Px = " << four_vec_pi.px() << ", Py = " << four_vec_pi.pz() << ", Pz = " << four_vec_pi.pz() << endmsg;
         debug() << "                                            m_LL_PionParticle->score() = " << m_LL_PionParticle->score() << ", best_pion = " << best_pion[0] << endmsg;
         debug() << "        m_LL_PionParticle_AltH->score() = - m_LL_PionParticle->score() = " << m_LL_PionParticle_AltH->score() << endmsg;
         debug() << "****************************************************************************************" << endmsg;
