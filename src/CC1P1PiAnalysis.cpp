@@ -19,6 +19,8 @@
 #include "MinervaUtils/IMinervaObjectAssociator.h"
 #include "TruthMatcher/ITruthMatcher.h"
 
+#include "MomByRangeTool/IMomByRangeTool.h"
+
 //Root headers:
 #include <TString.h>
 #include <TMath.h>
@@ -229,6 +231,13 @@ StatusCode CC1P1PiAnalysis::initialize()
         return StatusCode::FAILURE;
     }
     
+    
+    try { m_MomByRange = tool<IMomByRangeTool>("MomByRangeTool"); }
+    catch( GaudiException& e){
+        error() << "Could not obtain MomByRangeTool" << endmsg;
+        return StatusCode::FAILURE;
+    }
+    
     //Check to see if the correct size of the accum_level array will be given once called here:
     
     if(m_PID_method < 2){
@@ -256,20 +265,20 @@ StatusCode CC1P1PiAnalysis::initialize()
     //---------------------------------------------------------------------
 
     //Selection branches:
-    declareIntEventBranch("n_tracks3", -999);
-    declareIntEventBranch("vert_exists", -999);
-    declareIntEventBranch("target_region", -999);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
+    declareIntEventBranch("n_tracks3", INIVALUE);
+    declareIntEventBranch("vert_exists", INIVALUE);
+    declareIntEventBranch("target_region", INIVALUE);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
     declareIntEventBranch("true_target_region", INIVALUE);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
     declareIntTruthBranch("true_target_region", INIVALUE);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
     //  declareContainerDoubleEventBranch( "shower_momentum", 4, -999. );
     declareBoolEventBranch("isMinosMatchTrack");
     declareBoolEventBranch("isMinosMatchStub");
-    declareIntEventBranch("new_tracks", -999);
-    declareIntEventBranch("n_anchored_long_trk_prongs", -999);
-    declareIntEventBranch("n_anchored_short_trk_prongs", -999);
-    declareIntEventBranch("n_iso_trk_prongs", -999);
-    declareIntEventBranch("n_prongs", -999);
-    declareIntEventBranch("contained_evt", -999);
+    declareIntEventBranch("new_tracks", INIVALUE);
+    declareIntEventBranch("n_anchored_long_trk_prongs", INIVALUE);
+    declareIntEventBranch("n_anchored_short_trk_prongs", INIVALUE);
+    declareIntEventBranch("n_iso_trk_prongs", INIVALUE);
+    declareIntEventBranch("n_prongs", INIVALUE);
+    declareIntEventBranch("contained_evt", INIVALUE);
     declareIntEventBranch("muon_charge", INIVALUE);
     declareIntTruthBranch("muon_charge", INIVALUE);
 //    declareIntTruthBranch("contained_evt", -999);

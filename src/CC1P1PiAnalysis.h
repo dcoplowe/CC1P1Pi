@@ -24,6 +24,8 @@ class IMinervaObjectAssociator;
 class TString;
 class TVector3;
 
+class IMomByRangeTool;
+
 
 class CC1P1PiAnalysis : public MinervaAnalysisTool
 {
@@ -231,6 +233,9 @@ private:
     bool m_print_cut_verbose;
     
     void EventFinished() const;
+    
+    IMomByRangeTool * m_MomByRange;
+    
 };
 
 #endif
