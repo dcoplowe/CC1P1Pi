@@ -26,7 +26,6 @@ class TVector3;
 
 class IMomByRangeTool;
 
-
 class CC1P1PiAnalysis : public MinervaAnalysisTool
 {
 public:
