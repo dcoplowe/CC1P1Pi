@@ -1726,12 +1726,12 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
                 const TVector3 * pr_mom_v;
                 const TVector3 * pi_mom_v;
                 
-                if(i = 0){
+                if(i == 0){
                     method_name = "EX";
                     pr_mom_v = new TVector3(m_EX_Proton4Mom[1], m_EX_Proton4Mom[2], m_EX_Proton4Mom[3]);
                     pi_mom_v = new TVector3(m_EX_Pion4Mom[1],   m_EX_Pion4Mom[2],   m_EX_Pion4Mom[3]);
                 }
-                if(i = 1){
+                if(i == 1){
                     method_name = "LL";
                     pr_mom_v = new TVector3(m_LL_Proton4Mom[1], m_LL_Proton4Mom[2], m_LL_Proton4Mom[3]);
                     pi_mom_v = new TVector3(m_LL_Pion4Mom[1],   m_LL_Pion4Mom[2],   m_LL_Pion4Mom[3]);
@@ -2713,18 +2713,13 @@ TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
 Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoRir(Minerva::Prong * prong) const
 {
     //Produce a unit normalised direction
+    SmartRef<Minerva::Track> track = prong->minervaTracks().front();
     
-    Gaudi::XYZPoint upstream_gd = ( *prong->minervaTracks().front() ).upstreamState().position();
-    Gaudi::XYZPoint downstream_gd = ( *prong->minervaTracks().front() ).downstreamState().position();
-    
-    TVector3 upstream( upstream_gd.x(), upstream_gd.y(), upstream_gd.z() );
-    TVector3 downstream( downstream_gd.x(), downstream_gd.y(), downstream_gd.z());
-    
-    TVector3 direction = downstream - upstream;
+    double x = TMath:Sin(track->theta())*TMath:Cos(track->phi());
+    double y = TMath:Sin(track->theta())*TMath:Sin(track->phi());
+    double z = TMath:Cos(track->theta());
     //Gaudi::XYZPoint is actually a ROOT::Math::XYZPoint this only has a mag. squared member. --> sqrt this myself.
-    direction *= 1/(direction.Mag());
-    
-    Gaudi::XYZPoint direction_gd(direction.X(), direction.Y(), direction.Z());
+    Gaudi::XYZPoint direction_gd(x, y, z);
     
     return direction_gd;
 }
