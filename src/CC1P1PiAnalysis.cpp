@@ -19,7 +19,7 @@
 #include "MinervaUtils/IMinervaObjectAssociator.h"
 #include "TruthMatcher/ITruthMatcher.h"
 
-#include "MomByRangeTool/IMomByRangeTool.h"
+//#include "MomByRangeTool/IMomByRangeTool.h"
 
 //Root headers:
 #include <TString.h>
@@ -232,11 +232,11 @@ StatusCode CC1P1PiAnalysis::initialize()
     }
     
     
-    try { m_MomByRange = tool<IMomByRangeTool>("MomByRangeTool"); }
-    catch( GaudiException& e){
-        error() << "Could not obtain MomByRangeTool" << endmsg;
-        return StatusCode::FAILURE;
-    }
+//    try { m_MomByRange = tool<IMomByRangeTool>("MomByRangeTool"); }
+//    catch( GaudiException& e){
+//        error() << "Could not obtain MomByRangeTool" << endmsg;
+//        return StatusCode::FAILURE;
+//    }
     
     //Check to see if the correct size of the accum_level array will be given once called here:
     
@@ -1116,9 +1116,9 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
         m_LL_ProtonParticle_AltH = tmp_pi_particles[ best_proton[0] ];
         m_LL_PionParticle_AltH = tmp_pr_particles[ best_pion[0] ];
         
-        m_MomByRange->buildMomentum(m_LL_ProtonProng, Minerva::Particle::Proton);
+        //m_MomByRange->buildMomentum(m_LL_ProtonProng, Minerva::Particle::Proton);
         m_LL_ProtonParticle->setMomentumVec( m_MomByRange->get4Mom() );
-        m_MomByRange->buildMomentum(m_LL_PionProng, Minerva::Particle::Pion);
+        //m_MomByRange->buildMomentum(m_LL_PionProng, Minerva::Particle::Pion);
         m_LL_PionParticle->setMomentumVec( m_MomByRange->get4Mom() );
 
         Gaudi::LorentzVector four_vec_pr = m_LL_ProtonParticle->momentumVec();

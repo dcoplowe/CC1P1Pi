@@ -24,7 +24,7 @@ use MinervaUtils     v*     Tools
 use AnaInterfaces    v*     Ana
 use AnaUtils         v*     Ana
 
-use MomByRangeMaker  v*     Ana
+#use MomByRangeMaker  v*     Ana
 #==============================================================================
 
 library CC1P1Pi     *.cpp
