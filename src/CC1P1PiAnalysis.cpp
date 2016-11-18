@@ -2715,9 +2715,9 @@ Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoRir(Minerva::Prong * prong) const
     //Produce a unit normalised direction
     SmartRef<Minerva::Track> track = prong->minervaTracks().front();
     
-    double x = TMath:Sin(track->theta())*TMath:Cos(track->phi());
-    double y = TMath:Sin(track->theta())*TMath:Sin(track->phi());
-    double z = TMath:Cos(track->theta());
+    double x = TMath::Sin(track->theta())*TMath::Cos(track->phi());
+    double y = TMath::Sin(track->theta())*TMath::Sin(track->phi());
+    double z = TMath::Cos(track->theta());
     //Gaudi::XYZPoint is actually a ROOT::Math::XYZPoint this only has a mag. squared member. --> sqrt this myself.
     Gaudi::XYZPoint direction_gd(x, y, z);
     
