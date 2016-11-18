@@ -232,7 +232,7 @@ StatusCode CC1P1PiAnalysis::initialize()
     }
     
     
-    try { m_MomByRange = tool<IMomByRangeTool>("MomByRangeTool"); }
+    try { m_MomByRange = tool<IMomByRangeTool>("MomByRangeMaker"); }//MomByRangeMaker MomByRangeTool
     catch( GaudiException& e){
         error() << "Could not obtain MomByRangeTool" << endmsg;
         return StatusCode::FAILURE;
