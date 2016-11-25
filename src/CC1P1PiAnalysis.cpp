@@ -102,15 +102,6 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("NCutsM1", m_NCutsM1 = false);
     declareProperty("rtswap", m_rtswap = false);
     
-    /*if(m_PID_method < 2){
-        m_nsplits = 1;
-    }
-    else{
-        m_nsplits = 2;
-    }
-    m_accum_level = new int [m_nsplits];
-    */
-
     debug() << "|---------------- CC1P1PiAnalysis::CC1P1PiAnalysis() m_nsplits = " << m_nsplits << " ----------------|" << endmsg;
     
     //Mean Parent Decay Point in metres
