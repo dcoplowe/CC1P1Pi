@@ -1109,13 +1109,21 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
         m_LL_PionParticle_AltH = tmp_pr_particles[ best_pion[0] ];
         
         debug() << "Call to m_MomByRange->buildMomentum (Proton)" << endmsg;
-        m_MomByRange->buildMomentum(m_LL_ProtonProng, Minerva::Particle::Proton);
-        debug() << "Momentum Built" << endmsg;
-        m_LL_ProtonParticle->setMomentumVec( m_MomByRange->get4Mom() );
-        debug() << "Momentum Built" << endmsg;
+        if(m_MomByRange->buildMomentum(m_LL_ProtonProng, Minerva::Particle::Proton));
+        {
+            debug() << "Momentum Built" << endmsg;
+            m_LL_ProtonParticle->setMomentumVec( m_MomByRange->get4Mom() );
+            debug() << "setMomentumVec" << endmsg;
+        }
+        else debug() << "Could not build momentum (Proton)" << endmsg;
+        
         debug() << "Call to m_MomByRange->buildMomentum (Pion)" << endmsg;
-        m_MomByRange->buildMomentum(m_LL_PionProng, Minerva::Particle::Pion);
-        m_LL_PionParticle->setMomentumVec( m_MomByRange->get4Mom() );
+        if(m_MomByRange->buildMomentum(m_LL_PionProng, Minerva::Particle::Pion)){
+            debug() << "Momentum Built" << endmsg;
+            m_LL_PionParticle->setMomentumVec( m_MomByRange->get4Mom() );
+            debug() << "setMomentumVec" << endmsg;
+        }
+        else debug() << "Could not build momentum (Pion)" << endmsg;
 
         Gaudi::LorentzVector four_vec_pr = m_LL_ProtonParticle->momentumVec();
         Gaudi::LorentzVector four_vec_pi = m_LL_PionParticle->momentumVec();
