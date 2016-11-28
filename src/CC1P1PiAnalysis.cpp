@@ -1108,9 +1108,12 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
         m_LL_ProtonParticle_AltH = tmp_pi_particles[ best_proton[0] ];
         m_LL_PionParticle_AltH = tmp_pr_particles[ best_pion[0] ];
         
-        debug() << "Finding myself" << endmsg;
+        debug() << "Call to m_MomByRange->buildMomentum (Proton)" << endmsg;
         m_MomByRange->buildMomentum(m_LL_ProtonProng, Minerva::Particle::Proton);
+        debug() << "Momentum Built" << endmsg;
         m_LL_ProtonParticle->setMomentumVec( m_MomByRange->get4Mom() );
+        debug() << "Momentum Built" << endmsg;
+        debug() << "Call to m_MomByRange->buildMomentum (Pion)" << endmsg;
         m_MomByRange->buildMomentum(m_LL_PionProng, Minerva::Particle::Pion);
         m_LL_PionParticle->setMomentumVec( m_MomByRange->get4Mom() );
 
@@ -1780,7 +1783,6 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
                 cc1p1piHyp->setDoubleData( ("dpTT_pr_dir_" + method_name + "_tmumom").c_str(), dpTT_pr_dir_tmumom);
             }
         }
-        
     }
     
 }
@@ -2050,7 +2052,7 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
     
     SetGlobal4Vec(name, sel4mom);
     
-    debug() << "WORKING 1" << endmsg;
+    //debug() << "WORKING 1" << endmsg;
     
     cc1p1piHyp->setContainerDoubleData( (name + "_4mom").c_str(), sel4mom);
     
@@ -2061,7 +2063,7 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
     const TVector3 * mom_vec = new TVector3(sel4mom[1], sel4mom[2], sel4mom[3]);
     const TVector3 * pT = GetPT(vtx, mom_vec);
     
-    debug() << "WORKING 2" << endmsg;
+//    debug() << "WORKING 2" << endmsg;
 
     
     cc1p1piHyp->setDoubleData( (name + "_pTMag").c_str(), pT->Mag());
@@ -2073,7 +2075,7 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
     
     cc1p1piHyp->setContainerDoubleData( (name + "_pT").c_str(), selpT);
     
-    debug() << "WORKING 3" << endmsg;
+//    debug() << "WORKING 3" << endmsg;
     
     double pTT = -999.;
     cc1p1piHyp->setDoubleData( (name + "_pTT").c_str(), pTT);
@@ -2087,7 +2089,7 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
     double KE = four_vec.E() - particle->mass();
     cc1p1piHyp->setDoubleData( (name + "_KE").c_str(), KE);
     
-    debug() << "WORKING 4" << endmsg;
+//    debug() << "WORKING 4" << endmsg;
 }
 
 void CC1P1PiAnalysis::DefineTruthTree(){
