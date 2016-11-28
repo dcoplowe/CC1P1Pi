@@ -1109,8 +1109,7 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
         m_LL_PionParticle_AltH = tmp_pr_particles[ best_pion[0] ];
         
         debug() << "Call to m_MomByRange->buildMomentum (Proton)" << endmsg;
-        if(m_MomByRange->buildMomentum(m_LL_ProtonProng, Minerva::Particle::Proton));
-        {
+        if(m_MomByRange->buildMomentum(m_LL_ProtonProng, Minerva::Particle::Proton)){
             debug() << "Momentum Built" << endmsg;
             m_LL_ProtonParticle->setMomentumVec( m_MomByRange->get4Mom() );
             debug() << "setMomentumVec" << endmsg;
