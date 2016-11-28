@@ -1115,7 +1115,9 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
             m_LL_ProtonParticle->setMomentumVec( m_MomByRange->get4Mom() );
             debug() << "setMomentumVec" << endmsg;
         }
-        else debug() << "Could not build momentum (Proton)" << endmsg;
+        else{
+            debug() << "Could not build momentum (Proton)" << endmsg;
+        }
         
         debug() << "Call to m_MomByRange->buildMomentum (Pion)" << endmsg;
         if(m_MomByRange->buildMomentum(m_LL_PionProng, Minerva::Particle::Pion)){
@@ -1123,8 +1125,10 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
             m_LL_PionParticle->setMomentumVec( m_MomByRange->get4Mom() );
             debug() << "setMomentumVec" << endmsg;
         }
-        else debug() << "Could not build momentum (Pion)" << endmsg;
-
+        else{
+            debug() << "Could not build momentum (Pion)" << endmsg;
+        }
+        
         Gaudi::LorentzVector four_vec_pr = m_LL_ProtonParticle->momentumVec();
         Gaudi::LorentzVector four_vec_pi = m_LL_PionParticle->momentumVec();
 
