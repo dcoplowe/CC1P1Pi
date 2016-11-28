@@ -1114,9 +1114,7 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
             m_LL_ProtonParticle->setMomentumVec( m_MomByRange->get4Mom() );
             debug() << "setMomentumVec" << endmsg;
         }
-        else{
-            debug() << "Could not build momentum (Proton)" << endmsg;
-        }
+        else debug() << "Could not build momentum (Proton)" << endmsg;
         
         debug() << "Call to m_MomByRange->buildMomentum (Pion)" << endmsg;
         if(m_MomByRange->buildMomentum(m_LL_PionProng, Minerva::Particle::Pion)){
