@@ -75,10 +75,13 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
 
     declareProperty("NuclearTargetToolAlias", m_nuclearTargetToolAlias  = "CC1P1PiTargetTool");
     
-    //For hadron PID: Removed *CLHEP::mm from the following:
-    declareProperty("det_apothem", m_det_apothem = 1200.0);//Same as Proton utils:
-    declareProperty("det_upZ", m_det_upZ = 4000.0);//Same as Proton utils:
-    declareProperty("det_downZ", m_det_downZ = 10000.0);//Same as Proton utils:
+    //For hadron PID:
+    //Used to be  the same as Proton utils: m_det_apothem = 1200.0*CLHEP::mm, m_det_upZ = 4000.0*CLHEP::mm and m_det_downZ = 10000.0*CLHEP::mm
+    //Will now define a containment zone in which hadronic tracks must be contained.
+    declareProperty("det_apothem", m_det_apothem = 1200.0*CLHEP::mm);//This is approximately ID contained tracks
+    declareProperty("det_upZ", m_det_upZ = 4393.04*CLHEP::mm);//Module -5 (central z-pos + 10cm)
+    declareProperty("det_downZ", m_det_downZ = 9887.4*CLHEP::mm);//Module 114 (central z-pos - 10cm)
+    
     
     declareProperty("ParticleMakerAlias", m_particleMakerAlias = "CC1P1PiParticleMaker");
     
@@ -2646,7 +2649,7 @@ void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, const TVector3 *& ptmuon, const
 
     double phi = TMath::ACos( ptmuon->Dot(tmp_had)*(-1)/(ptmuon->Mag()*tmp_had.Mag()) );
     
-    double theta = TMath::ACos( tmpd.Dot(*ptmuon)*(-1)/tmpd.Mag()/ptmuon->Mag()  );
+    double theta = TMath::ACos( tmpd.Dot(*ptmuon)*(-1)/(tmpd.Mag()*ptmuon->Mag())  );
     
     deltapt->SetMagThetaPhi(tmpd.Mag(),theta, phi);
 }
