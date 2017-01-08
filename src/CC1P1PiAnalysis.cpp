@@ -1832,7 +1832,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         particle_LL      = m_LL_ProtonParticle;
         particle_LL_altH = m_LL_ProtonParticle_AltH;
         
-        caloE = m_LL_ProtonCaloE;
+        caloE = m_LL_ProtonCaloE[0];
     }
     else if( name == "pi" ){//|| name == "pi_EX" || name == "pi_LL")
         prong_EX         = m_EX_PionProng;
@@ -1843,7 +1843,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         particle_LL      = m_LL_PionParticle;
         particle_LL_altH = m_LL_PionParticle_AltH;
         
-        caloE = m_LL_PionCaloE;
+        caloE = m_LL_PionCaloE[0];
     }
     else{
         error() << "CC1P1PiAnalysis::FillPartInfo :: Could not find determine name \"" << name << "\". Please check";
