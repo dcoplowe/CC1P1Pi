@@ -145,6 +145,44 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     m_Muontrue_dir = new double [3];
     m_Protontrue_dir = new double [3];
     m_Piontrue_dir = new double [3];
+    
+    m_LL_ProtonCaloE = new double [1];
+    m_LL_PionCaloE = new double [1];
+    
+}
+
+
+CC1P1PiAnalysis::~CC1P1PiAnalysis(){
+//    
+//    delete m_PDP;
+//    delete [] m_ProtonScore;
+//    delete [] m_ProtonChi2nd;
+//    delete [] m_PionScore;
+//    delete [] m_PionChi2ndf;
+//    
+//    delete [] m_Muon4Mom;
+//    delete [] m_Muontrue4Mom;
+//    
+//    delete [] m_EX_Pion4Mom;
+//    delete [] m_EX_Proton4Mom;
+//    
+//    delete [] m_LL_Pion4Mom;
+//    delete [] m_LL_Proton4Mom;
+//    
+//    delete [] m_Piontrue4Mom;
+//    delete [] m_Protontrue4Mom;
+//    
+//    delete [] m_Muon_dir;
+//    delete [] m_Proton_dir;
+//    delete [] m_Pion_dir;
+//    
+//    delete [] m_Muontrue_dir;
+//    delete [] m_Protontrue_dir;
+//    delete [] m_Piontrue_dir;
+//    
+//    delete [] m_LL_ProtonCaloE;
+//    delete [] m_LL_PionCaloE;
+//
 }
 
 //! Initialize
@@ -560,6 +598,8 @@ StatusCode CC1P1PiAnalysis::tagTruth( Minerva::GenMinInteraction *truth ) const
 StatusCode CC1P1PiAnalysis::finalize()
 {
     PrintInfo("CC1P1PiAnalysis::finalize()", m_print_other);
+    
+    
     
     // finalize the base class.
     StatusCode sc = this->MinervaAnalysisTool::finalize();
@@ -1115,6 +1155,7 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
         if(m_MomByRange->buildMomentum(m_LL_ProtonProng, Minerva::Particle::Proton)){
             debug() << "Momentum Built" << endmsg;
             m_LL_ProtonParticle->setMomentumVec( m_MomByRange->get4Mom() );
+            m_LL_ProtonCaloE = m_MomByRange->getAltEnergy();
             debug() << "setMomentumVec" << endmsg;
         }
         else debug() << "Could not build momentum (Proton)" << endmsg;
@@ -1123,6 +1164,7 @@ bool CC1P1PiAnalysis::LLMethod(Minerva::PhysicsEvent * event) const
         if(m_MomByRange->buildMomentum(m_LL_PionProng, Minerva::Particle::Pion)){
             debug() << "Momentum Built" << endmsg;
             m_LL_PionParticle->setMomentumVec( m_MomByRange->get4Mom() );
+            m_LL_PionCaloE = m_MomByRange->getAltEnergy();
             debug() << "setMomentumVec" << endmsg;
         }
         else{
@@ -1292,6 +1334,9 @@ void CC1P1PiAnalysis::ResetParticles() const
     m_ProtonChi2ndf[0] = -999.;
     m_PionChi2ndf[0] = -999.;
     
+    m_LL_ProtonCaloE[0] = -999.;
+    m_LL_PionCaloE[0] = -999.;
+    
     for(int i = 0; i < 4; i++){
         m_EX_Pion4Mom[i] = -999.;//TXYZ
         m_LL_Pion4Mom[i] = -999.;//TXYZ
@@ -1313,6 +1358,7 @@ void CC1P1PiAnalysis::ResetParticles() const
             
             m_Piontrue_dir[i] = -999.;
             m_Pion_dir[i] = -999.;
+            
         }
     }
 }
@@ -1363,47 +1409,10 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
                 declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTT_t" + name + "mom").c_str(), -999.);
             }
         }
-        /*
-        if(m_PID_method != 1){
-            declareDoubleBranch(m_hypMeths, (name + "_EX_score").c_str() , -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_EX_score_altH").c_str() , -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_EX_E").c_str() , -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_EX_E_altH").c_str() , -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_EX_mom").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_EX_mom_altH").c_str(), -999.);
-            declareContainerDoubleBranch(m_hypMeths, (name + "_EX_4mom").c_str(), 4, -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_EX_pTMag").c_str(), -999.);
-            declareContainerDoubleBranch(m_hypMeths, (name + "_EX_pT").c_str(), 3, -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_EX_pTT").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_EX_Phi").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_EX_Theta").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_EX_KE").c_str(), -999.);
-            
-            //Detector based vars:
-            declareIntBranch(m_hypMeths, (name + "_EX_michel").c_str() , -999);
-            
-        }
-        
-        if(m_PID_method > 0){
-            declareDoubleBranch(m_hypMeths, (name + "_LL_score").c_str() , -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_LL_score_altH").c_str() , -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_LL_E").c_str() , -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_LL_E_altH").c_str() , -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_LL_mom").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_LL_mom_altH").c_str(), -999.);
-            declareContainerDoubleBranch(m_hypMeths, (name + "_LL_4mom").c_str(), 4, -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_LL_pTMag").c_str(), -999.);
-            declareContainerDoubleBranch(m_hypMeths, (name + "_LL_pT").c_str(), 3, -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_LL_pTT").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_LL_Phi").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_LL_Theta").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths, (name + "_LL_KE").c_str(), -999.);
-            
-            //Detector based vars:
-            declareIntBranch(m_hypMeths, (name + "_LL_michel").c_str() , -999);
-        }*/
         
         declareIntBranch(m_hypMeths, (name + "_FSI").c_str(), -999);
+        declareDoubleBranch(m_hypMeths, (name + "_CaloE").c_str(), -999.);
+
     }
     else{
         
@@ -1432,7 +1441,6 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
     }
     
     declareDoubleBranch(m_hypMeths, (name + "_chi2ndf").c_str(), -999.);
-    
     declareDoubleBranch(m_hypMeths, (name + "_trueE").c_str(), -999.);
     declareDoubleBranch(m_hypMeths, (name + "_truemom").c_str(), -999.);
     declareContainerDoubleBranch(m_hypMeths, (name + "_true4mom").c_str(), 4, -999.);
@@ -1809,6 +1817,8 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
     SmartRef<Minerva::Particle> particle_LL;
     SmartRef<Minerva::Particle> particle_LL_altH;
     
+    double caloE = -999.;
+    
     if(name == "mu"){
         prong_EX = m_MuonProng;
         particle_EX = m_MuonParticle;
@@ -1821,6 +1831,8 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         prong_LL         = m_LL_ProtonProng;
         particle_LL      = m_LL_ProtonParticle;
         particle_LL_altH = m_LL_ProtonParticle_AltH;
+        
+        caloE = m_LL_ProtonCaloE;
     }
     else if( name == "pi" ){//|| name == "pi_EX" || name == "pi_LL")
         prong_EX         = m_EX_PionProng;
@@ -1830,6 +1842,8 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         prong_LL         = m_LL_PionProng;
         particle_LL      = m_LL_PionParticle;
         particle_LL_altH = m_LL_PionParticle_AltH;
+        
+        caloE = m_LL_PionCaloE;
     }
     else{
         error() << "CC1P1PiAnalysis::FillPartInfo :: Could not find determine name \"" << name << "\". Please check";
@@ -1854,6 +1868,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             if( prong_LL->hasIntData("has_michel") ){ cc1p1piHyp->setIntData( (name + "_LL_michel").c_str(), prong_LL->getIntData("has_michel"));
                 debug() << "Michel Tagged" << endmsg;
             }
+            cc1p1piHyp->setDoubleData( (name + "_CaloE").c_str(), caloE);
         }
         else{
             warning() << "CC1P1PiAnalysis::FillPartInfo :: Likelihood Prong or particle is NULL for \"" << name << "\". Please check";

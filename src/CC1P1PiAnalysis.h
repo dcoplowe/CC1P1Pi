@@ -32,7 +32,7 @@ public:
     
     CC1P1PiAnalysis( const std::string& type, const std::string& name, const IInterface* parent );
     
-    ~CC1P1PiAnalysis(){};
+    ~CC1P1PiAnalysis();//{};
     
     StatusCode initialize();
 
@@ -73,12 +73,12 @@ private:
     mutable SmartRef<Minerva::Particle> m_LL_ProtonParticle;
     mutable SmartRef<Minerva::Particle> m_LL_ProtonParticle_AltH;
     double * m_LL_Proton4Mom;
-    
+
     mutable SmartRef<Minerva::Prong> m_LL_PionProng;
     mutable SmartRef<Minerva::Particle> m_LL_PionParticle;
     mutable SmartRef<Minerva::Particle> m_LL_PionParticle_AltH;
     double * m_LL_Pion4Mom;
-
+    
     double * m_Protontrue4Mom;
     double * m_Piontrue4Mom;
     
@@ -89,6 +89,9 @@ private:
     double * m_Muontrue_dir;
     double * m_Protontrue_dir;
     double * m_Piontrue_dir;
+    
+    double * m_LL_ProtonCaloE;
+    double * m_LL_PionCaloE;
     
     void ResetParticles() const;
     //----------------------------------------------------------------------------//
