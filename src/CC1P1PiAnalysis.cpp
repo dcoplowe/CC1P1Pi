@@ -2914,26 +2914,7 @@ TVector3 * CC1P1PiAnalysis::GetNuDirSim(std::vector<double> vtx, std::vector<dou
     return GetNuDirSim(tmp_vtx, tmp_pdp);
 }
 
-TVector3 * CC1P1PiAnalysis::GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp) const{
-    
-    if(vtx.size() != 3) return 0x0;
-    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
-    
-    double tmp_pdp[3];// = { pdp[0], pdp[1], pdp[2] };
-    
-    if(!pdp){
-        for(int i = 0; i < 3; i++) tmp_pdp[i] = -999.;
-    }
-    else if(pdp.size() != 3) return 0x0;
-    else{
-        for(int i = 0; i < 3; i++) tmp_pdp[i] = pdp[i];
-    }
-    
-    return GetNuDirRec(tmp_vtx, tmp_pdp);
-}
-
-Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoDir(Minerva::Prong * prong) const
-{
+Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoDir(Minerva::Prong * prong) const {
     //Produce a unit normalised direction
     SmartRef<Minerva::Track> track = prong->minervaTracks().front();
     
