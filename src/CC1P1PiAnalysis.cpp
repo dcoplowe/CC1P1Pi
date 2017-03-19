@@ -2907,7 +2907,7 @@ TVector3 * CC1P1PiAnalysis::GetNuDirSim(double vtx[], double pdp[]) const{
 
 TVector3 * CC1P1PiAnalysis::GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp) const{
     
-    if( ((int)vtx.size != 3) || ((int)pdp.size() != 3) ) return 0x0;
+    if( (int)vtx.size() != 3 || (int)pdp.size() != 3 ) return 0x0;
     
     double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
     double tmp_pdp[3] = { pdp[0], pdp[1], pdp[2] };
