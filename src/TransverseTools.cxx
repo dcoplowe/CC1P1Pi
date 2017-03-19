@@ -159,12 +159,7 @@ TVector3 * TransverseTools::GetTransverseVars(std::vector<double> vtx, const TVe
 TVector3 * TransverseTools::GetNuDirRec(double vtx[]) const{
     //If PDP exists make sure to rotote to minerva coords: -- May not need to do this
     
-    TVector3 * PDP;
-    
-    if(pdp[0] != -999. || pdp[1] != -999. || pdp[2] != -999.){
-        PDP->SetXYZ(pdp[0], pdp[1], pdp[2]);
-    }
-    else PDP->SetXYZ(m_PDP_x, m_PDP_y, m_PDP_z);
+    TVector3 * PDP = new TVector3(m_PDP_x, m_PDP_y, m_PDP_z);
     
     TVector3 * nup1local = new TVector3(vtx[0], vtx[1], vtx[2]);
     (*nup1local) *= 0.001;//in meters (default mm)
