@@ -1654,7 +1654,8 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
     }
     //---------------------------------------END---------------------------------------//
 
-    
+//    GetTransverseVars(std::vector<double, std::allocator<double> >&, const TVector3*&, const TVector3*&, const TVector3*&, double&, double&, double&, double&) const
+//    GetTransverseVars(std::vector<double, std::allocator<double> >, const TVector3*&, const TVector3*&, const TVector3*&, double&, double&, double&, double&, bool) const
     //------------------------------------ LL vars ------------------------------------//
     if(m_PID_method > 0){
         double Enu_LL = m_Muon4Mom[0] + m_LL_Proton4Mom[0] + m_LL_Pion4Mom[0] - MinervaUnits::M_p;
