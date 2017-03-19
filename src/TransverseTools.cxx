@@ -1,8 +1,8 @@
 #include "TransverseTools.h"
 
-
 #include "TVector3.h"
 #include <vector>
+#include "TMath.h"
 
 using namespace std;
 
@@ -14,7 +14,7 @@ TransverseTools::~TransverseTools(){
     //    delete m_PDP;
 }
 
-double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const
+double TransverseTools::GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const
 {
     TVector3 * nudir = new TVector3();
     
@@ -25,7 +25,7 @@ double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVe
         const TVector3 * tmp_vec = GetNuDirRec(vtx);
         if(tmp_vec) nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
         else {
-            error() << " GetNuDirRec returned NULL " << endmsg;
+            cout << " GetNuDirRec returned NULL " << endl;
             return -999.;
         }
     }
@@ -63,7 +63,7 @@ TVector3 * TransverseTools::GetVecT(const TVector3 *& refdir, const TVector3 *& 
     //w.r.t. beam direction
     //
     if(!refdir){
-        error() << "CC1P1PiAnalysis::GetVecT refdir null" << endmsg;
+        cout << "CC1P1PiAnalysis::GetVecT refdir null" << endl;
         exit(1);
     }
     
@@ -90,7 +90,7 @@ TVector3 * TransverseTools::GetPT(double vtx[], const TVector3 *& mom, bool is_t
             delete tmp_vec;
         }
         else{
-            error() << " GetNuDirRec returned NULL " << endmsg;
+            cout << " GetNuDirRec returned NULL " << endl;
             return 0x0;
         }
     }
@@ -116,7 +116,7 @@ TVector3 * TransverseTools::GetTransverseVars(double vtx[], const TVector3 *& mu
         const TVector3 * tmp_vec = GetNuDirRec(vtx);
         if(tmp_vec) nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
         else{
-            error() << " GetNuDirRec returned NULL " << endmsg;
+            cout << " GetNuDirRec returned NULL " << endl;
             return 0x0;
         }
     }
@@ -168,7 +168,7 @@ TVector3 * TransverseTools::GetNuDirRec(double vtx[], double pdp[3]) const
     (*nup1local) *= 0.001;//in meters (default mm)
     
     if( PDP->Mag() < EPSILON || nup1local->Mag() < EPSILON ){
-        debug() << "CC1P1PiAnalysis::CalcNuDir bad input " << PDP->Mag() << " " << nup1local->Mag() << endmsg;
+        cout << "CC1P1PiAnalysis::CalcNuDir bad input " << PDP->Mag() << " " << nup1local->Mag() << endl;
         return 0x0;
     }
     
