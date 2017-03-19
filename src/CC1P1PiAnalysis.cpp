@@ -2089,14 +2089,14 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
 
             if(truepT_3vec){
                 cc1p1piHyp->setDoubleData( (name + "_truepTMag").c_str(), truepT_3vec->Mag());
-                
                 std::vector<double> truepT;
                 truepT.push_back(truepT_3vec->X());
                 truepT.push_back(truepT_3vec->Y());
                 truepT.push_back(truepT_3vec->Z());
+                cc1p1piHyp->setContainerDoubleData( (name + "_truepT").c_str(), truepT);
+
             }
                 
-            cc1p1piHyp->setContainerDoubleData( (name + "_truepT").c_str(), truepT);
             
             double truepTT = -999.;
             cc1p1piHyp->setDoubleData( (name + "_truepTT").c_str(), truepTT);
