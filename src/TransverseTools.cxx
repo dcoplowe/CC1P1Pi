@@ -5,6 +5,10 @@
 #include "TMath.h"
 #include <iostream>
 
+#ifndef EPSILON
+#define EPSILON  1e-10
+#endif
+
 using namespace std;
 
 TransverseTools::TransverseTools() : m_PDP_x(0.231135) , m_PDP_y(45.368069), m_PDP_z(-766.384058), m_Theta(-0.0582977560), m_XOffset(0.2486), m_YOffset(60.350), m_ZOffset(-1022.74) {
@@ -67,7 +71,6 @@ TVector3 * TransverseTools::GetVecT(const TVector3 *& refdir, const TVector3 *& 
         cout << "CC1P1PiAnalysis::GetVecT refdir null" << endl;
         exit(1);
     }
-    
     
     TVector3 vRotated(*mom);
     vRotated.Rotate(TMath::Pi(), *refdir);
@@ -153,8 +156,7 @@ TVector3 * TransverseTools::GetTransverseVars(std::vector<double> vtx, const TVe
 }
 
 
-TVector3 * TransverseTools::GetNuDirRec(double vtx[]) const
-{
+TVector3 * TransverseTools::GetNuDirRec(double vtx[]) const{
     //If PDP exists make sure to rotote to minerva coords: -- May not need to do this
     
     TVector3 * PDP;
@@ -178,7 +180,7 @@ TVector3 * TransverseTools::GetNuDirRec(double vtx[]) const
     return nuDirCalc;
 }
 
-TVector3 * TransverseTools::GlobalToLocal(const double nu_NuParentDecPoint[]) const{
+TVector3 * TransverseTools::GlobalToLocal(double nu_NuParentDecPoint[]) const{
     //pl output in [m]
     TVector3 pg(nu_NuParentDecPoint);
     pg *= 0.001; //[mm] -> [m]
