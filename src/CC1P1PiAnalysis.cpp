@@ -1694,14 +1694,14 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         cc1p1piHyp->setDoubleData("dpTT_pi_LL", dpTT_pi_LL);
         
         //Pi direction:
-        double dpTT_pi_dir_LL = GetDPTT(vertex, pi_d, mu_p, pr_LL_p);
+        double dpTT_pi_dir_LL = m_TransTools->GetDPTT(vertex, pi_d, mu_p, pr_LL_p);
         cc1p1piHyp->setDoubleData("dpTT_pi_dir_LL", dpTT_pi_dir_LL);
         
-        double dpTT_pr_LL = GetDPTT(vertex, pr_LL_p, pi_LL_p, mu_p);
+        double dpTT_pr_LL = m_TransTools->GetDPTT(vertex, pr_LL_p, pi_LL_p, mu_p);
         cc1p1piHyp->setDoubleData("dpTT_pr_LL", dpTT_pr_LL);
         
         //Proton direction:
-        double dpTT_pr_dir_LL = GetDPTT(vertex, pr_d, pi_LL_p, mu_p);
+        double dpTT_pr_dir_LL = m_TransTools->GetDPTT(vertex, pr_d, pi_LL_p, mu_p);
         cc1p1piHyp->setDoubleData("dpTT_pr_dir_LL", dpTT_pr_dir_LL);
         
     }
