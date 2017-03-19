@@ -1724,7 +1724,11 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         
         //Need PDP point + vertrex:
         Gaudi::LorentzVector vtx_truth = truth->Vtx();
-        double trueVTX[3] = {vtx_truth.px(), vtx_truth.py(), vtx_truth.pz()};
+        std::vector<double> trueVTX;
+        trueVTX.push_back( vtx_truth.px() );
+        trueVTX.push_back( vtx_truth.py() );
+        trueVTX.push_back( vtx_truth.pz() );
+        
         cc1p1piHyp->setContainerDoubleData("trueVTX",trueVTX);
 
         SmartRef<Minerva::GenMinFluxRecord> flux_info = truth->fluxRecord();
@@ -1919,18 +1923,18 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
                 const int nNodes = h_track->nNodes();
                 const int nMax = 6;
                 double pEnergies[nMax];
-                for(int jj=0; jj<nMax; jj++){
+                for(int jj = 0; jj < nMax; jj++){
                     pEnergies[jj] = -999;
                     const int iread = nNodes - 1 - jj;
                     if(iread>=0){
-                        Minerva::Node * node = tmpprotontrack->nodes()[iread];
+                        Minerva::Node * node = h_track->nodes()[iread];
                         //http://nusoft.fnal.gov/minerva/minervadat/software_doxygen/HEAD/MINERVA/LikelihoodPIDTool_8cpp-source.html
                         pEnergies[jj]=  node->idcluster()->energy() / sqrt( 1 + pow( node->state().ax(),2 ) + pow( node->state().ay(),2 ) ) ;
                     }
                 }
                 
                 cc1p1piHyp->setIntData( (name + "_EX_nNodes").c_str(), nNodes);
-                for(int n = 0; n < 6; n++) cc1p1piHyp->setDoubleData(Form("%s_EX_ln_Q%d", name.c_str(), n), pEnergies[i]);
+                for(int n = 0; n < 6; n++) cc1p1piHyp->setDoubleData(Form("%s_EX_ln_Q%d", name.c_str(), n), pEnergies[n]);
             }
             
         }
@@ -1957,18 +1961,17 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
                 const int nNodes = h_track->nNodes();
                 const int nMax = 6;
                 double pEnergies[nMax];
-                for(int jj=0; jj<nMax; jj++){
+                for(int jj = 0; jj < nMax; jj++){
                     pEnergies[jj] = -999;
                     const int iread = nNodes - 1 - jj;
                     if(iread>=0){
-                        Minerva::Node * node = tmpprotontrack->nodes()[iread];
+                        Minerva::Node * node = h_track->nodes()[iread];
                         //http://nusoft.fnal.gov/minerva/minervadat/software_doxygen/HEAD/MINERVA/LikelihoodPIDTool_8cpp-source.html
                         pEnergies[jj]=  node->idcluster()->energy() / sqrt( 1 + pow( node->state().ax(),2 ) + pow( node->state().ay(),2 ) ) ;
                     }
                 }
-                
                 cc1p1piHyp->setIntData( (name + "_LL_nNodes").c_str(), nNodes);
-                for(int n = 0; n < 6; n++) cc1p1piHyp->setDoubleData(Form("%s_LL_ln_Q%d", name.c_str(), n), pEnergies[i]);
+                for(int n = 0; n < 6; n++) cc1p1piHyp->setDoubleData(Form("%s_LL_ln_Q%d", name.c_str(), n), pEnergies[n]);
             }
             
         }
