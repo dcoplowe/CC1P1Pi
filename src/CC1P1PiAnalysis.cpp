@@ -1742,9 +1742,9 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
 
         TVector3 * true_nu_dir_PDP_3v = m_TransTools->GetNuDirSim(trueVTX, truePDP);
         std::vector<double> true_nu_dir_PDP;
-        true_nu_dir_PDP.push_back( true_nu_dir_PDP_3v.X() );
-        true_nu_dir_PDP.push_back( true_nu_dir_PDP_3v.Y() );
-        true_nu_dir_PDP.push_back( true_nu_dir_PDP_3v.Z() );
+        true_nu_dir_PDP.push_back( true_nu_dir_PDP_3v->X() );
+        true_nu_dir_PDP.push_back( true_nu_dir_PDP_3v->Y() );
+        true_nu_dir_PDP.push_back( true_nu_dir_PDP_3v->Z() );
         
         cc1p1piHyp->setContainerDoubleData("true_nu_dir_PDP", true_nu_dir_PDP);
         
