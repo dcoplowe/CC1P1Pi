@@ -26,6 +26,9 @@ class TVector3;
 
 class IMomByRangeTool;
 
+//Local Headers:
+//class TransverseTools;
+
 class CC1P1PiAnalysis : public MinervaAnalysisTool
 {
 public:
@@ -208,6 +211,8 @@ private:
     
     void SetGlobalStartDir(std::string name, Gaudi::XYZPoint vec) const;
     
+//    TransverseTools * m_TransTools;
+    
     //Transverse variables:
     //Parent Decay Point Var:
     double m_PDP_X;
@@ -215,9 +220,9 @@ private:
     double m_PDP_Z;
     
     TVector3 * m_PDP;
-    TVector3 * GetNuDirRec(double vtx[]) const;
+    TVector3 * GetNuDirRec(double vtx[], double pdp[3] = {-999.}) const;
     
-    Gaudi::XYZPoint GetRecoRir(Minerva::Prong * prong) const;
+    Gaudi::XYZPoint GetRecoDir(Minerva::Prong * prong) const;
     
     TVector3 * GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false) const;
     TVector3 * GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth) const;

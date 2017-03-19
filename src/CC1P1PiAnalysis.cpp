@@ -26,6 +26,9 @@
 #include <TMath.h>
 #include <TVector3.h>
 
+//Local Headers:
+//#include "TransverseTools.h"
+
 //#include <stdio.h>
 //#include <stdlib.h>
 //#include <string>
@@ -82,7 +85,6 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     declareProperty("det_upZ", m_det_upZ = 4393.04*CLHEP::mm);//Module -5 (central z-pos + 10cm)
     declareProperty("det_downZ", m_det_downZ = 9887.4*CLHEP::mm);//Module 114 (central z-pos - 10cm)
     
-    
     declareProperty("ParticleMakerAlias", m_particleMakerAlias = "CC1P1PiParticleMaker");
     
     //These values are taken from ProtonUtils:
@@ -110,7 +112,7 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     //Mean Parent Decay Point in metres
     declareProperty("PDP_X", m_PDP_X = 0.231135);
     declareProperty("PDP_Y", m_PDP_Y = 45.368069);
-    declareProperty("PDP_Z", m_PDP_Z = 766.384058);
+    declareProperty("PDP_Z", m_PDP_Z = -766.384058);
     
     declareProperty("print_cuts", m_print_cuts = false);
     declareProperty("print_cut_verbose", m_print_cut_verbose = false);
@@ -149,6 +151,8 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     m_LL_ProtonCaloE = new double [1];
     m_LL_PionCaloE = new double [1];
     
+    //Initialise internal tools:
+//    m_TransTools = new TransverseTools();
 }
 
 
@@ -1384,91 +1388,111 @@ void CC1P1PiAnalysis::SetPartInfo(std::string name)
             std::string method_name = "EX";
             if(i == 1) method_name = "LL";
             
-            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_score").c_str() , -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_score_altH").c_str() , -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_E").c_str() , -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_E_altH").c_str() , -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_mom").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_mom_altH").c_str(), -999.);
-            declareContainerDoubleBranch(m_hypMeths,    (name + "_" + method_name + "_4mom").c_str(), 4, -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTMag").c_str(), -999.);
-            declareContainerDoubleBranch(m_hypMeths,    (name + "_" + method_name + "_pT").c_str(), 3, -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTT").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_Phi").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_Theta").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_KE").c_str(), -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_score").c_str() ,         INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_score_altH").c_str() ,    INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_E").c_str() ,             INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_E_altH").c_str() ,        INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_mom").c_str(),            INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_mom_altH").c_str(),       INIVALUE);
+            declareContainerDoubleBranch(m_hypMeths,    (name + "_" + method_name + "_4mom").c_str(), 4,        INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTMag").c_str(),          INIVALUE);
+            declareContainerDoubleBranch(m_hypMeths,    (name + "_" + method_name + "_pT").c_str(), 3,          INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTT").c_str(),            INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_Phi").c_str(),            INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_Theta").c_str(),          INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_XTheta").c_str(),         INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_YTheta").c_str(),         INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_KE").c_str(),             INIVALUE);
             //Detector based vars:
-            declareIntBranch(m_hypMeths,                (name + "_" + method_name + "_michel").c_str() , -999);
+            declareIntBranch(m_hypMeths,    (name + "_" + method_name + "_michel").c_str(), INIVALUE);//May fail -- Check proton.
+//            if(name == "pi")
+            declareIntTruthBranch(          (name + "_" + method_name + "_michel").c_str(), INIVALUE);
         
+            declareIntBranch(m_hypMeths,    (name + "_" + method_name + "_nNodes").c_str(), INIVALUE);
+            for(int n = 0; n < 6; n++) declareDoubleBranch(m_hypMeths, Form("%s_%s_ln_Q%d", name.c_str(), method_name.c_str(), n), INIVALUE);
+            
             if(m_rtswap){
-                declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTMag_tnudir").c_str(), -999.);
-                declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTMag_t" + name + "mom").c_str(), -999.);
-                declareContainerDoubleBranch(m_hypMeths,    (name + "_" + method_name + "_pT_tnudir").c_str(), 3, -999.);
-                declareContainerDoubleBranch(m_hypMeths,    (name + "_" + method_name + "_pT_t" + name + "mom").c_str(), 3, -999.);
-                declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTT_tnudir").c_str(), -999.);
-                declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTT_t" + name + "mom").c_str(), -999.);
+                declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTMag_tnudir").c_str(),           INIVALUE);
+                declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTMag_t" + name + "mom").c_str(), INIVALUE);
+                declareContainerDoubleBranch(m_hypMeths,    (name + "_" + method_name + "_pT_tnudir").c_str(), 3,           INIVALUE);
+                declareContainerDoubleBranch(m_hypMeths,    (name + "_" + method_name + "_pT_t" + name + "mom").c_str(), 3, INIVALUE);
+                declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTT_tnudir").c_str(),             INIVALUE);
+                declareDoubleBranch(m_hypMeths,             (name + "_" + method_name + "_pTT_t" + name + "mom").c_str(),   INIVALUE);
             }
         }
         
-        declareIntBranch(m_hypMeths, (name + "_FSI").c_str(), -999);
-        declareDoubleBranch(m_hypMeths, (name + "_CaloE").c_str(), -999.);
+        declareIntBranch(m_hypMeths, (name + "_FSI").c_str(),       INIVALUE);
+        declareDoubleBranch(m_hypMeths, (name + "_CaloE").c_str(),  INIVALUE);
 
     }
     else{
         
-        declareDoubleBranch(m_hypMeths,             (name + "_score").c_str() , -999.);
-        declareDoubleBranch(m_hypMeths,             (name + "_E").c_str() , -999.);
-        declareDoubleBranch(m_hypMeths,             (name + "_mom").c_str(), -999.);
-        declareContainerDoubleBranch(m_hypMeths,    (name + "_4mom").c_str(), 4, -999.);
-        declareDoubleBranch(m_hypMeths,             (name + "_pTMag").c_str(), -999.);
-        declareContainerDoubleBranch(m_hypMeths,    (name + "_pT").c_str(), 3, -999.);
-        declareDoubleBranch(m_hypMeths,             (name + "_pTT").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths,             (name + "_Phi").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths,             (name + "_Theta").c_str(), -999.);
-        declareDoubleBranch(m_hypMeths,             (name + "_KE").c_str(), -999.);
+        declareDoubleBranch(m_hypMeths,             (name + "_score").c_str() ,     INIVALUE);
+        declareDoubleBranch(m_hypMeths,             (name + "_E").c_str() ,         INIVALUE);
+        declareDoubleBranch(m_hypMeths,             (name + "_mom").c_str(),        INIVALUE);
+        declareContainerDoubleBranch(m_hypMeths,    (name + "_4mom").c_str(), 4,    INIVALUE);
+        declareDoubleBranch(m_hypMeths,             (name + "_pTMag").c_str(),      INIVALUE);
+        declareContainerDoubleBranch(m_hypMeths,    (name + "_pT").c_str(), 3,      INIVALUE);
+        declareDoubleBranch(m_hypMeths,             (name + "_pTT").c_str(),        INIVALUE);
+        declareDoubleBranch(m_hypMeths,             (name + "_Phi").c_str(),        INIVALUE);
+        declareDoubleBranch(m_hypMeths,             (name + "_Theta").c_str(),      INIVALUE);
+        declareDoubleBranch(m_hypMeths,             (name + "_XTheta").c_str(),     INIVALUE);
+        declareDoubleBranch(m_hypMeths,             (name + "_YTheta").c_str(),     INIVALUE);
+        declareDoubleBranch(m_hypMeths,             (name + "_KE").c_str(),         INIVALUE);
         //Detector based vars:
-        declareIntBranch(m_hypMeths,                (name + "_michel").c_str() , -999);
+        declareIntBranch(m_hypMeths,                (name + "_michel").c_str() ,    INIVALUE);
         
         if(m_rtswap){
-            declareDoubleBranch(m_hypMeths,             (name + "_pTMag_tnudir").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_pTMag_t" + name + "mom").c_str(), -999.);
-            declareContainerDoubleBranch(m_hypMeths,    (name + "_pT_tnudir").c_str(), 3, -999.);
-            declareContainerDoubleBranch(m_hypMeths,    (name + "_pT_t" + name + "mom").c_str(), 3, -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_pTT_tnudir").c_str(), -999.);
-            declareDoubleBranch(m_hypMeths,             (name + "_pTT_t" + name + "mom").c_str(), -999.);
+            declareDoubleBranch(m_hypMeths,             (name + "_pTMag_tnudir").c_str(),           INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_pTMag_t" + name + "mom").c_str(), INIVALUE);
+            declareContainerDoubleBranch(m_hypMeths,    (name + "_pT_tnudir").c_str(), 3,           INIVALUE);
+            declareContainerDoubleBranch(m_hypMeths,    (name + "_pT_t" + name + "mom").c_str(), 3, INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_pTT_tnudir").c_str(),             INIVALUE);
+            declareDoubleBranch(m_hypMeths,             (name + "_pTT_t" + name + "mom").c_str(),   INIVALUE);
         }
         
     }
     
-    declareDoubleBranch(m_hypMeths, (name + "_chi2ndf").c_str(), -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_trueE").c_str(), -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_truemom").c_str(), -999.);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_true4mom").c_str(), 4, -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_truepTMag").c_str(), -999.);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_truepT").c_str(), 3, -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_truepTT").c_str(), -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_truePhi").c_str(), -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_trueTheta").c_str(), -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_trueKE").c_str(), -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_chi2ndf").c_str(),                    INIVALUE);
+    declareDoubleBranch(m_hypMeths, (name + "_trueE").c_str(),                      INIVALUE);
+    declareDoubleBranch(m_hypMeths, (name + "_truemom").c_str(),                    INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_true4mom").c_str(), 4,       INIVALUE);
+    declareDoubleBranch(m_hypMeths, (name + "_truepTMag").c_str(),                  INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_truepT").c_str(), 3,         INIVALUE);
+    declareDoubleBranch(m_hypMeths, (name + "_truepTT").c_str(),                    INIVALUE);
+    declareDoubleBranch(m_hypMeths, (name + "_truePhi").c_str(),                    INIVALUE);
+    declareDoubleBranch(m_hypMeths, (name + "_trueTheta").c_str(),                  INIVALUE);
+    declareDoubleBranch(m_hypMeths, (name + "_trueKE").c_str(),                     INIVALUE);
     
-    declareDoubleBranch(m_hypMeths, (name + "_det_frac").c_str(), -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_det_otherE").c_str(), -999.);
-    declareDoubleBranch(m_hypMeths, (name + "_chi2ndf").c_str(), -999.);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_startdir").c_str(), 3, -999.);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_truestartdir").c_str(), 3, -999.);
+    declareDoubleBranch(m_hypMeths, (name + "_det_frac").c_str(),                   INIVALUE);
+    declareDoubleBranch(m_hypMeths, (name + "_det_otherE").c_str(),                 INIVALUE);
+    declareDoubleBranch(m_hypMeths, (name + "_chi2ndf").c_str(),                    INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_startdir").c_str(), 3,       INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_truestartdir").c_str(), 3,   INIVALUE);
     
-    declareIntBranch(m_hypMeths, (name + "_PDG").c_str(), -999);
-    declareIntBranch(m_hypMeths, (name + "_isKinked").c_str(), INIVALUE);
+    declareIntBranch(m_hypMeths, (name + "_PDG").c_str(),                           INIVALUE);
+    declareIntBranch(m_hypMeths, (name + "_isKinked").c_str(),                      INIVALUE);
     
-    declareContainerDoubleBranch(m_hypMeths, (name + "_startpos").c_str(), 3, INIVALUE);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_truestartpos").c_str(), 3, INIVALUE);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_endpos").c_str(), 3, INIVALUE);
-    declareContainerDoubleBranch(m_hypMeths, (name + "_trueendpos").c_str(), 3, INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_startpos").c_str(), 3,       INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_truestartpos").c_str(), 3,   INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_endpos").c_str(), 3,         INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, (name + "_trueendpos").c_str(), 3,     INIVALUE);
     
 }
 
 void CC1P1PiAnalysis::SetCommonBranches()
 {
+ 
+    //Neutrino information:
+    
+    //True PDP, vertex pos, reco dir (using pdp), reco dir (0,0,1) and true dir;
+    declareContainerDoubleBranch(m_hypMeths, "truePDP",         3, INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, "meanPDP",         3, INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, "trueVTX",         3, INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, "VTX",             3, INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, "nu_dir_PDP",      3, INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, "true_nu_dir_PDP", 3, INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, "nu_dir_001",      3, INIVALUE);
     
     int me_low = 0;
     int me_hig = 2;
@@ -1486,85 +1510,57 @@ void CC1P1PiAnalysis::SetCommonBranches()
         std::string method_name = "EX";
         if(i == 1) method_name = "LL";
      
-        declareDoubleBranch(m_hypMeths,             ("Enu_"         + method_name).c_str(), -999.);
-        declareDoubleBranch(m_hypMeths,             ("Q2_"          + method_name).c_str(), -999.0);
-        declareDoubleBranch(m_hypMeths,             ("dpTT_"        + method_name).c_str(), -999.0);
-        declareDoubleBranch(m_hypMeths,             ("dpTT_pi_"     + method_name).c_str(), -999.0);
-        declareDoubleBranch(m_hypMeths,             ("dpTT_pi_dir_" + method_name).c_str(), -999.0);
-        declareDoubleBranch(m_hypMeths,             ("dpTT_pr_"     + method_name).c_str(), -999.0);
-        declareDoubleBranch(m_hypMeths,             ("dpTT_pr_dir_" + method_name).c_str(), -999.0);
-        declareDoubleBranch(m_hypMeths,             ("dpT_"         + method_name).c_str(), -999.0);
-        declareContainerDoubleBranch(m_hypMeths,    ("dpT_vec_"     + method_name).c_str(), 3, -999.0);
-        declareDoubleBranch(m_hypMeths,             ("dalphaT_"     + method_name).c_str(), -999.0);
-        declareDoubleBranch(m_hypMeths,             ("dphiT_"       + method_name).c_str(), -999.0);
+        declareDoubleBranch(m_hypMeths,             ("Enu_"         + method_name).c_str(),     INIVALUE);
+        declareDoubleBranch(m_hypMeths,             ("Q2_"          + method_name).c_str(),     INIVALUE);
+        declareDoubleBranch(m_hypMeths,             ("dpTT_"        + method_name).c_str(),     INIVALUE);
+        declareDoubleBranch(m_hypMeths,             ("dpTT_pi_"     + method_name).c_str(),     INIVALUE);
+        declareDoubleBranch(m_hypMeths,             ("dpTT_pi_dir_" + method_name).c_str(),     INIVALUE);
+        declareDoubleBranch(m_hypMeths,             ("dpTT_pr_"     + method_name).c_str(),     INIVALUE);
+        declareDoubleBranch(m_hypMeths,             ("dpTT_pr_dir_" + method_name).c_str(),     INIVALUE);
+        declareDoubleBranch(m_hypMeths,             ("dpT_"         + method_name).c_str(),     INIVALUE);
+        declareContainerDoubleBranch(m_hypMeths,    ("dpT_vec_"     + method_name).c_str(), 3,  INIVALUE);
+        declareDoubleBranch(m_hypMeths,             ("dalphaT_"     + method_name).c_str(),     INIVALUE);
+        declareDoubleBranch(m_hypMeths,             ("dphiT_"       + method_name).c_str(),     INIVALUE);
 
         if(m_rtswap){
-            declareDoubleBranch(m_hypMeths,     ("dpTT_"        + method_name + "_tnudir").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_"        + method_name + "_tprmom").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_"        + method_name + "_tpimom").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_"        + method_name + "_tmumom").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_"        + method_name + "_tnudir").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_"        + method_name + "_tprmom").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_"        + method_name + "_tpimom").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_"        + method_name + "_tmumom").c_str(), INIVALUE);
             
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_"     + method_name + "_tnudir").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_"     + method_name + "_tprmom").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_"     + method_name + "_tpimom").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_"     + method_name + "_tmumom").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_"     + method_name + "_tnudir").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_"     + method_name + "_tprmom").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_"     + method_name + "_tpimom").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_"     + method_name + "_tmumom").c_str(), INIVALUE);
             
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_dir_" + method_name + "_tnudir").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_dir_" + method_name + "_tprmom").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_dir_" + method_name + "_tpidir").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_dir_" + method_name + "_tmumom").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_dir_" + method_name + "_tnudir").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_dir_" + method_name + "_tprmom").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_dir_" + method_name + "_tpidir").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pi_dir_" + method_name + "_tmumom").c_str(), INIVALUE);
             
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_"     + method_name + "_tnudir").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_"     + method_name + "_tprmom").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_"     + method_name + "_tpimon").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_"     + method_name + "_tmumom").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_"     + method_name + "_tnudir").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_"     + method_name + "_tprmom").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_"     + method_name + "_tpimon").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_"     + method_name + "_tmumom").c_str(), INIVALUE);
 
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_dir_" + method_name + "_tnudir").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_dir_" + method_name + "_tprdir").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_dir_" + method_name + "_tpimom").c_str(), -999.0);
-            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_dir_" + method_name + "_tmumom").c_str(), -999.0);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_dir_" + method_name + "_tnudir").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_dir_" + method_name + "_tprdir").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_dir_" + method_name + "_tpimom").c_str(), INIVALUE);
+            declareDoubleBranch(m_hypMeths,     ("dpTT_pr_dir_" + method_name + "_tmumom").c_str(), INIVALUE);
         }
     }
-    
-/*    if(m_PID_method != 1){
-        declareDoubleBranch(m_hypMeths, "Enu_EX", -999.);
-        declareDoubleBranch(m_hypMeths, "Q2_EX", -999.0);
-        declareDoubleBranch(m_hypMeths, "dpTT_EX", -999.0);
-        declareDoubleBranch(m_hypMeths, "dpTT_pi_EX", -999.0);
-        declareDoubleBranch(m_hypMeths, "dpTT_pi_dir_EX", -999.0);
-        declareDoubleBranch(m_hypMeths, "dpTT_pr_EX", -999.0);
-        declareDoubleBranch(m_hypMeths, "dpTT_pr_dir_EX", -999.0);
-        declareDoubleBranch(m_hypMeths, "dpT_EX", -999.0);
-        declareContainerDoubleBranch(m_hypMeths, "dpT_vec_EX", 3, -999.0);
-        declareDoubleBranch(m_hypMeths, "dalphaT_EX", -999.0);
-        declareDoubleBranch(m_hypMeths, "dphiT_EX", -999.0);
-    }
-    
-    if(m_PID_method > 0){
-        declareDoubleBranch(m_hypMeths, "Enu_LL", -999.);
-        declareDoubleBranch(m_hypMeths, "Q2_LL", -999.0);
-        declareDoubleBranch(m_hypMeths, "dpTT_LL", -999.0);
-        declareDoubleBranch(m_hypMeths, "dpTT_pi_LL", -999.0);
-        declareDoubleBranch(m_hypMeths, "dpTT_pi_dir_LL", -999.0);
-        declareDoubleBranch(m_hypMeths, "dpTT_pr_LL", -999.0);
-        declareDoubleBranch(m_hypMeths, "dpTT_pr_dir_LL", -999.0);
-        declareDoubleBranch(m_hypMeths, "dpT_LL", -999.0);
-        declareContainerDoubleBranch(m_hypMeths, "dpT_vec_LL", 3, -999.0);
-        declareDoubleBranch(m_hypMeths, "dalphaT_LL", -999.0);
-        declareDoubleBranch(m_hypMeths, "dphiT_LL", -999.0);
-    }*/
         
-    declareDoubleBranch(m_hypMeths, "trueEnu", -999.);
-    declareDoubleBranch(m_hypMeths, "trueQ2", -999.0);
-    declareDoubleBranch(m_hypMeths, "truedpTT", -999.0);
-    declareDoubleBranch(m_hypMeths, "truedpTT_pi", -999.0);
-    declareDoubleBranch(m_hypMeths, "truedpTT_pi_dir", -999.0);
-    declareDoubleBranch(m_hypMeths, "truedpTT_pr", -999.0);
-    declareDoubleBranch(m_hypMeths, "truedpTT_pr_dir", -999.0);
-    declareDoubleBranch(m_hypMeths, "truedpT", -999.0);
-    declareContainerDoubleBranch(m_hypMeths, "truedpT_vec", 3, -999.0);
-    declareDoubleBranch(m_hypMeths, "truedalphaT", -999.0);
-    declareDoubleBranch(m_hypMeths, "truedphiT", -999.0);
+    declareDoubleBranch(m_hypMeths, "trueEnu", INIVALUE);
+    declareDoubleBranch(m_hypMeths, "trueQ2",                   INIVALUE);
+    declareDoubleBranch(m_hypMeths, "truedpTT",                 INIVALUE);
+    declareDoubleBranch(m_hypMeths, "truedpTT_pi",              INIVALUE);
+    declareDoubleBranch(m_hypMeths, "truedpTT_pi_dir",          INIVALUE);
+    declareDoubleBranch(m_hypMeths, "truedpTT_pr",              INIVALUE);
+    declareDoubleBranch(m_hypMeths, "truedpTT_pr_dir",          INIVALUE);
+    declareDoubleBranch(m_hypMeths, "truedpT",                  INIVALUE);
+    declareContainerDoubleBranch(m_hypMeths, "truedpT_vec", 3,  INIVALUE);
+    declareDoubleBranch(m_hypMeths, "truedalphaT",              INIVALUE);
+    declareDoubleBranch(m_hypMeths, "truedphiT",                INIVALUE);
 
 }
 
@@ -1576,6 +1572,20 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
     SmartRef<Minerva::Vertex> int_vert = event->interactionVertex();
     const Gaudi::XYZPoint vert_3vec = int_vert->position();
     double vertex[3] = {vert_3vec.x(), vert_3vec.y(), vert_3vec.z()};//{0.};
+    cc1p1piHyp->setContainerDoubleData("VTX",vertex);
+    
+    double nu_dir_001[3] = {0., 0., 1.};
+    cc1p1piHyp->setContainerDoubleData("nu_dir_001",nu_dir_001);
+    
+    double meanPDP[3] = {m_PDP->X(), m_PDP->Y(), m_PDP->Z()};
+    cc1p1piHyp->setContainerDoubleData("meanPDP",meanPDP);
+    
+    const TVector3 * nu_PDP = GetNuDirRec(vertex);
+    if(nu_PDP){
+        double nu_dir_PDP[3] = { nu_PDP->X(), nu_PDP->Y(), nu_PDP->Z() };
+        cc1p1piHyp->setContainerDoubleData("nu_dir_PDP",nu_dir_PDP);
+        delete nu_PDP;//TODO: My cause seg fault.
+    }
     
     //Set Proton and Pion directions:
     const TVector3 * pi_d = new TVector3(m_Pion_dir[0], m_Pion_dir[1], m_Pion_dir[2]);
@@ -1599,17 +1609,21 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         double dphiT_EX = -999.;
         
         TVector3 * dpT_3mom_EX = GetTransverseVars(vertex, mu_p, pr_EX_p, pi_EX_p, dpTT_EX, dpTMag_EX, dalphaT_EX, dphiT_EX);
-        std::vector<double> vec_dpT_3mom_EX;
-        vec_dpT_3mom_EX.push_back(dpT_3mom_EX->X());
-        vec_dpT_3mom_EX.push_back(dpT_3mom_EX->Y());
-        vec_dpT_3mom_EX.push_back(dpT_3mom_EX->Z());
         
+        if(dpT_3mom_EX){
+            std::vector<double> vec_dpT_3mom_EX;
+            vec_dpT_3mom_EX.push_back(dpT_3mom_EX->X());
+            vec_dpT_3mom_EX.push_back(dpT_3mom_EX->Y());
+            vec_dpT_3mom_EX.push_back(dpT_3mom_EX->Z());
+            cc1p1piHyp->setContainerDoubleData("dpT_vec_EX", vec_dpT_3mom_EX);
+            delete dpT_3mom_EX;
+        }
+            
         cc1p1piHyp->setDoubleData("dpTT_EX", dpTT_EX);
         cc1p1piHyp->setDoubleData("dpT_EX", dpTMag_EX);
         cc1p1piHyp->setDoubleData("dalphaT_EX", dalphaT_EX);
         cc1p1piHyp->setDoubleData("dphiT_EX", dphiT_EX);
-        cc1p1piHyp->setContainerDoubleData("dpT_vec_EX", vec_dpT_3mom_EX);
-    
+        
         //Hadron Direction method:
         double dpTT_pi_EX = GetDPTT(vertex, pi_EX_p, mu_p, pr_EX_p);
         cc1p1piHyp->setDoubleData("dpTT_pi_EX", dpTT_pi_EX);
@@ -1646,16 +1660,20 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         double dphiT_LL = -999.;
         
         TVector3 * dpT_3mom_LL = GetTransverseVars(vertex, mu_p, pr_LL_p, pi_LL_p, dpTT_LL, dpTMag_LL, dalphaT_LL, dphiT_LL);
-        std::vector<double> vec_dpT_3mom_LL;
-        vec_dpT_3mom_LL.push_back(dpT_3mom_LL->X());
-        vec_dpT_3mom_LL.push_back(dpT_3mom_LL->Y());
-        vec_dpT_3mom_LL.push_back(dpT_3mom_LL->Z());
+        
+        if(dpT_3mom_LL){
+            std::vector<double> vec_dpT_3mom_LL;
+            vec_dpT_3mom_LL.push_back(dpT_3mom_LL->X());
+            vec_dpT_3mom_LL.push_back(dpT_3mom_LL->Y());
+            vec_dpT_3mom_LL.push_back(dpT_3mom_LL->Z());
+            cc1p1piHyp->setContainerDoubleData("dpT_vec_LL", vec_dpT_3mom_LL);
+            delete dpT_3mom_LL;
+        }
         
         cc1p1piHyp->setDoubleData("dpTT_LL", dpTT_LL);
         cc1p1piHyp->setDoubleData("dpT_LL", dpTMag_LL);
         cc1p1piHyp->setDoubleData("dalphaT_LL", dalphaT_LL);
         cc1p1piHyp->setDoubleData("dphiT_LL", dphiT_LL);
-        cc1p1piHyp->setContainerDoubleData("dpT_vec_LL", vec_dpT_3mom_LL);
         
         //Hadron Direction method:
         double dpTT_pi_LL = GetDPTT(vertex, pi_LL_p, mu_p, pr_LL_p);
@@ -1691,22 +1709,42 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         double nu_3vec_mag = sqrt(nu_4vec.px()*nu_4vec.px() + nu_4vec.py()*nu_4vec.py() + nu_4vec.pz()*nu_4vec.pz());
         double vertex_true[3] = { nu_4vec.px()/nu_3vec_mag, nu_4vec.py()/nu_3vec_mag, nu_4vec.pz()/nu_3vec_mag };
         
+        //Need PDP point + vertrex:
+        Gaudi::LorentzVector vtx_truth = truth->Vtx();
+        double trueVTX[3] = {vtx_truth.px(), vtx_truth.py(), vtx_truth.pz()};
+        cc1p1piHyp->setContainerDoubleData("trueVTX",trueVTX);
+
+        SmartRef<Minerva::GenMinFluxRecord> flux_info = truth->fluxRecord();
+        const Gaudi::XYZVectorF nu_PDP_Pos = flux_info->NuParentDecX();
+        double truePDP[3] = {nu_PDP_Pos.X(), nu_PDP_Pos.Y(), nu_PDP_Pos.Z() };
+        
+        cc1p1piHyp->setContainerDoubleData("truePDP",truePDP);
+
+        
+        
+        cc1p1piHyp->setContainerDoubleData("true_nu_dir_PDP", true_nu_dir_PDP);
+        
+        
         double truedpTT = -999.;
         double truedpT = -999.;
         double truedalphaT = -999.;
         double truedphiT = -999.;
         
         TVector3 * dpT_3mom_true = GetTransverseVars(vertex_true, truemu_p, truepr_p, truepi_p, truedpTT, truedpT, truedalphaT, truedphiT, true);
-        std::vector<double> vec_dpT_3mom_true;
-        vec_dpT_3mom_true.push_back(dpT_3mom_true->X());
-        vec_dpT_3mom_true.push_back(dpT_3mom_true->Y());
-        vec_dpT_3mom_true.push_back(dpT_3mom_true->Z());
+        
+        if(dpT_3mom_true){
+            std::vector<double> vec_dpT_3mom_true;
+            vec_dpT_3mom_true.push_back(dpT_3mom_true->X());
+            vec_dpT_3mom_true.push_back(dpT_3mom_true->Y());
+            vec_dpT_3mom_true.push_back(dpT_3mom_true->Z());
+            cc1p1piHyp->setContainerDoubleData("truedpT_vec", vec_dpT_3mom_true);
+            delete dpT_3mom_true;
+        }
         
         cc1p1piHyp->setDoubleData("truedpTT", truedpTT);
         cc1p1piHyp->setDoubleData("truedpT", truedpT);
         cc1p1piHyp->setDoubleData("truedalphaT", truedalphaT);
         cc1p1piHyp->setDoubleData("truedphiT", truedphiT);
-        cc1p1piHyp->setContainerDoubleData("truedpT_vec", vec_dpT_3mom_true);
         
         double truedpTT_pi = GetDPTT(vertex_true, truepi_p, truemu_p, truepr_p, true);
         cc1p1piHyp->setDoubleData("truedpTT_pi", truedpTT_pi);
@@ -1854,9 +1892,35 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         if(prong_EX && particle_EX){
             debug() << "Called FillMomDepVars( " << name << "_EX, particle_EX, event, cc1p1piHyp, particle_EX_altH)" <<endmsg;
             FillMomDepVars( (name + "_EX").c_str(), particle_EX, event, cc1p1piHyp, particle_EX_altH);
-            if( prong_EX->hasIntData("has_michel") ){ cc1p1piHyp->setIntData( (name + "_EX_michel").c_str(), prong_EX->getIntData("has_michel"));
+            if( prong_EX->hasIntData("has_michel") ){
+                cc1p1piHyp->setIntData( (name + "_EX_michel").c_str(), prong_EX->getIntData("has_michel"));
+//                if(name == "pi")
+                truth->setIntData(      (name + "_EX_michel").c_str(), prong_EX->getIntData("has_michel"));
                 debug() << "Michel Tagged" << endmsg;
             }
+
+            //Save info from last six nodes:
+            Minerva::TrackVect h_tracks = prong_EX->minervaTracks();
+            if(!h_tracks.empty()){
+                SmartRef<Minerva::Track> h_track = h_tracks[0];
+                
+                const int nNodes = h_track->nNodes();
+                const int nMax = 6;
+                double pEnergies[nMax];
+                for(int jj=0; jj<nMax; jj++){
+                    pEnergies[jj] = -999;
+                    const int iread = nNodes - 1 - jj;
+                    if(iread>=0){
+                        Minerva::Node * node = tmpprotontrack->nodes()[iread];
+                        //http://nusoft.fnal.gov/minerva/minervadat/software_doxygen/HEAD/MINERVA/LikelihoodPIDTool_8cpp-source.html
+                        pEnergies[jj]=  node->idcluster()->energy() / sqrt( 1 + pow( node->state().ax(),2 ) + pow( node->state().ay(),2 ) ) ;
+                    }
+                }
+                
+                cc1p1piHyp->setIntData( (name + "_EX_nNodes").c_str(), nNodes);
+                for(int n = 0; n < 6; n++) cc1p1piHyp->setDoubleData(Form("%s_EX_ln_Q%d", name.c_str(), n), pEnergies[i]);
+            }
+            
         }
         else{
             warning() << "CC1P1PiAnalysis::FillPartInfo :: dEdX Prong or particle is NULL for \"" << name << "\". Please check";
@@ -1865,16 +1929,45 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         if(prong_LL && particle_LL){
             debug() << "Called FillMomDepVars( " << name << "_LL, particle_LL, event, cc1p1piHyp, particle_LL_altH)" <<endmsg;
             FillMomDepVars( (name + "_LL").c_str(), particle_LL, event, cc1p1piHyp, particle_LL_altH);
-            if( prong_LL->hasIntData("has_michel") ){ cc1p1piHyp->setIntData( (name + "_LL_michel").c_str(), prong_LL->getIntData("has_michel"));
+            if( prong_LL->hasIntData("has_michel") ){
+                cc1p1piHyp->setIntData( (name + "_LL_michel").c_str(), prong_LL->getIntData("has_michel"));
+//                if(name == "pi")
+                truth->setIntData(      (name + "_LL_michel").c_str(), prong_LL->getIntData("has_michel"));
                 debug() << "Michel Tagged" << endmsg;
             }
             cc1p1piHyp->setDoubleData( (name + "_CaloE").c_str(), caloE);
+            
+            //Save info from last six nodes:
+            Minerva::TrackVect h_tracks = prong_LL->minervaTracks();
+            if(!h_tracks.empty()){
+                SmartRef<Minerva::Track> h_track = h_tracks[0];
+                
+                const int nNodes = h_track->nNodes();
+                const int nMax = 6;
+                double pEnergies[nMax];
+                for(int jj=0; jj<nMax; jj++){
+                    pEnergies[jj] = -999;
+                    const int iread = nNodes - 1 - jj;
+                    if(iread>=0){
+                        Minerva::Node * node = tmpprotontrack->nodes()[iread];
+                        //http://nusoft.fnal.gov/minerva/minervadat/software_doxygen/HEAD/MINERVA/LikelihoodPIDTool_8cpp-source.html
+                        pEnergies[jj]=  node->idcluster()->energy() / sqrt( 1 + pow( node->state().ax(),2 ) + pow( node->state().ay(),2 ) ) ;
+                    }
+                }
+                
+                cc1p1piHyp->setIntData( (name + "_LL_nNodes").c_str(), nNodes);
+                for(int n = 0; n < 6; n++) cc1p1piHyp->setDoubleData(Form("%s_LL_ln_Q%d", name.c_str(), n), pEnergies[i]);
+            }
+            
         }
         else{
             warning() << "CC1P1PiAnalysis::FillPartInfo :: Likelihood Prong or particle is NULL for \"" << name << "\". Please check";
         }
         double hasFSI = -999;
         cc1p1piHyp->setIntData( (name + "_FSI").c_str(), hasFSI);
+    
+    
+    
     }
     else{
         
@@ -1892,7 +1985,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         double chi2ndf = -999.;
         Minerva::TrackVect tracks = prong->minervaTracks();
         if(!tracks.empty()){
-            SmartRef<Minerva::Track> track = tracks[ tracks.size() - 1 ];
+            SmartRef<Minerva::Track> track = tracks[ tracks.size() - 1 ];//TODO: Why last track?
             chi2ndf = track->chi2PerDoF();
         }
         
@@ -1912,7 +2005,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
         sel_end_xyz.push_back(downstream.z());
         cc1p1piHyp->setContainerDoubleData( (name + "_endpos").c_str(), sel_end_xyz);
         
-        Gaudi::XYZPoint recodir = GetRecoRir(prong);
+        Gaudi::XYZPoint recodir = GetRecoDir(prong);
         SetGlobalStartDir(name, recodir);
         std::vector<double> sel_dir;
         sel_dir.push_back( recodir.x() );
@@ -1979,13 +2072,15 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             const TVector3 * true_mom_vec = new TVector3(true4mom[1], true4mom[2], true4mom[3]);
             const TVector3 * truepT_3vec = GetPT(nu_3vec, true_mom_vec, true);
 
-            cc1p1piHyp->setDoubleData( (name + "_truepTMag").c_str(), truepT_3vec->Mag());
-            
-            std::vector<double> truepT;
-            truepT.push_back(truepT_3vec->X());
-            truepT.push_back(truepT_3vec->Y());
-            truepT.push_back(truepT_3vec->Z());
-            
+            if(truepT_3vec){
+                cc1p1piHyp->setDoubleData( (name + "_truepTMag").c_str(), truepT_3vec->Mag());
+                
+                std::vector<double> truepT;
+                truepT.push_back(truepT_3vec->X());
+                truepT.push_back(truepT_3vec->Y());
+                truepT.push_back(truepT_3vec->Z());
+            }
+                
             cc1p1piHyp->setContainerDoubleData( (name + "_truepT").c_str(), truepT);
             
             double truepTT = -999.;
@@ -2090,18 +2185,14 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
     const TVector3 * mom_vec = new TVector3(sel4mom[1], sel4mom[2], sel4mom[3]);
     const TVector3 * pT = GetPT(vtx, mom_vec);
     
-//    debug() << "WORKING 2" << endmsg;
-
-    
-    cc1p1piHyp->setDoubleData( (name + "_pTMag").c_str(), pT->Mag());
-    
-    std::vector<double> selpT;
-    selpT.push_back(pT->X());
-    selpT.push_back(pT->Y());
-    selpT.push_back(pT->Z());
-    
-    cc1p1piHyp->setContainerDoubleData( (name + "_pT").c_str(), selpT);
-    
+    if(pT){
+        cc1p1piHyp->setDoubleData( (name + "_pTMag").c_str(), pT->Mag());
+        std::vector<double> selpT;
+        selpT.push_back(pT->X());
+        selpT.push_back(pT->Y());
+        selpT.push_back(pT->Z());
+        cc1p1piHyp->setContainerDoubleData( (name + "_pT").c_str(), selpT);
+    }
 //    debug() << "WORKING 3" << endmsg;
     
     double pTT = -999.;
@@ -2112,6 +2203,12 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
     
     double Theta = m_coordSysTool->thetaWRTBeam( four_vec );
     cc1p1piHyp->setDoubleData( (name + "_Theta").c_str(), Theta);
+    
+    double XTheta = m_coordSysTool->thetaXWRTBeam( four_vec );
+    cc1p1piHyp->setDoubleData( (name + "_XTheta").c_str(), XTheta);
+    
+    double YTheta = m_coordSysTool->thetaYWRTBeam( four_vec );
+    cc1p1piHyp->setDoubleData( (name + "_YTheta").c_str(), YTheta);
     
     double KE = four_vec.E() - particle->mass();
     cc1p1piHyp->setDoubleData( (name + "_KE").c_str(), KE);
@@ -2265,16 +2362,20 @@ void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
         double truedphiT = -999.;
         
         TVector3 * dpT_3mom_true = GetTransverseVars(vertex_true, truemu_p, truepr_p, truepi_p, truedpTT, truedpT, truedalphaT, truedphiT, true);
-        std::vector<double> vec_dpT_3mom_true;
-        vec_dpT_3mom_true.push_back(dpT_3mom_true->X());
-        vec_dpT_3mom_true.push_back(dpT_3mom_true->Y());
-        vec_dpT_3mom_true.push_back(dpT_3mom_true->Z());
+        
+        if(dpT_3mom_true){
+            std::vector<double> vec_dpT_3mom_true;
+            vec_dpT_3mom_true.push_back(dpT_3mom_true->X());
+            vec_dpT_3mom_true.push_back(dpT_3mom_true->Y());
+            vec_dpT_3mom_true.push_back(dpT_3mom_true->Z());
+            truth->setContainerDoubleData("truedpT_vec", vec_dpT_3mom_true);
+            delete dpT_3mom_true;
+        }
         
         truth->setDoubleData("truedpTT", truedpTT);
         truth->setDoubleData("truedpT", truedpT);
         truth->setDoubleData("truedalphaT", truedalphaT);
         truth->setDoubleData("truedphiT", truedphiT);
-        truth->setContainerDoubleData("truedpT_vec", vec_dpT_3mom_true);
         
         double truedpTT_pi = GetDPTT(vertex_true, truepi_p, truemu_p, truepr_p, true);
         truth->setDoubleData("truedpTT_pi", truedpTT_pi);
@@ -2323,7 +2424,7 @@ void CC1P1PiAnalysis::FillTrueParticle(std::string name, double E, double Px, do
     const TVector3 * true_mom_vec = new TVector3(mom[1], mom[2], mom[3]);
     const TVector3 * truepT_3vec = GetPT(nu_3vec, true_mom_vec, true);
     
-    truth->setDoubleData( (name + "_pTMag").c_str(), truepT_3vec->Mag());
+    if(truepT_3vec) truth->setDoubleData( (name + "_pTMag").c_str(), truepT_3vec->Mag());
     
     std::vector<double> truepT;
     truepT.push_back(truepT_3vec->X());
@@ -2440,10 +2541,10 @@ void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
 {
     //Determine size of 4 vec at some point...
     PrintInfo("CC1P1PiAnalysis::Rotate2BeamCoords", m_print_other);
-
-    PrintInfo(Form("Initial 4Vec: P_E %f P_X %f P_Y %f P_Z %f", val[0], val[1], val[2], val[3]), m_print_other);
     
     if(((int)val.size() == 4)){
+
+        PrintInfo(Form("Initial 4Vec: P_E %f P_X %f P_Y %f P_Z %f", val[0], val[1], val[2], val[3]), m_print_other);
         
         double py = val[2];
         double pz = val[3];
@@ -2454,8 +2555,12 @@ void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
         val[2] = py_prime;
         val[3] = pz_prime;
         
+        PrintInfo(Form("Rotated 4Vec: P_E %f P_X %f P_Y %f P_Z %f", val[0], val[1], val[2], val[3]), m_print_other);
     }
     else if(((int)val.size() == 3)){
+        
+        PrintInfo(Form("Initial 3Vec: P_X %f P_Y %f P_Z %f", val[0], val[1], val[2]), m_print_other);
+        
         double py = val[1];
         double pz = val[2];
         //! momentum rotated to beam coordinate system
@@ -2464,10 +2569,11 @@ void CC1P1PiAnalysis::Rotate2BeamCoords(std::vector<double> val) const
         
         val[1] = py_prime;
         val[2] = pz_prime;
+        
+        PrintInfo(Form("Rotated 3Vec: P_X %f P_Y %f P_Z %f", val[0], val[1], val[2]), m_print_other);
+
     }
     else PrintInfo(Form("Warning : Not a 3/4-vector! Vector has dimension %d", (int)val.size()), m_print_other);
-    
-    PrintInfo(Form("Rotated 4Vec: P_E %f P_X %f P_Y %f P_Z %f", val[0], val[1], val[2], val[3]), m_print_other);
 }
 
 TVector3 * CC1P1PiAnalysis::Rotate2BeamCoords(double x, double y, double z) const
@@ -2604,7 +2710,11 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 *& mu
     }
     else{
         const TVector3 * tmp_vec = GetNuDirRec(vtx);
-        nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
+        if(tmp_vec) nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
+        else{
+            error() << " GetNuDirRec returned NULL " << endmsg;
+            return 0x0;
+        }
     }
     
     const TVector3 * neutrino_dir = new TVector3(nudir->X(),nudir->Y(), nudir->Z());
@@ -2620,6 +2730,13 @@ TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 *& mu
     dalphaT = (deltapt->Theta())*TMath::RadToDeg();
     dphiT   = (deltapt->Phi())*TMath::RadToDeg();
     dpTT    = GetDPTT(vtx, mumom, prmom, pimom, is_truth);
+    
+    //TODO: May cause seg fault:
+    delete nudir;
+    delete neutrino_dir;
+    delete mupT;
+    delete prpT;
+    delete pipT;
     
     return deltapt;
 }
@@ -2640,7 +2757,12 @@ TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], const TVector3 *& mom, bool is_t
     }
     else{
         const TVector3 * tmp_vec = GetNuDirRec(vtx);
-        nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
+        if(tmp_vec) nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
+        else{
+            error() << " GetNuDirRec returned NULL " << endmsg;
+            return 0x0;
+        }
+        
     }
     
     const TVector3 * neutrino_dir = new TVector3(nudir->X(),nudir->Y(), nudir->Z());
@@ -2697,7 +2819,11 @@ double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVe
     }
     else{
         const TVector3 * tmp_vec = GetNuDirRec(vtx);
-        nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
+        if(tmp_vec) nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
+        else {
+            error() << " GetNuDirRec returned NULL " << endmsg;
+            return -999.;
+        }
     }
     
     TVector3 tmp1_vec = nudir->Cross(*mumom);
@@ -2714,24 +2840,32 @@ double CC1P1PiAnalysis::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom
     return GetDPTT(vertex, mumom, prmom, pimom, is_truth);
 }
 
-TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
+TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[], double pdp[3]) const
 {
+    TVector3 * PDP;
+    
+    if(pdp[0] != -999. || pdp[1] != -999. || pdp[2] != -999.){
+        PDP->SetXYZ(pdp[0], pdp[1], pdp[2]);
+    }
+    else PDP->SetXYZ(m_PDP_X, m_PDP_Y, m_PDP_Z);
     
     TVector3 * nup1local = new TVector3(vtx[0], vtx[1], vtx[2]);
-    (*nup1local) *= 0.001;
+    (*nup1local) *= 0.001;//in meters (default mm)
     
-    if( m_PDP->Mag() < EPSILON || nup1local->Mag() < EPSILON ){
-        debug() << "CC1P1PiAnalysis::CalcNuDir bad input " << m_PDP->Mag() << " " << nup1local->Mag() << endmsg;
+    if( PDP->Mag() < EPSILON || nup1local->Mag() < EPSILON ){
+        debug() << "CC1P1PiAnalysis::CalcNuDir bad input " << PDP->Mag() << " " << nup1local->Mag() << endmsg;
         return 0x0;
     }
     
-    TVector3 *nuDirCalc = new TVector3( (*nup1local) - (*m_PDP) );
+    TVector3 *nuDirCalc = new TVector3( (*nup1local) - (*PDP) );
     (*nuDirCalc) *= 1./nuDirCalc->Mag();
     
+    delete PDP;
+
     return nuDirCalc;
 }
 
-Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoRir(Minerva::Prong * prong) const
+Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoDir(Minerva::Prong * prong) const
 {
     //Produce a unit normalised direction
     SmartRef<Minerva::Track> track = prong->minervaTracks().front();
