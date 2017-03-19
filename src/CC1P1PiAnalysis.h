@@ -220,7 +220,7 @@ private:
     double m_PDP_Z;
     
     TVector3 * m_PDP;
-    TVector3 * GetNuDirRec(double vtx[], double pdp[3] = {-999.}) const;
+    TVector3 * GetNuDirRec(double vtx[], double pdp[] = 0x0) const;
     
     Gaudi::XYZPoint GetRecoDir(Minerva::Prong * prong) const;
     

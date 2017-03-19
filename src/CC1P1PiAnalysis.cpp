@@ -1571,18 +1571,30 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
     
     SmartRef<Minerva::Vertex> int_vert = event->interactionVertex();
     const Gaudi::XYZPoint vert_3vec = int_vert->position();
-    double vertex[3] = {vert_3vec.x(), vert_3vec.y(), vert_3vec.z()};//{0.};
-    cc1p1piHyp->setContainerDoubleData("VTX",vertex);
+    std::vector<double> vertex;
+    vertex.push_back( vert_3vec.x() );
+    vertex.push_back( vert_3vec.y() );
+    vertex.push_back( vert_3vec.z() );
+    cc1p1piHyp->setContainerDoubleData("VTX", vertex);
     
-    double nu_dir_001[3] = {0., 0., 1.};
+    std::vector<double> nu_dir_001;
+    nu_dir_001.push_back( 0. );
+    nu_dir_001.push_back( 0. );
+    nu_dir_001.push_back( 1. );
     cc1p1piHyp->setContainerDoubleData("nu_dir_001",nu_dir_001);
     
-    double meanPDP[3] = {m_PDP->X(), m_PDP->Y(), m_PDP->Z()};
+    std::vector<double> meanPDP;
+    meanPDP.push_back( m_PDP_X );
+    meanPDP.push_back( m_PDP_Y );
+    meanPDP.push_back( m_PDP_Z );
     cc1p1piHyp->setContainerDoubleData("meanPDP",meanPDP);
     
     const TVector3 * nu_PDP = GetNuDirRec(vertex);
     if(nu_PDP){
-        double nu_dir_PDP[3] = { nu_PDP->X(), nu_PDP->Y(), nu_PDP->Z() };
+        std::vector<double> nu_dir_PDP;
+        nu_dir_PDP.push_back( nu_PDP->X() );
+        nu_dir_PDP.push_back( nu_PDP->Y() );
+        nu_dir_PDP.push_back( nu_PDP->Z() );
         cc1p1piHyp->setContainerDoubleData("nu_dir_PDP",nu_dir_PDP);
         delete nu_PDP;//TODO: My cause seg fault.
     }
@@ -1716,14 +1728,13 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
 
         SmartRef<Minerva::GenMinFluxRecord> flux_info = truth->fluxRecord();
         const Gaudi::XYZVectorF nu_PDP_Pos = flux_info->NuParentDecX();
-        double truePDP[3] = {nu_PDP_Pos.X(), nu_PDP_Pos.Y(), nu_PDP_Pos.Z() };
-        
+        std::vector<double> truePDP;
+        truePDP.push_back( nu_PDP_Pos.X() );
+        truePDP.push_back( nu_PDP_Pos.Y() );
+        truePDP.push_back( nu_PDP_Pos.Z() );
         cc1p1piHyp->setContainerDoubleData("truePDP",truePDP);
 
-        
-        
-        cc1p1piHyp->setContainerDoubleData("true_nu_dir_PDP", true_nu_dir_PDP);
-        
+//        cc1p1piHyp->setContainerDoubleData("true_nu_dir_PDP", true_nu_dir_PDP);
         
         double truedpTT = -999.;
         double truedpT = -999.;
@@ -2840,12 +2851,15 @@ double CC1P1PiAnalysis::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom
     return GetDPTT(vertex, mumom, prmom, pimom, is_truth);
 }
 
-TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[], double pdp[3]) const
+TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[], double pdp[]) const
 {
     TVector3 * PDP;
     
-    if(pdp[0] != -999. || pdp[1] != -999. || pdp[2] != -999.){
-        PDP->SetXYZ(pdp[0], pdp[1], pdp[2]);
+    if(pdp){
+        
+        if(pdp[0] != -999. || pdp[1] != -999. || pdp[2] != -999.){
+            PDP->SetXYZ(pdp[0], pdp[1], pdp[2]);
+        }
     }
     else PDP->SetXYZ(m_PDP_X, m_PDP_Y, m_PDP_Z);
     
