@@ -19,7 +19,7 @@ TransverseTools::~TransverseTools(){
     //    delete m_PDP;
 }
 
-double TransverseTools::GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const
+double TransverseTools::GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth)// const
 {
     TVector3 * nudir = new TVector3();
     
@@ -43,13 +43,13 @@ double TransverseTools::GetDPTT(double vtx[], const TVector3 *& mumom, const TVe
     return sum_vec.Dot(tmp1_vec);
 }
 
-double TransverseTools::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const
+double TransverseTools::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth)// const
 {
     double vertex[3] = { vtx[0], vtx[1], vtx[2] };
     return GetDPTT(vertex, mumom, prmom, pimom, is_truth);
 }
 
-TVector3 * TransverseTools::SetDPT(const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion) const
+TVector3 * TransverseTools::SetDPT(const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion)// const
 {
     //ptmuon and ptproton already in the same plain which is perpendicular to the neutrino and already in a near back-to-back configuration
     TVector3 tmpd = (*ptmuon) + (*ptproton) + (*ptpion);
@@ -63,7 +63,8 @@ TVector3 * TransverseTools::SetDPT(const TVector3 *& ptmuon, const TVector3 *& p
     return deltapt;
 }
 
-TVector3 * TransverseTools::GetVecT(const TVector3 *& refdir, const TVector3 *& mom) const {
+TVector3 * TransverseTools::GetVecT(const TVector3 *& refdir, const TVector3 *& mom)// const
+{
     //
     //w.r.t. beam direction
     //
@@ -80,7 +81,7 @@ TVector3 * TransverseTools::GetVecT(const TVector3 *& refdir, const TVector3 *& 
     return vt;
 }
 
-TVector3 * TransverseTools::GetPT(double vtx[], const TVector3 *& mom, bool is_truth) const
+TVector3 * TransverseTools::GetPT(double vtx[], const TVector3 *& mom, bool is_truth)// const
 {
     TVector3 * nudir = new TVector3();
     
@@ -109,7 +110,7 @@ TVector3 * TransverseTools::GetPT(double vtx[], const TVector3 *& mom, bool is_t
     return pT;
 }
 
-TVector3 * TransverseTools::GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth) const
+TVector3 * TransverseTools::GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth)// const
 {
     TVector3 * nudir = new TVector3();
     
@@ -148,7 +149,7 @@ TVector3 * TransverseTools::GetTransverseVars(double vtx[], const TVector3 *& mu
     return deltapt;
 }
 
-TVector3 * TransverseTools::GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth) const
+TVector3 * TransverseTools::GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth)// const
 {
     double vector[3] = { vtx[0], vtx[1], vtx[2] };
     
@@ -156,7 +157,8 @@ TVector3 * TransverseTools::GetTransverseVars(std::vector<double> vtx, const TVe
 }
 
 
-TVector3 * TransverseTools::GetNuDirRec(double vtx[]) const{
+TVector3 * TransverseTools::GetNuDirRec(double vtx[])// const
+{
     //If PDP exists make sure to rotote to minerva coords: -- May not need to do this
     
     TVector3 * PDP = new TVector3(m_PDP_x, m_PDP_y, m_PDP_z);
@@ -175,7 +177,8 @@ TVector3 * TransverseTools::GetNuDirRec(double vtx[]) const{
     return nuDirCalc;
 }
 
-TVector3 * TransverseTools::GlobalToLocal(double nu_NuParentDecPoint[]) const{
+TVector3 * TransverseTools::GlobalToLocal(double nu_NuParentDecPoint[])// const
+{
     //pl output in [m]
     TVector3 pg(nu_NuParentDecPoint);
     pg *= 0.001; //[mm] -> [m]

@@ -13,22 +13,22 @@ public:
     TransverseTools();
     ~TransverseTools();
     
-    TVector3 * GetNuDirRec(double vtx[]) const;
-    TVector3 * GlobalToLocal(double nu_NuParentDecPoint[]) const;
+    TVector3 * GetNuDirRec(double vtx[]);// const;
+    TVector3 * GlobalToLocal(double nu_NuParentDecPoint[]);// const;
     
-    double GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth = false) const;
-    double GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth = false) const;
+    double GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth = false);// const;
+    double GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth = false);// const;
     
-    TVector3 * GetVecT(const TVector3 *& refdir, const TVector3 *& mom) const;
-    TVector3 * GetPT(double vtx[], const TVector3 *& mom, bool is_truth = false) const;
+    TVector3 * GetVecT(const TVector3 *& refdir, const TVector3 *& mom);// const;
+    TVector3 * GetPT(double vtx[], const TVector3 *& mom, bool is_truth = false);// const;
 
-    TVector3 * SetDPT(const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion) const;
+    TVector3 * SetDPT(const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion);// const;
     
     TVector3 * GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
-                                 double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false) const;
+                                 double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false);// const;
     
     TVector3 * GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
-                                 double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false) const;
+                                 double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false);// const;
     
 private:
     const Double_t m_PDP_x;
