@@ -1,7 +1,7 @@
 #ifndef __TRANSVERSETOOLS__H
 #define __TRANSVERSETOOLS__H
 
-#include <vector>//?
+//#include <vector>//?
 
 class TVector3;
 class vector;//Is this good?
