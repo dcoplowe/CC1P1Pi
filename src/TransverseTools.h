@@ -13,8 +13,8 @@ public:
     TransverseTools();
     ~TransverseTools();
     
-    TVector3 * GetNuDirRec(double vtx[], double pdp[3]);//may need const's here.
-    TVector3 * GlobalToLocal(double nu_NuParentDecPoint[]);
+    TVector3 * GetNuDirRec(double vtx[]) const;
+    TVector3 * GlobalToLocal(double nu_NuParentDecPoint[]) const;
     
     double GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const;
     double GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const;

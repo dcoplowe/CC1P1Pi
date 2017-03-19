@@ -153,7 +153,7 @@ TVector3 * TransverseTools::GetTransverseVars(std::vector<double> vtx, const TVe
 }
 
 
-TVector3 * TransverseTools::GetNuDirRec(double vtx[], double pdp[3]) const
+TVector3 * TransverseTools::GetNuDirRec(double vtx[]) const
 {
     //If PDP exists make sure to rotote to minerva coords: -- May not need to do this
     
@@ -178,7 +178,7 @@ TVector3 * TransverseTools::GetNuDirRec(double vtx[], double pdp[3]) const
     return nuDirCalc;
 }
 
-TVector3 * TransverseTools::GlobalToLocal(const double nu_NuParentDecPoint[]){
+TVector3 * TransverseTools::GlobalToLocal(const double nu_NuParentDecPoint[]) const{
     //pl output in [m]
     TVector3 pg(nu_NuParentDecPoint);
     pg *= 0.001; //[mm] -> [m]
