@@ -186,7 +186,7 @@ private:
     //Generic Particle information builder:
     void SetPartInfo(std::string name);
     
-    void FillPartInfo(std::string name, const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const;
+    void FillPartInfo(std::string name, const Minerva::PhysicsEvent *event, Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const;
     
     void SetCommonBranches();// const;
     

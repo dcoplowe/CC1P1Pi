@@ -1861,7 +1861,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
     
 }
 
-void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
+void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent *event, Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
 {
     SmartRef<Minerva::Prong> prong_EX;
     SmartRef<Minerva::Particle> particle_EX;
