@@ -27,7 +27,7 @@ class TVector3;
 class IMomByRangeTool;
 
 //Local Headers:
-//class TransverseTools;
+class TransverseTools;
 
 class CC1P1PiAnalysis : public MinervaAnalysisTool
 {
@@ -211,7 +211,7 @@ private:
     
     void SetGlobalStartDir(std::string name, Gaudi::XYZPoint vec) const;
     
-//    TransverseTools * m_TransTools;
+    TransverseTools * m_TransTools;
     
     //Transverse variables:
     //Parent Decay Point Var:

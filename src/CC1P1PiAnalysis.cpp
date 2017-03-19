@@ -27,7 +27,7 @@
 #include <TVector3.h>
 
 //Local Headers:
-//#include "TransverseTools.h"
+#include "TransverseTools.h"
 
 //#include <stdio.h>
 //#include <stdlib.h>
@@ -152,7 +152,7 @@ CC1P1PiAnalysis::CC1P1PiAnalysis(const std::string& type, const std::string& nam
     m_LL_PionCaloE = new double [1];
     
     //Initialise internal tools:
-//    m_TransTools = new TransverseTools();
+    m_TransTools = new TransverseTools();
 }
 
 
