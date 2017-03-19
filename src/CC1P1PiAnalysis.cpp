@@ -1753,7 +1753,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         double truedalphaT = -999.;
         double truedphiT = -999.;
         
-        TVector3 * dpT_3mom_true = GetTransverseVars(vertex_true, truemu_p, truepr_p, truepi_p, truedpTT, truedpT, truedalphaT, truedphiT, true);
+        TVector3 * dpT_3mom_true = m_TransTools->GetTransverseVars(vertex_true, truemu_p, truepr_p, truepi_p, truedpTT, truedpT, truedalphaT, truedphiT, true);
         
         if(dpT_3mom_true){
             std::vector<double> vec_dpT_3mom_true;
@@ -1769,18 +1769,18 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         cc1p1piHyp->setDoubleData("truedalphaT", truedalphaT);
         cc1p1piHyp->setDoubleData("truedphiT", truedphiT);
         
-        double truedpTT_pi = GetDPTT(vertex_true, truepi_p, truemu_p, truepr_p, true);
+        double truedpTT_pi = m_TransTools->GetDPTT(vertex_true, truepi_p, truemu_p, truepr_p, true);
         cc1p1piHyp->setDoubleData("truedpTT_pi", truedpTT_pi);
         
-        double truedpTT_pr = GetDPTT(vertex_true, truepr_p, truepi_p, truemu_p, true);
+        double truedpTT_pr = m_TransTools->GetDPTT(vertex_true, truepr_p, truepi_p, truemu_p, true);
         cc1p1piHyp->setDoubleData("truedpTT_pr", truedpTT_pr);
         
         const TVector3 * truepi_dir = new TVector3(m_Piontrue_dir[1], m_Piontrue_dir[2], m_Piontrue_dir[3]);
-        double truedpTT_pi_dir = GetDPTT(vertex_true, truepi_dir, truemu_p, truepr_p, true);
+        double truedpTT_pi_dir = m_TransTools->GetDPTT(vertex_true, truepi_dir, truemu_p, truepr_p, true);
         cc1p1piHyp->setDoubleData("truedpTT_pi_dir", truedpTT_pi_dir);
         
         const TVector3 * truepr_dir = new TVector3(m_Protontrue_dir[1], m_Protontrue_dir[2], m_Protontrue_dir[3]);
-        double truedpTT_pr_dir = GetDPTT(vertex_true, truepr_dir, truepi_p, truemu_p, true);
+        double truedpTT_pr_dir = m_TransTools->GetDPTT(vertex_true, truepr_dir, truepi_p, truemu_p, true);
         cc1p1piHyp->setDoubleData("truedpTT_pr_dir", truedpTT_pr_dir);
         
         if(m_rtswap){
@@ -1813,50 +1813,50 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
                     pi_mom_v = new TVector3(m_LL_Pion4Mom[1],   m_LL_Pion4Mom[2],   m_LL_Pion4Mom[3]);
                 }//pi_d pr_d
                 
-                double dpTT_tnudir = GetDPTT(vertex_true, mu_p, pr_mom_v, pi_mom_v, true);
-                double dpTT_tprmom = GetDPTT(vertex, mu_p, truepr_p, pi_mom_v);
-                double dpTT_tpimom = GetDPTT(vertex, mu_p, pr_mom_v, truepi_p);
-                double dpTT_tmumom = GetDPTT(vertex, truemu_p, pr_mom_v, pi_mom_v);
+                double dpTT_tnudir = m_TransTools->GetDPTT(vertex_true, mu_p, pr_mom_v, pi_mom_v, true);
+                double dpTT_tprmom = m_TransTools->GetDPTT(vertex, mu_p, truepr_p, pi_mom_v);
+                double dpTT_tpimom = m_TransTools->GetDPTT(vertex, mu_p, pr_mom_v, truepi_p);
+                double dpTT_tmumom = m_TransTools->GetDPTT(vertex, truemu_p, pr_mom_v, pi_mom_v);
                 
                 cc1p1piHyp->setDoubleData( ("dpTT_"        + method_name + "_tnudir").c_str(), dpTT_tnudir);
                 cc1p1piHyp->setDoubleData( ("dpTT_"        + method_name + "_tprmom").c_str(), dpTT_tprmom);
                 cc1p1piHyp->setDoubleData( ("dpTT_"        + method_name + "_tpimom").c_str(), dpTT_tpimom);
                 cc1p1piHyp->setDoubleData( ("dpTT_"        + method_name + "_tmumom").c_str(), dpTT_tmumom);
                 
-                double dpTT_pi_tnudir = GetDPTT(vertex_true, pi_mom_v, pr_mom_v, mu_p, true);
-                double dpTT_pi_tprmom = GetDPTT(vertex, pi_mom_v, truepr_p, mu_p);
-                double dpTT_pi_tpimom = GetDPTT(vertex, truepi_p, pr_mom_v, mu_p);
-                double dpTT_pi_tmumom = GetDPTT(vertex, pi_mom_v, pr_mom_v, truemu_p);
+                double dpTT_pi_tnudir = m_TransTools->GetDPTT(vertex_true, pi_mom_v, pr_mom_v, mu_p, true);
+                double dpTT_pi_tprmom = m_TransTools->GetDPTT(vertex, pi_mom_v, truepr_p, mu_p);
+                double dpTT_pi_tpimom = m_TransTools->GetDPTT(vertex, truepi_p, pr_mom_v, mu_p);
+                double dpTT_pi_tmumom = m_TransTools->GetDPTT(vertex, pi_mom_v, pr_mom_v, truemu_p);
                 
                 cc1p1piHyp->setDoubleData( ("dpTT_pi_"     + method_name + "_tnudir").c_str(), dpTT_pi_tnudir);
                 cc1p1piHyp->setDoubleData( ("dpTT_pi_"     + method_name + "_tprmom").c_str(), dpTT_pi_tprmom);
                 cc1p1piHyp->setDoubleData( ("dpTT_pi_"     + method_name + "_tpimom").c_str(), dpTT_pi_tpimom);
                 cc1p1piHyp->setDoubleData( ("dpTT_pi_"     + method_name + "_tmumom").c_str(), dpTT_pi_tmumom);
                 
-                double dpTT_pi_dir_tnudir = GetDPTT(vertex_true, pi_d, pr_mom_v, mu_p, true);
-                double dpTT_pi_dir_tprmom = GetDPTT(vertex, pi_d, truemu_p, mu_p);
-                double dpTT_pi_dir_tpidir = GetDPTT(vertex, truepi_dir, pr_mom_v, mu_p);
-                double dpTT_pi_dir_tmumom = GetDPTT(vertex, pi_d, pr_mom_v, truemu_p);
+                double dpTT_pi_dir_tnudir = m_TransTools->GetDPTT(vertex_true, pi_d, pr_mom_v, mu_p, true);
+                double dpTT_pi_dir_tprmom = m_TransTools->GetDPTT(vertex, pi_d, truemu_p, mu_p);
+                double dpTT_pi_dir_tpidir = m_TransTools->GetDPTT(vertex, truepi_dir, pr_mom_v, mu_p);
+                double dpTT_pi_dir_tmumom = m_TransTools->GetDPTT(vertex, pi_d, pr_mom_v, truemu_p);
                 
                 cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tnudir").c_str(), dpTT_pi_dir_tnudir);
                 cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tprmom").c_str(), dpTT_pi_dir_tprmom);
                 cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tpidir").c_str(), dpTT_pi_dir_tpidir);
                 cc1p1piHyp->setDoubleData( ("dpTT_pi_dir_" + method_name + "_tmumom").c_str(), dpTT_pi_dir_tmumom);
                 
-                double dpTT_pr_tnudir = GetDPTT(vertex_true, pr_mom_v, mu_p, pi_mom_v, true);
-                double dpTT_pr_tprmom = GetDPTT(vertex, truepr_p, mu_p, pi_mom_v);
-                double dpTT_pr_tpimom = GetDPTT(vertex, pr_mom_v, mu_p, truepi_p);
-                double dpTT_pr_tmumom = GetDPTT(vertex, pr_mom_v, truemu_p, pi_mom_v);
+                double dpTT_pr_tnudir = m_TransTools->GetDPTT(vertex_true, pr_mom_v, mu_p, pi_mom_v, true);
+                double dpTT_pr_tprmom = m_TransTools->GetDPTT(vertex, truepr_p, mu_p, pi_mom_v);
+                double dpTT_pr_tpimom = m_TransTools->GetDPTT(vertex, pr_mom_v, mu_p, truepi_p);
+                double dpTT_pr_tmumom = m_TransTools->GetDPTT(vertex, pr_mom_v, truemu_p, pi_mom_v);
                 
                 cc1p1piHyp->setDoubleData( ("dpTT_pr_"     + method_name + "_tnudir").c_str(), dpTT_pr_tnudir);
                 cc1p1piHyp->setDoubleData( ("dpTT_pr_"     + method_name + "_tprmom").c_str(), dpTT_pr_tprmom);
                 cc1p1piHyp->setDoubleData( ("dpTT_pr_"     + method_name + "_tpimon").c_str(), dpTT_pr_tpimom);
                 cc1p1piHyp->setDoubleData( ("dpTT_pr_"     + method_name + "_tmumom").c_str(), dpTT_pr_tmumom);
                 
-                double dpTT_pr_dir_tnudir = GetDPTT(vertex_true, pr_d, mu_p, pi_mom_v, true);
-                double dpTT_pr_dir_tprdir = GetDPTT(vertex, truepr_dir, mu_p, pi_mom_v);
-                double dpTT_pr_dir_tpimom = GetDPTT(vertex, pr_d, mu_p, truepi_p);
-                double dpTT_pr_dir_tmumom = GetDPTT(vertex, pr_d, truemu_p, pi_mom_v);
+                double dpTT_pr_dir_tnudir = m_TransTools->GetDPTT(vertex_true, pr_d, mu_p, pi_mom_v, true);
+                double dpTT_pr_dir_tprdir = m_TransTools->GetDPTT(vertex, truepr_dir, mu_p, pi_mom_v);
+                double dpTT_pr_dir_tpimom = m_TransTools->GetDPTT(vertex, pr_d, mu_p, truepi_p);
+                double dpTT_pr_dir_tmumom = m_TransTools->GetDPTT(vertex, pr_d, truemu_p, pi_mom_v);
                 
                 cc1p1piHyp->setDoubleData( ("dpTT_pr_dir_" + method_name + "_tnudir").c_str(), dpTT_pr_dir_tnudir);
                 cc1p1piHyp->setDoubleData( ("dpTT_pr_dir_" + method_name + "_tprdir").c_str(), dpTT_pr_dir_tprdir);
@@ -2095,7 +2095,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
 //            Rotate2BeamCoords(nu_3vec);//Now the neutrino direction is also in correct beam coords.
             
             const TVector3 * true_mom_vec = new TVector3(true4mom[1], true4mom[2], true4mom[3]);
-            const TVector3 * truepT_3vec = GetPT(nu_3vec, true_mom_vec, true);
+            const TVector3 * truepT_3vec = m_TransTools->GetPT(nu_3vec, true_mom_vec, true);
 
             if(truepT_3vec){
                 cc1p1piHyp->setDoubleData( (name + "_truepTMag").c_str(), truepT_3vec->Mag());
@@ -2208,7 +2208,7 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
     double vtx[3] = {vert_3vec.x(), vert_3vec.y(), vert_3vec.z()};
     
     const TVector3 * mom_vec = new TVector3(sel4mom[1], sel4mom[2], sel4mom[3]);
-    const TVector3 * pT = GetPT(vtx, mom_vec);
+    const TVector3 * pT = m_TransTools->GetPT(vtx, mom_vec);
     
     if(pT){
         cc1p1piHyp->setDoubleData( (name + "_pTMag").c_str(), pT->Mag());
@@ -2390,7 +2390,7 @@ void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
         double truedalphaT = -999.;
         double truedphiT = -999.;
         
-        TVector3 * dpT_3mom_true = GetTransverseVars(vertex_true, truemu_p, truepr_p, truepi_p, truedpTT, truedpT, truedalphaT, truedphiT, true);
+        TVector3 * dpT_3mom_true = m_TransTools->GetTransverseVars(vertex_true, truemu_p, truepr_p, truepi_p, truedpTT, truedpT, truedalphaT, truedphiT, true);
         
         if(dpT_3mom_true){
             std::vector<double> vec_dpT_3mom_true;
@@ -2406,21 +2406,21 @@ void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
         truth->setDoubleData("truedalphaT", truedalphaT);
         truth->setDoubleData("truedphiT", truedphiT);
         
-        double truedpTT_pi = GetDPTT(vertex_true, truepi_p, truemu_p, truepr_p, true);
+        double truedpTT_pi = m_TransTools->GetDPTT(vertex_true, truepi_p, truemu_p, truepr_p, true);
         truth->setDoubleData("truedpTT_pi", truedpTT_pi);
         
-        double truedpTT_pr = GetDPTT(vertex_true, truepr_p, truepi_p, truemu_p, true);
+        double truedpTT_pr = m_TransTools->GetDPTT(vertex_true, truepr_p, truepi_p, truemu_p, true);
         truth->setDoubleData("truedpTT_pr", truedpTT_pr);
         
         double truepi_dir_norm = sqrt(fs_Px[s_pi]*fs_Px[s_pi] + fs_Py[s_pi]*fs_Py[s_pi] + fs_Pz[s_pi]*fs_Pz[s_pi]);
         const TVector3 * truepi_dir = new TVector3( (fs_Px[s_pi]/truepi_dir_norm), (fs_Py[s_pi]/truepi_dir_norm), (fs_Pz[s_pi]/truepi_dir_norm));
         
-        double truedpTT_pi_dir = GetDPTT(vertex_true, truepi_dir, truemu_p, truepr_p, true);
+        double truedpTT_pi_dir = m_TransTools->GetDPTT(vertex_true, truepi_dir, truemu_p, truepr_p, true);
         truth->setDoubleData("truedpTT_pi_dir", truedpTT_pi_dir);
         
         double truepr_dir_norm = sqrt(fs_Px[s_pr]*fs_Px[s_pr] + fs_Py[s_pr]*fs_Py[s_pr] + fs_Pz[s_pr]*fs_Pz[s_pr]);
         const TVector3 * truepr_dir = new TVector3( (fs_Px[s_pr]/truepr_dir_norm), (fs_Py[s_pr]/truepr_dir_norm), (fs_Pz[s_pr]/truepr_dir_norm));
-        double truedpTT_pr_dir = GetDPTT(vertex_true, truepr_dir, truepi_p, truemu_p, true);
+        double truedpTT_pr_dir = m_TransTools->GetDPTT(vertex_true, truepr_dir, truepi_p, truemu_p, true);
         truth->setDoubleData("truedpTT_pr_dir", truedpTT_pr_dir);
     }
 }
@@ -2721,203 +2721,203 @@ void CC1P1PiAnalysis::SetGlobal4Vec(std::string name, std::vector<double> vec, b
 //Transverse variables:
 //If is_truth the vtx becomes the true neutrino direction.
 
-TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth) const
-{
-    TVector3 * nudir = new TVector3();
-    
-    if(is_truth){
-        nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
-    }
-    else{
-        const TVector3 * tmp_vec = GetNuDirRec(vtx);
-        if(tmp_vec) nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
-        else{
-            error() << " GetNuDirRec returned NULL " << endmsg;
-            return 0x0;
-        }
-    }
-    
-    const TVector3 * neutrino_dir = new TVector3(nudir->X(),nudir->Y(), nudir->Z());
-    
-    const TVector3 * mupT = GetVecT(neutrino_dir, mumom);
-    const TVector3 * prpT = GetVecT(neutrino_dir, prmom);
-    const TVector3 * pipT = GetVecT(neutrino_dir, pimom);
-    
-    TVector3 * deltapt = new TVector3();
-    SetDPT(deltapt, mupT, prpT, pipT);
-    
-    dpTMag  = deltapt->Mag();
-    dalphaT = (deltapt->Theta())*TMath::RadToDeg();
-    dphiT   = (deltapt->Phi())*TMath::RadToDeg();
-    dpTT    = GetDPTT(vtx, mumom, prmom, pimom, is_truth);
-    
-    //TODO: May cause seg fault:
-    delete nudir;
-    delete neutrino_dir;
-    delete mupT;
-    delete prpT;
-    delete pipT;
-    
-    return deltapt;
-}
-
-TVector3 * CC1P1PiAnalysis::GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth) const
-{
-    double vector[3] = { vtx[0], vtx[1], vtx[2] };
-    
-    return GetTransverseVars(vector, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT, is_truth);
-}
-
-TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], const TVector3 *& mom, bool is_truth) const
-{
-    TVector3 * nudir = new TVector3();
-    
-    if(is_truth){
-        nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
-    }
-    else{
-        const TVector3 * tmp_vec = GetNuDirRec(vtx);
-        if(tmp_vec) nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
-        else{
-            error() << " GetNuDirRec returned NULL " << endmsg;
-            return 0x0;
-        }
-        
-    }
-    
-    const TVector3 * neutrino_dir = new TVector3(nudir->X(),nudir->Y(), nudir->Z());
-    
-    TVector3 * pT = GetVecT(neutrino_dir, mom);
-    
-    return pT;
-}
-
-TVector3 * CC1P1PiAnalysis::GetPT(std::vector<double> vtx, const TVector3 *& mom, bool is_truth) const
-{
-    double vertex[3] = { vtx[0], vtx[1], vtx[2] };
-    return GetPT(vertex, mom, is_truth);
-}
-
-void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion) const
-{
-    //ptmuon and ptproton already in the same plain which is perpendicular to the neutrino and already in a near back-to-back configuration
-    TVector3 tmpd = (*ptmuon) + (*ptproton) + (*ptpion);
-    TVector3 tmp_had = (*ptproton) + (*ptpion);
-
-    double phi = TMath::ACos( ptmuon->Dot(tmp_had)*(-1)/(ptmuon->Mag()*tmp_had.Mag()) );
-    
-    double theta = TMath::ACos( tmpd.Dot(*ptmuon)*(-1)/(tmpd.Mag()*ptmuon->Mag())  );
-    
-    deltapt->SetMagThetaPhi(tmpd.Mag(),theta, phi);
-}
-
-TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 *& refdir, const TVector3 *& mom) const
-{
-    //
-    //w.r.t. beam direction
-    //
-    if(!refdir){
-        error() << "CC1P1PiAnalysis::GetVecT refdir null" << endmsg;
-        exit(1);
-    }
-    
-    
-    TVector3 vRotated(*mom);
-    vRotated.Rotate(TMath::Pi(), *refdir);
-    
-    TVector3 *vt = new TVector3( (*mom - vRotated)*0.5 );
-    
-    return vt;
-}
-
-double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const
-{
-    TVector3 * nudir = new TVector3();
-    
-    if(is_truth){
-        nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
-    }
-    else{
-        const TVector3 * tmp_vec = GetNuDirRec(vtx);
-        if(tmp_vec) nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
-        else {
-            error() << " GetNuDirRec returned NULL " << endmsg;
-            return -999.;
-        }
-    }
-    
-    TVector3 tmp1_vec = nudir->Cross(*mumom);
-    tmp1_vec *= 1/tmp1_vec.Mag();
-    
-    TVector3 sum_vec = *prmom + *pimom;
-    
-    return sum_vec.Dot(tmp1_vec);
-}
-
-double CC1P1PiAnalysis::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const
-{
-    double vertex[3] = { vtx[0], vtx[1], vtx[2] };
-    return GetDPTT(vertex, mumom, prmom, pimom, is_truth);
-}
-
-TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
-{
-    TVector3 * PDP = new TVector3(m_PDP_X, m_PDP_Y, m_PDP_Z);
-    
-    TVector3 * nup1local = new TVector3(vtx[0], vtx[1], vtx[2]);
-    (*nup1local) *= 0.001;//in meters (default mm)
-    
-    if( PDP->Mag() < EPSILON || nup1local->Mag() < EPSILON ){
-        debug() << "CC1P1PiAnalysis::CalcNuDir bad input " << PDP->Mag() << " " << nup1local->Mag() << endmsg;
-        return 0x0;
-    }
-    
-    TVector3 *nuDirCalc = new TVector3( (*nup1local) - (*PDP) );
-    (*nuDirCalc) *= 1./nuDirCalc->Mag();
-    
-    delete PDP;
-
-    return nuDirCalc;
-}
-
-TVector3 * CC1P1PiAnalysis::GetNuDirRec(std::vector<double> vtx) const{
-    
-    if(vtx.size() != 3) return 0x0;
-
-    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
-    
-    return GetNuDirRec(tmp_vtx);
-}
-
-TVector3 * CC1P1PiAnalysis::GetNuDirSim(double vtx[], double pdp[]) const{
-    
-    TVector3 * PDP = new TVector3(pdp[0], pdp[1], pdp[2]);
-    
-    TVector3 * nup1local = new TVector3(vtx[0], vtx[1], vtx[2]);
-    (*nup1local) *= 0.001;//in meters (default mm)
-    
-    if( PDP->Mag() < EPSILON || nup1local->Mag() < EPSILON ){
-        debug() << "CC1P1PiAnalysis::CalcNuDir bad input " << PDP->Mag() << " " << nup1local->Mag() << endmsg;
-        return 0x0;
-    }
-    
-    TVector3 *nuDirCalc = new TVector3( (*nup1local) - (*PDP) );
-    (*nuDirCalc) *= 1./nuDirCalc->Mag();
-    
-    delete PDP;
-    
-    return nuDirCalc;
-}
-
-TVector3 * CC1P1PiAnalysis::GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp) const{
-    
-    if( (int)vtx.size() != 3 || (int)pdp.size() != 3 ) return 0x0;
-    
-    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
-    double tmp_pdp[3] = { pdp[0], pdp[1], pdp[2] };
-    
-    return GetNuDirSim(tmp_vtx, tmp_pdp);
-}
+//TVector3 * CC1P1PiAnalysis::GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth) const
+//{
+//    TVector3 * nudir = new TVector3();
+//    
+//    if(is_truth){
+//        nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
+//    }
+//    else{
+//        const TVector3 * tmp_vec = GetNuDirRec(vtx);
+//        if(tmp_vec) nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
+//        else{
+//            error() << " GetNuDirRec returned NULL " << endmsg;
+//            return 0x0;
+//        }
+//    }
+//    
+//    const TVector3 * neutrino_dir = new TVector3(nudir->X(),nudir->Y(), nudir->Z());
+//    
+//    const TVector3 * mupT = GetVecT(neutrino_dir, mumom);
+//    const TVector3 * prpT = GetVecT(neutrino_dir, prmom);
+//    const TVector3 * pipT = GetVecT(neutrino_dir, pimom);
+//    
+//    TVector3 * deltapt = new TVector3();
+//    SetDPT(deltapt, mupT, prpT, pipT);
+//    
+//    dpTMag  = deltapt->Mag();
+//    dalphaT = (deltapt->Theta())*TMath::RadToDeg();
+//    dphiT   = (deltapt->Phi())*TMath::RadToDeg();
+//    dpTT    = GetDPTT(vtx, mumom, prmom, pimom, is_truth);
+//    
+//    //TODO: May cause seg fault:
+//    delete nudir;
+//    delete neutrino_dir;
+//    delete mupT;
+//    delete prpT;
+//    delete pipT;
+//    
+//    return deltapt;
+//}
+//
+//TVector3 * CC1P1PiAnalysis::GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth) const
+//{
+//    double vector[3] = { vtx[0], vtx[1], vtx[2] };
+//    
+//    return GetTransverseVars(vector, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT, is_truth);
+//}
+//
+//TVector3 * CC1P1PiAnalysis::GetPT(double vtx[], const TVector3 *& mom, bool is_truth) const
+//{
+//    TVector3 * nudir = new TVector3();
+//    
+//    if(is_truth){
+//        nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
+//    }
+//    else{
+//        const TVector3 * tmp_vec = GetNuDirRec(vtx);
+//        if(tmp_vec) nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
+//        else{
+//            error() << " GetNuDirRec returned NULL " << endmsg;
+//            return 0x0;
+//        }
+//        
+//    }
+//    
+//    const TVector3 * neutrino_dir = new TVector3(nudir->X(),nudir->Y(), nudir->Z());
+//    
+//    TVector3 * pT = GetVecT(neutrino_dir, mom);
+//    
+//    return pT;
+//}
+//
+//TVector3 * CC1P1PiAnalysis::GetPT(std::vector<double> vtx, const TVector3 *& mom, bool is_truth) const
+//{
+//    double vertex[3] = { vtx[0], vtx[1], vtx[2] };
+//    return GetPT(vertex, mom, is_truth);
+//}
+//
+//void CC1P1PiAnalysis::SetDPT(TVector3 * deltapt, const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion) const
+//{
+//    //ptmuon and ptproton already in the same plain which is perpendicular to the neutrino and already in a near back-to-back configuration
+//    TVector3 tmpd = (*ptmuon) + (*ptproton) + (*ptpion);
+//    TVector3 tmp_had = (*ptproton) + (*ptpion);
+//
+//    double phi = TMath::ACos( ptmuon->Dot(tmp_had)*(-1)/(ptmuon->Mag()*tmp_had.Mag()) );
+//    
+//    double theta = TMath::ACos( tmpd.Dot(*ptmuon)*(-1)/(tmpd.Mag()*ptmuon->Mag())  );
+//    
+//    deltapt->SetMagThetaPhi(tmpd.Mag(),theta, phi);
+//}
+//
+//TVector3 * CC1P1PiAnalysis::GetVecT(const TVector3 *& refdir, const TVector3 *& mom) const
+//{
+//    //
+//    //w.r.t. beam direction
+//    //
+//    if(!refdir){
+//        error() << "CC1P1PiAnalysis::GetVecT refdir null" << endmsg;
+//        exit(1);
+//    }
+//    
+//    
+//    TVector3 vRotated(*mom);
+//    vRotated.Rotate(TMath::Pi(), *refdir);
+//    
+//    TVector3 *vt = new TVector3( (*mom - vRotated)*0.5 );
+//    
+//    return vt;
+//}
+//
+//double CC1P1PiAnalysis::GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const
+//{
+//    TVector3 * nudir = new TVector3();
+//    
+//    if(is_truth){
+//        nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
+//    }
+//    else{
+//        const TVector3 * tmp_vec = GetNuDirRec(vtx);
+//        if(tmp_vec) nudir->SetXYZ(tmp_vec->X(),tmp_vec->Y(),tmp_vec->Z());
+//        else {
+//            error() << " GetNuDirRec returned NULL " << endmsg;
+//            return -999.;
+//        }
+//    }
+//    
+//    TVector3 tmp1_vec = nudir->Cross(*mumom);
+//    tmp1_vec *= 1/tmp1_vec.Mag();
+//    
+//    TVector3 sum_vec = *prmom + *pimom;
+//    
+//    return sum_vec.Dot(tmp1_vec);
+//}
+//
+//double CC1P1PiAnalysis::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth) const
+//{
+//    double vertex[3] = { vtx[0], vtx[1], vtx[2] };
+//    return GetDPTT(vertex, mumom, prmom, pimom, is_truth);
+//}
+//
+//TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
+//{
+//    TVector3 * PDP = new TVector3(m_PDP_X, m_PDP_Y, m_PDP_Z);
+//    
+//    TVector3 * nup1local = new TVector3(vtx[0], vtx[1], vtx[2]);
+//    (*nup1local) *= 0.001;//in meters (default mm)
+//    
+//    if( PDP->Mag() < EPSILON || nup1local->Mag() < EPSILON ){
+//        debug() << "CC1P1PiAnalysis::CalcNuDir bad input " << PDP->Mag() << " " << nup1local->Mag() << endmsg;
+//        return 0x0;
+//    }
+//    
+//    TVector3 *nuDirCalc = new TVector3( (*nup1local) - (*PDP) );
+//    (*nuDirCalc) *= 1./nuDirCalc->Mag();
+//    
+//    delete PDP;
+//
+//    return nuDirCalc;
+//}
+//
+//TVector3 * CC1P1PiAnalysis::GetNuDirRec(std::vector<double> vtx) const{
+//    
+//    if(vtx.size() != 3) return 0x0;
+//
+//    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
+//    
+//    return GetNuDirRec(tmp_vtx);
+//}
+//
+//TVector3 * CC1P1PiAnalysis::GetNuDirSim(double vtx[], double pdp[]) const{
+//    
+//    TVector3 * PDP = new TVector3(pdp[0], pdp[1], pdp[2]);
+//    
+//    TVector3 * nup1local = new TVector3(vtx[0], vtx[1], vtx[2]);
+//    (*nup1local) *= 0.001;//in meters (default mm)
+//    
+//    if( PDP->Mag() < EPSILON || nup1local->Mag() < EPSILON ){
+//        debug() << "CC1P1PiAnalysis::CalcNuDir bad input " << PDP->Mag() << " " << nup1local->Mag() << endmsg;
+//        return 0x0;
+//    }
+//    
+//    TVector3 *nuDirCalc = new TVector3( (*nup1local) - (*PDP) );
+//    (*nuDirCalc) *= 1./nuDirCalc->Mag();
+//    
+//    delete PDP;
+//    
+//    return nuDirCalc;
+//}
+//
+//TVector3 * CC1P1PiAnalysis::GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp) const{
+//    
+//    if( (int)vtx.size() != 3 || (int)pdp.size() != 3 ) return 0x0;
+//    
+//    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
+//    double tmp_pdp[3] = { pdp[0], pdp[1], pdp[2] };
+//    
+//    return GetNuDirSim(tmp_vtx, tmp_pdp);
+//}
 
 Gaudi::XYZPoint CC1P1PiAnalysis::GetRecoDir(Minerva::Prong * prong) const {
     //Produce a unit normalised direction
