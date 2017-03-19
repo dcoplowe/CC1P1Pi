@@ -221,6 +221,7 @@ private:
     
     TVector3 * m_PDP;
     TVector3 * GetNuDirRec(double vtx[], double pdp[] = 0x0) const;
+    TVector3 * GetNuDirRec(std::vector<double> vtx, std::vector<double> pdp = 0x0 ) const;
     
     Gaudi::XYZPoint GetRecoDir(Minerva::Prong * prong) const;
     
