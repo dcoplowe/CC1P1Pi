@@ -177,6 +177,37 @@ TVector3 * TransverseTools::GetNuDirRec(double vtx[])// const
     return nuDirCalc;
 }
 
+TVector3 * CC1P1PiAnalysis::GetNuDirSim(double vtx[], double pdp[])// const
+{
+    
+    TVector3 * PDP = GlobalToLocal(pdp);
+    
+    TVector3 * nup1local = new TVector3(vtx[0], vtx[1], vtx[2]);
+    (*nup1local) *= 0.001;//in meters (default mm)
+    
+    if( PDP->Mag() < EPSILON || nup1local->Mag() < EPSILON ){
+        debug() << "CC1P1PiAnalysis::CalcNuDir bad input " << PDP->Mag() << " " << nup1local->Mag() << endmsg;
+        return 0x0;
+    }
+    
+    TVector3 *nuDirCalc = new TVector3( (*nup1local) - (*PDP) );
+    (*nuDirCalc) *= 1./nuDirCalc->Mag();
+    
+    delete PDP;
+    
+    return nuDirCalc;
+}
+
+TVector3 * CC1P1PiAnalysis::GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp)// const
+{
+    if( (int)vtx.size() != 3 || (int)pdp.size() != 3 ) return 0x0;
+    
+    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
+    double tmp_pdp[3] = { pdp[0], pdp[1], pdp[2] };
+    
+    return GetNuDirSim(tmp_vtx, tmp_pdp);
+}
+
 TVector3 * TransverseTools::GlobalToLocal(double nu_NuParentDecPoint[])// const
 {
     //pl output in [m]

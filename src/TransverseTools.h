@@ -14,7 +14,9 @@ public:
     ~TransverseTools();
     
     TVector3 * GetNuDirRec(double vtx[]);// const;
-    TVector3 * GlobalToLocal(double nu_NuParentDecPoint[]);// const;
+    
+    TVector3 * GetNuDirSim(double vtx[], double pdp[]);// const;
+    TVector3 * GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp);// const;
     
     double GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth = false);// const;
     double GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth = false);// const;
@@ -41,6 +43,9 @@ private:
     const Double_t m_XOffset;// = 0.2486;
     const Double_t m_YOffset;// = 60.350;
     const Double_t m_ZOffset;// = -1022.74;
+    
+    TVector3 * GlobalToLocal(double nu_NuParentDecPoint[]);// const;
+
 };
 
 #endif
