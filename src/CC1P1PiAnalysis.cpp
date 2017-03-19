@@ -539,9 +539,10 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     // If you mark the event it will go to your analysis DST.  If you don't want it to go there, don't mark it!
     //markEvent( event );
     
-    
+    FillTruthMichel(truth);
     // Now interpret the event and add NeutrinoInts
     std::vector<Minerva::NeutrinoInt*> nuInts;
+    
     interpretEvent( event, truth, nuInts );
     
     // You can also use other analysis tools to interpret the event.
@@ -555,7 +556,7 @@ StatusCode CC1P1PiAnalysis::reconstructEvent( Minerva::PhysicsEvent *event, Mine
     return sc;
 }
 
-StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *interaction, std::vector<Minerva::NeutrinoInt*>& nuInts ) const
+StatusCode CC1P1PiAnalysis::interpretEvent( const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction * interaction, std::vector<Minerva::NeutrinoInt*>& nuInts ) const
 {
     //debug() << "CC1P1PiAnalysis::interpretEvent" << endmsg;
     
@@ -1861,7 +1862,14 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
     
 }
 
-void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent *event, Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
+void CC1P1PiAnalysis::FillTruthMichel(Minerva::GenMinInteraction *truth) const{
+    if(m_EX_ProtonProng) truth->setIntData("pr_EX_michel" , m_EX_ProtonProng->getIntData("has_michel") );
+    if(m_LL_ProtonProng) truth->setIntData("pr_LL_michel" , m_LL_ProtonProng->getIntData("has_michel") );
+    if(m_EX_PionProng)   truth->setIntData("pi_EX_michel" , m_EX_PionProng->getIntData("has_michel")   );
+    if(m_LL_PionProng)   truth->setIntData("pi_LL_michel" , m_LL_PionProng->getIntData("has_michel")   );
+}
+
+void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent *event, const Minerva::GenMinInteraction *truth, Minerva::NeutrinoInt* cc1p1piHyp) const
 {
     SmartRef<Minerva::Prong> prong_EX;
     SmartRef<Minerva::Particle> particle_EX;
@@ -1910,9 +1918,6 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             FillMomDepVars( (name + "_EX").c_str(), particle_EX, event, cc1p1piHyp, particle_EX_altH);
             if( prong_EX->hasIntData("has_michel") ){
                 cc1p1piHyp->setIntData( (name + "_EX_michel").c_str(), prong_EX->getIntData("has_michel"));
-//                if(name == "pi")
-                Int_t mic_tag = prong_EX->getIntData("has_michel");
-                truth->setIntData( (name + "_EX_michel").c_str(), mic_tag);
                 debug() << "Michel Tagged" << endmsg;
             }
 
@@ -1948,8 +1953,6 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             FillMomDepVars( (name + "_LL").c_str(), particle_LL, event, cc1p1piHyp, particle_LL_altH);
             if( prong_LL->hasIntData("has_michel") ){
                 cc1p1piHyp->setIntData( (name + "_LL_michel").c_str(), prong_LL->getIntData("has_michel"));
-//                if(name == "pi")
-//                truth->setIntData(      (name + "_LL_michel").c_str(), prong_LL->getIntData("has_michel"));
                 debug() << "Michel Tagged" << endmsg;
             }
             cc1p1piHyp->setDoubleData( (name + "_CaloE").c_str(), caloE);
@@ -2542,14 +2545,6 @@ void CC1P1PiAnalysis::SaveAccumLevel(Minerva::PhysicsEvent * event, Minerva::Gen
         debug() << "Should have saved event" << endmsg;
     }
     else PrintInfo(Form("Failed to reach accum. level %d. Selection stopped at %d.", m_accum_level_to_save, tmp_accum_level), m_print_acc_level);
-
-    //debug() << " " << endmsg;
-    //debug() << " " << endmsg;
-    //std::vector<int> tmp_vec;
-    //for(int i = 0; i < m_ncuts; i++){
-    //    tmp_vec.push_back(m_accum_level[i]);
-    //}
-    //event->setContainerIntData("accum_level",tmp_vec);
     
 }
 
