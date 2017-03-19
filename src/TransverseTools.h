@@ -14,6 +14,7 @@ public:
     ~TransverseTools();
     
     TVector3 * GetNuDirRec(double vtx[]);// const;
+    TVector3 * GetNuDirRec(std::vector<double> vtx);// const;
     
     TVector3 * GetNuDirSim(double vtx[], double pdp[]);// const;
     TVector3 * GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp);// const;

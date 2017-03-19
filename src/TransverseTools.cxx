@@ -184,6 +184,15 @@ TVector3 * TransverseTools::GetNuDirRec(double vtx[])// const
     return nuDirCalc;
 }
 
+TVector3 * TransverseTools::GetNuDirRec(std::vector<double> vtx)
+{
+    if( (int)vtx.size() != 3) return 0x0;
+    
+    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
+
+    return GetNuDirRec(tmp_vtx);
+}
+
 TVector3 * TransverseTools::GetNuDirSim(double vtx[], double pdp[])// const
 {
     

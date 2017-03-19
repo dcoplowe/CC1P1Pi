@@ -220,23 +220,8 @@ private:
     double m_PDP_Z;
     
     TVector3 * m_PDP;
-//    TVector3 * GetNuDirRec(double vtx[]) const;
-//    TVector3 * GetNuDirRec(std::vector<double> vtx) const;
-//    
-//    TVector3 * GetNuDirSim(double vtx[], double pdp[]) const;
-//    TVector3 * GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp) const;
     
     Gaudi::XYZPoint GetRecoDir(Minerva::Prong * prong) const;
-    
-//    TVector3 * GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false) const;
-//    TVector3 * GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false) const;
-//    
-//    TVector3 * GetPT(double vtx[], const TVector3 *& mom, bool is_truth = false) const;
-//    TVector3 * GetPT(std::vector<double> vtx, const TVector3 *& mom, bool is_truth  = false) const;
-//    void SetDPT(TVector3 * deltapt, const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion) const;
-//    TVector3 * GetVecT(const TVector3 *& refdir, const TVector3 *& mom) const;
-//    double GetDPTT(double vtx[],            const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth = false) const;
-//    double GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth = false) const;
     
     void PrintInfo(std::string var, bool print = true) const;
     bool m_print_acc_level;
