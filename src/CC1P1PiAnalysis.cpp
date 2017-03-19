@@ -1621,7 +1621,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         double dalphaT_EX = -999.;
         double dphiT_EX = -999.;
         
-        TVector3 * dpT_3mom_EX = GetTransverseVars(vertex, mu_p, pr_EX_p, pi_EX_p, dpTT_EX, dpTMag_EX, dalphaT_EX, dphiT_EX);
+        TVector3 * dpT_3mom_EX = m_TransTools->GetTransverseVars(vertex, mu_p, pr_EX_p, pi_EX_p, dpTT_EX, dpTMag_EX, dalphaT_EX, dphiT_EX);
         
         if(dpT_3mom_EX){
             std::vector<double> vec_dpT_3mom_EX;
@@ -2065,7 +2065,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             true4mom.push_back(traj_4p.py());
             true4mom.push_back(traj_4p.pz());
             
-            Rotate2BeamCoords(true4mom);
+//            Rotate2BeamCoords(true4mom);
             
             SetGlobal4Vec(name, true4mom, true);
             
@@ -2086,7 +2086,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             nu_3vec.push_back( (nu_4vec.px()/nu_3vec_mag) );
             nu_3vec.push_back( (nu_4vec.py()/nu_3vec_mag) );
             nu_3vec.push_back( (nu_4vec.pz()/nu_3vec_mag) );
-            Rotate2BeamCoords(nu_3vec);//Now the neutrino direction is also in correct beam coords.
+//            Rotate2BeamCoords(nu_3vec);//Now the neutrino direction is also in correct beam coords.
             
             const TVector3 * true_mom_vec = new TVector3(true4mom[1], true4mom[2], true4mom[3]);
             const TVector3 * truepT_3vec = GetPT(nu_3vec, true_mom_vec, true);
@@ -2189,7 +2189,7 @@ void CC1P1PiAnalysis::FillMomDepVars(std::string name, SmartRef<Minerva::Particl
     sel4mom.push_back(four_vec.py());
     sel4mom.push_back(four_vec.pz());
     
-    Rotate2BeamCoords(sel4mom);
+//    Rotate2BeamCoords(sel4mom);
     
     SetGlobal4Vec(name, sel4mom);
     
@@ -2363,9 +2363,13 @@ void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
         double trueQ2 = -999.;
         truth->setDoubleData("trueQ2", trueQ2);
         
-        const TVector3 * truemu_p = Rotate2BeamCoords(fs_Px[s_mu], fs_Py[s_mu], fs_Pz[s_mu]);
-        const TVector3 * truepr_p = Rotate2BeamCoords(fs_Px[s_pr], fs_Py[s_pr], fs_Pz[s_pr]);
-        const TVector3 * truepi_p = Rotate2BeamCoords(fs_Px[s_pi], fs_Py[s_pi], fs_Pz[s_pi]);
+//        const TVector3 * truemu_p = Rotate2BeamCoords(fs_Px[s_mu], fs_Py[s_mu], fs_Pz[s_mu]);
+//        const TVector3 * truepr_p = Rotate2BeamCoords(fs_Px[s_pr], fs_Py[s_pr], fs_Pz[s_pr]);
+//        const TVector3 * truepi_p = Rotate2BeamCoords(fs_Px[s_pi], fs_Py[s_pi], fs_Pz[s_pi]);
+       
+        const TVector3 * truemu_p = new TVector(fs_Px[s_mu], fs_Py[s_mu], fs_Pz[s_mu]);
+        const TVector3 * truepr_p = new TVector(fs_Px[s_pr], fs_Py[s_pr], fs_Pz[s_pr]);
+        const TVector3 * truepi_p = new TVector(fs_Px[s_pi], fs_Py[s_pi], fs_Pz[s_pi]);
         
         const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
         double nu_3vec_mag = sqrt(nu_4vec.px()*nu_4vec.px() + nu_4vec.py()*nu_4vec.py() + nu_4vec.pz()*nu_4vec.pz());
@@ -2373,7 +2377,7 @@ void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
         vertex_true.push_back( (nu_4vec.px()/nu_3vec_mag) );
         vertex_true.push_back( (nu_4vec.py()/nu_3vec_mag) );
         vertex_true.push_back( (nu_4vec.pz()/nu_3vec_mag) );
-        Rotate2BeamCoords(vertex_true);
+//        Rotate2BeamCoords(vertex_true);
         
         double truedpTT = -999.;
         double truedpT = -999.;
@@ -2413,7 +2417,6 @@ void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
         double truedpTT_pr_dir = GetDPTT(vertex_true, truepr_dir, truepi_p, truemu_p, true);
         truth->setDoubleData("truedpTT_pr_dir", truedpTT_pr_dir);
     }
-
 }
 
 void CC1P1PiAnalysis::FillTrueParticle(std::string name, double E, double Px, double Py, double Pz, Minerva::GenMinInteraction* truth) const
@@ -2427,7 +2430,7 @@ void CC1P1PiAnalysis::FillTrueParticle(std::string name, double E, double Px, do
     mom.push_back( Px );
     mom.push_back( Py );
     mom.push_back( Pz );
-    Rotate2BeamCoords(mom);
+//    Rotate2BeamCoords(mom);
     truth->setContainerDoubleData( (name + "_4mom").c_str(), mom);
     truth->setDoubleData( (name + "_E").c_str(), E);
     
@@ -2438,7 +2441,7 @@ void CC1P1PiAnalysis::FillTrueParticle(std::string name, double E, double Px, do
     nu_3vec.push_back( (nu_4vec.px()/nu_3vec_mag) );
     nu_3vec.push_back( (nu_4vec.py()/nu_3vec_mag) );
     nu_3vec.push_back( (nu_4vec.pz()/nu_3vec_mag) );
-    Rotate2BeamCoords(nu_3vec);//Now the neutrino direction is also in correct beam coords.
+//    Rotate2BeamCoords(nu_3vec);//Now the neutrino direction is also in correct beam coords.
     
     const TVector3 * true_mom_vec = new TVector3(mom[1], mom[2], mom[3]);
     const TVector3 * truepT_3vec = GetPT(nu_3vec, true_mom_vec, true);
