@@ -34,5 +34,5 @@ apply_pattern component_library library=CC1P1Pi
 
 private
 #set CC1P1PI_ANA "${CC1P1PIROOT}/ana/CC1P1Pi_Ana”
-path_append LD_LIBRARY_PATH "${CC1P1PIROOT}"
+path_append LD_LIBRARY_PATH “$(CC1P1PIROOT/src)”
 end_private
