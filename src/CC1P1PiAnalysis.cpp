@@ -1912,7 +1912,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
                 cc1p1piHyp->setIntData( (name + "_EX_michel").c_str(), prong_EX->getIntData("has_michel"));
 //                if(name == "pi")
                 Int_t mic_tag = prong_EX->getIntData("has_michel");
-                truth->setIntData(      (name + "_EX_michel").c_str(), mic_tag);
+//                truth->setIntData( (name + "_EX_michel").c_str(), mic_tag);
                 debug() << "Michel Tagged" << endmsg;
             }
 
@@ -1949,7 +1949,7 @@ void CC1P1PiAnalysis::FillPartInfo(std::string name, const Minerva::PhysicsEvent
             if( prong_LL->hasIntData("has_michel") ){
                 cc1p1piHyp->setIntData( (name + "_LL_michel").c_str(), prong_LL->getIntData("has_michel"));
 //                if(name == "pi")
-                truth->setIntData(      (name + "_LL_michel").c_str(), prong_LL->getIntData("has_michel"));
+//                truth->setIntData(      (name + "_LL_michel").c_str(), prong_LL->getIntData("has_michel"));
                 debug() << "Michel Tagged" << endmsg;
             }
             cc1p1piHyp->setDoubleData( (name + "_CaloE").c_str(), caloE);
