@@ -110,6 +110,14 @@ TVector3 * TransverseTools::GetPT(double vtx[], const TVector3 *& mom, bool is_t
     return pT;
 }
 
+TVector3 * TransverseTools::GetPT(std::vector<double> vtx, const TVector3 *& mom, bool is_truth){
+    if( (int)vtx.size() != 3) return 0x0;
+
+    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
+    
+    return GetPT(tmp_vtx, mom, is_truth);
+}
+
 TVector3 * TransverseTools::GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth)// const
 {
     TVector3 * nudir = new TVector3();

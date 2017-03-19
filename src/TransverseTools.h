@@ -22,7 +22,9 @@ public:
     double GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth = false);// const;
     
     TVector3 * GetVecT(const TVector3 *& refdir, const TVector3 *& mom);// const;
+    
     TVector3 * GetPT(double vtx[], const TVector3 *& mom, bool is_truth = false);// const;
+    TVector3 * GetPT(std::vector<double> vtx, const TVector3 *& mom, bool is_truth = false);// const;
 
     TVector3 * SetDPT(const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion);// const;
     

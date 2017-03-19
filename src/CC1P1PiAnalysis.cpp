@@ -1590,7 +1590,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
     meanPDP.push_back( m_PDP_Z );
     cc1p1piHyp->setContainerDoubleData("meanPDP",meanPDP);
     
-    const TVector3 * nu_PDP = GetNuDirRec(vertex);
+    const TVector3 * nu_PDP = m_TransTools->GetNuDirRec(vertex);
     if(nu_PDP){
         std::vector<double> nu_dir_PDP;
         nu_dir_PDP.push_back( nu_PDP->X() );
@@ -1638,7 +1638,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         cc1p1piHyp->setDoubleData("dphiT_EX", dphiT_EX);
         
         //Hadron Direction method:
-        double dpTT_pi_EX = GetDPTT(vertex, pi_EX_p, mu_p, pr_EX_p);
+        double dpTT_pi_EX = m_TransTools->GetDPTT(vertex, pi_EX_p, mu_p, pr_EX_p);
         cc1p1piHyp->setDoubleData("dpTT_pi_EX", dpTT_pi_EX);
         
         //Pi direction:
@@ -1673,7 +1673,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         double dalphaT_LL = -999.;
         double dphiT_LL = -999.;
         
-        TVector3 * dpT_3mom_LL = GetTransverseVars(vertex, mu_p, pr_LL_p, pi_LL_p, dpTT_LL, dpTMag_LL, dalphaT_LL, dphiT_LL);
+        TVector3 * dpT_3mom_LL = m_TransTools->GetTransverseVars(vertex, mu_p, pr_LL_p, pi_LL_p, dpTT_LL, dpTMag_LL, dalphaT_LL, dphiT_LL);
         
         if(dpT_3mom_LL){
             std::vector<double> vec_dpT_3mom_LL;
@@ -1690,7 +1690,7 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         cc1p1piHyp->setDoubleData("dphiT_LL", dphiT_LL);
         
         //Hadron Direction method:
-        double dpTT_pi_LL = GetDPTT(vertex, pi_LL_p, mu_p, pr_LL_p);
+        double dpTT_pi_LL = m_TransTools->GetDPTT(vertex, pi_LL_p, mu_p, pr_LL_p);
         cc1p1piHyp->setDoubleData("dpTT_pi_LL", dpTT_pi_LL);
         
         //Pi direction:
@@ -2450,7 +2450,7 @@ void CC1P1PiAnalysis::FillTrueParticle(std::string name, double E, double Px, do
 //    Rotate2BeamCoords(nu_3vec);//Now the neutrino direction is also in correct beam coords.
     
     const TVector3 * true_mom_vec = new TVector3(mom[1], mom[2], mom[3]);
-    const TVector3 * truepT_3vec = GetPT(nu_3vec, true_mom_vec, true);
+    const TVector3 * truepT_3vec = m_TransTools->GetPT(nu_3vec, true_mom_vec, true);
     
     if(truepT_3vec) truth->setDoubleData( (name + "_pTMag").c_str(), truepT_3vec->Mag());
     
