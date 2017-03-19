@@ -27,14 +27,12 @@ use AnaUtils         v*     Ana
 use MomByRangeMaker  v*     Ana
 #==============================================================================
 
-document doxygen doxygen -group=documentation src/*.cpp src/*.h src/*.hxx src/*.cxx ../doc/*.dox
-
 library CC1P1Pi     *.cpp
 apply_pattern component_library library=CC1P1Pi
 
 #==============================================================================
 
 private
-set CC1P1PI_ANA "${CC1P1PIROOT}/ana/CC1P1Pi_Ana"
-path_append LD_LIBRARY_PATH "${CC1P1PI_ANA}/lib"
+#set CC1P1PI_ANA "${CC1P1PIROOT}/ana/CC1P1Pi_Ana”
+path_append LD_LIBRARY_PATH "${CC1P1PIROOT}"
 end_private
