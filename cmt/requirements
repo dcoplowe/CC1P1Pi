@@ -27,6 +27,8 @@ use AnaUtils         v*     Ana
 use MomByRangeMaker  v*     Ana
 #==============================================================================
 
+document doxygen doxygen -group=documentation src/*.cpp src/*.h src/*.hxx src/*.cxx ../doc/*.dox
+
 library CC1P1Pi     *.cpp
 apply_pattern component_library library=CC1P1Pi
 
