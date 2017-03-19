@@ -2851,17 +2851,9 @@ double CC1P1PiAnalysis::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom
     return GetDPTT(vertex, mumom, prmom, pimom, is_truth);
 }
 
-TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[], double pdp[]) const
+TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[]) const
 {
-    TVector3 * PDP;
-    
-    if(pdp){
-        
-        if(pdp[0] != -999. || pdp[1] != -999. || pdp[2] != -999.){
-            PDP->SetXYZ(pdp[0], pdp[1], pdp[2]);
-        }
-    }
-    else PDP->SetXYZ(m_PDP_X, m_PDP_Y, m_PDP_Z);
+    TVector3 * PDP = new TVector3(m_PDP_X, m_PDP_Y, m_PDP_Z);
     
     TVector3 * nup1local = new TVector3(vtx[0], vtx[1], vtx[2]);
     (*nup1local) *= 0.001;//in meters (default mm)
@@ -2879,7 +2871,20 @@ TVector3 * CC1P1PiAnalysis::GetNuDirRec(double vtx[], double pdp[]) const
     return nuDirCalc;
 }
 
-TVector3 * CC1P1PiAnalysis::GetNuDirRec(std::vector<double> vtx, std::vector<double> pdp) const{
+TVector3 * CC1P1PiAnalysis::GetNuDirRec(std::vector<double> vtx) const{
+    
+    if(vtx.size() != 3) return 0x0;
+
+    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
+    
+    return GetNuDirRec(tmp_vtx);
+}
+
+TVector3 * CC1P1PiAnalysis::GetNuDirSim(std::vector<double> vtx) const{
+    return new TVector3();
+}
+
+TVector3 * CC1P1PiAnalysis::GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp) const{
     
     if(vtx.size() != 3) return 0x0;
     double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
