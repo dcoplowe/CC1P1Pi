@@ -2367,9 +2367,9 @@ void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
 //        const TVector3 * truepr_p = Rotate2BeamCoords(fs_Px[s_pr], fs_Py[s_pr], fs_Pz[s_pr]);
 //        const TVector3 * truepi_p = Rotate2BeamCoords(fs_Px[s_pi], fs_Py[s_pi], fs_Pz[s_pi]);
        
-        const TVector3 * truemu_p = new TVector(fs_Px[s_mu], fs_Py[s_mu], fs_Pz[s_mu]);
-        const TVector3 * truepr_p = new TVector(fs_Px[s_pr], fs_Py[s_pr], fs_Pz[s_pr]);
-        const TVector3 * truepi_p = new TVector(fs_Px[s_pi], fs_Py[s_pi], fs_Pz[s_pi]);
+        const TVector3 * truemu_p = new TVector3(fs_Px[s_mu], fs_Py[s_mu], fs_Pz[s_mu]);
+        const TVector3 * truepr_p = new TVector3(fs_Px[s_pr], fs_Py[s_pr], fs_Pz[s_pr]);
+        const TVector3 * truepi_p = new TVector3(fs_Px[s_pi], fs_Py[s_pi], fs_Pz[s_pi]);
         
         const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
         double nu_3vec_mag = sqrt(nu_4vec.px()*nu_4vec.px() + nu_4vec.py()*nu_4vec.py() + nu_4vec.pz()*nu_4vec.pz());
