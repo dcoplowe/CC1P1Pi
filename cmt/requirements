@@ -27,6 +27,9 @@ use AnaUtils         v*     Ana
 use MomByRangeMaker  v*     Ana
 #==============================================================================
 
+# Build methods to include.<-- This is used on T2K. Perhaps it'll work here too.
+document doxygen doxygen -group=documentation src/*.cpp src/*.h src/*.hxx src/*.cxx ../doc/*.dox
+
 #TransverseTools.cxx <-- How do I get this to work with for RunPostProcesses?
 #library CC1P1Pi CC1P1PiAnalysis.cpp TransverseTools.cxx <-- This worked for the CC1P1PiAnalysis but not for the application
 
