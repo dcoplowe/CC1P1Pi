@@ -2,6 +2,7 @@
 
 #include <AnalysisReader.h>
 #include <TChain.h>
+#include <TFile.h>
 
 AnalysisReader::AnalysisReader(TTree *tree, TTree *savetree) : fChain(0)
 {
