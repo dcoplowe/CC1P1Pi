@@ -31,11 +31,14 @@ use MomByRangeMaker  v*     Ana
 include_dirs "$(CC1P1PIROOT)/src"
 
 #Build a single library for all the cpp files in the src dir (compile both the TransverseTools and AnalysisReader):
-library TransverseTools *.cxx
+library TransverseTools TransverseTools.cxx
 apply_pattern component_library library=TransverseTools
 
 library CC1P1Pi *.cpp
 apply_pattern component_library library=CC1P1Pi
+
+library AnalysisReader AnalysisReader.cxx
+apply_pattern component_library library=AnalysisReader
 
 #==============================================================================
 
@@ -43,7 +46,7 @@ macro CC1P1Pi_use_linkopts "-L$(CC1P1PIROOT)/$(CC1P1Pi_tag) -lTransverseTools"
 
 #==============================================================================
 
-macro RunPostProcesses_use_linkopts "-L$(CC1P1PIROOT)/$(CC1P1Pi_tag) -lTransverseTools"
+macro RunPostProcesses_use_linkopts "-L$(CC1P1PIROOT)/$(CC1P1Pi_tag) -lTransverseTools -lAnalysisReader"
 
 #==============================================================================
 
