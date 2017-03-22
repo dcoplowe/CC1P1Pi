@@ -1,7 +1,7 @@
 #ifndef _RUNPOSTPROCESSES_H
 #define _RUNPOSTPROCESSES_H
 
-#include <AnalysisReader.h>//This includes the classes to read the tree or copy a tree
+// #include <AnalysisReader.h>//This includes the classes to read the tree or copy a tree
 #include <TransverseTools.h>
 
 #include <cassert>
@@ -25,7 +25,7 @@ public:
 private:
 
 	TFile * m_infile;
-	AnalysisReader * m_reader;
+	// AnalysisReader * m_reader;
 	Int_t m_entries;
 	TTree * m_rec;
 
@@ -58,8 +58,8 @@ RunPostProcesses::RunPostProcesses(std::string infilemame, std::string outfilena
 	m_outfile->cd();
 	m_outtree = new TTree(rec_tree.c_str(),"");
 
-	m_reader = new AnalysisReader(m_rec, m_outtree);
-	m_entries = m_reader->GetEntries();
+	// m_reader = new AnalysisReader(m_rec, m_outtree);
+	// m_entries = m_reader->GetEntries();
 
 	m_TransTools = new TransverseTools();
 }
@@ -75,7 +75,7 @@ RunPostProcesses::~RunPostProcesses(){
 	if(m_outfile->IsOpen()) m_outfile->Close();
 	if(m_outfile) delete m_outfile;
 
-	delete m_TransTools;
+	// delete m_TransTools;
 }
 
 void RunPostProcesses::Analyse(){
@@ -84,12 +84,12 @@ void RunPostProcesses::Analyse(){
 
 	SetOutTree();
 
-	for(int ev = 0; ev < 10/*m_entries*/; ev++){
-		m_reader->GetEntry(ev);
+	// for(int ev = 0; ev < 10/*m_entries*/; ev++){
+	// 	// m_reader->GetEntry(ev);
 
-		FillOutTree();
+	// 	// FillOutTree();
 
-	}
+	// }
 
 	CopyTree("Truth");
 	CopyTree("Meta");
