@@ -1,7 +1,7 @@
 #ifndef _RUNPOSTPROCESSES_H
 #define _RUNPOSTPROCESSES_H
 
-// #include <AnalysisReader.h>//This includes the classes to read the tree or copy a tree
+#include <AnalysisReader.h>//This includes the classes to read the tree or copy a tree
 #include <TransverseTools.h>
 
 #include <cassert>
@@ -25,9 +25,9 @@ public:
 private:
 
 	TFile * m_infile;
-	// AnalysisReader * m_reader;
+	AnalysisReader * m_reader;
 	Int_t m_entries;
-	// TTree * m_rec;
+	TTree * m_rec;
 
 	TFile * m_outfile;
 	TFile * m_outtree;
