@@ -81,12 +81,12 @@ void RunPostProcesses::Analyse(){
 
 	m_outfile->cd();
 
-	SetOutTree();
+	m_reader->SetOutTree();
 
 	for(int ev = 0; ev < 10/*m_entries*/; ev++){
 		m_reader->GetEntry(ev);
 
-		FillOutTree();
+		m_reader->FillOutTree();
 
 	}
 

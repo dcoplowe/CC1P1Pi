@@ -28,8 +28,6 @@ Int_t AnalysisReader::GetEntries(){
     return fChain->GetEntries();
 }
 
-void AnalysisReader::FillOutTree(){ m_savetree->Fill(); }
-
 void AnalysisReader::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
@@ -540,6 +538,8 @@ void AnalysisReader::Init(TTree *tree)
    // fChain->SetBranchAddress("prong_part_pos", &prong_part_pos, &b_prong_part_pos);
 }
 
+void AnalysisReader::FillOutTree(){ m_savetree->Fill(); }
+
 void AnalysisReader::SetOutTree(){
 
    m_savetree->Branch("eventID", &eventID, "eventID/D");
@@ -1033,4 +1033,4 @@ void AnalysisReader::SetOutTree(){
    // m_savetree->Branch("prong_part_E", &prong_part_E, "prong_part_E");
    // m_savetree->Branch("prong_part_pos", &prong_part_pos, "prong_part_pos/");
 }
-// #endif // #ifdef AnalysisReader_cxx
+// #endif // #ifdef AnalysisReader_cxx-
