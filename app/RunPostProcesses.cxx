@@ -95,7 +95,18 @@ void RunPostProcesses::Analyse(){
 }
 
 void RunPostProcesses::CopyTree(std::string treename){
-	if(!m_infile->IsOpen() || !m_outfile->IsOpen()){
+	bool good_files = true;
+
+	if(!m_infile->IsOpen()){ 
+		cout <<  "RunPostProcesses::CopyTree : Error : In file not open." << endl;
+		good_files = false; 
+	}
+	if(!m_outfile->IsOpen()){ 
+		cout <<  "RunPostProcesses::CopyTree : Error : Out file not open." << endl;
+		good_files = false;
+	}
+
+	if(good_files){
 		cout << "Starting to copy tree " << treename << "...";
 		TTree * tree = static_cast<TTree*>(m_infile->Get( treename.c_str() ));
 		assert(tree);
@@ -104,7 +115,6 @@ void RunPostProcesses::CopyTree(std::string treename){
 		tree_copy->Write();
 		cout << " Successful" << endl;
 	}
-	else cout << "RunPostProcesses::CopyTree : Error : In/Out file(s) not open." << endl;
 }
 
 int main(int argc, char *argv[])
