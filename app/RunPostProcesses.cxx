@@ -30,7 +30,7 @@ private:
 	TTree * m_rec;
 
 	TFile * m_outfile;
-	TFile * m_outtree;
+	TTree * m_outtree;
 	void CopyTree(std::string treename);
 
 	void SetOutTree();
@@ -51,7 +51,7 @@ RunPostProcesses::RunPostProcesses(std::string infilemame, std::string outfilena
 		cout << "RunPostProcesses : Error : Could not open file named: " << infilemame << endl;
 	}
 
-	m_rec = (TTree*)m_infile->Get( rec_tree.c_str() );
+	TTree * m_rec = static_cast<TTree*>(m_infile->Get( rec_tree.c_str() ) );
 	assert(m_rec);
 
 	m_outfile = new TFile(outfilename.c_str(), "RECREATE");
