@@ -35,7 +35,7 @@ include_dirs "$(CC1P1PIROOT)/src"
 #library CC1P1Pi CC1P1PiAnalysis.cpp TransverseTools.cxx <-- This worked for the CC1P1PiAnalysis but not for the application
 
 #Build a single library for all the cpp files in the src dir:
-library CC1P1Pi *.cpp
+library CC1P1Pi *.cpp *.cxx
 apply_pattern component_library library=CC1P1Pi
 
 #==============================================================================
