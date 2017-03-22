@@ -44,56 +44,55 @@ private:
 
 RunPostProcesses::RunPostProcesses(std::string infilemame, std::string outfilename, std::string rec_tree) {
 
-	// m_infile = new TFile(infilemame.c_str(), "READ");
-	// assert(m_infile);
+	m_infile = new TFile(infilemame.c_str(), "READ");
+	assert(m_infile);
 
-	// if(!m_infile->IsOpen()){
-	// 	cout << "RunPostProcesses : Error : Could not open file named: " << infilemame << endl;
-	// }
+	if(!m_infile->IsOpen()){
+		cout << "RunPostProcesses : Error : Could not open file named: " << infilemame << endl;
+	}
 
-	// TTree * m_rec = static_cast<TTree*>(m_infile->Get( rec_tree.c_str() ));
-	// assert(m_rec);
+	TTree * m_rec = static_cast<TTree*>(m_infile->Get( rec_tree.c_str() ));
+	assert(m_rec);
 
-	// m_outfile = new TFile(outfilename.c_str(), "RECREATE");
-	// m_outfile->cd();
-	// m_outtree = new TTree(rec_tree.c_str(),"");
+	m_outfile = new TFile(outfilename.c_str(), "RECREATE");
+	m_outfile->cd();
+	m_outtree = new TTree(rec_tree.c_str(),"");
 
-	// m_reader = new AnalysisReader(m_rec, m_outtree);
-	// m_entries = m_reader->GetEntries();
+	m_reader = new AnalysisReader(m_rec, m_outtree);
+	m_entries = m_reader->GetEntries();
 
-	// m_TransTools = new TransverseTools();
+	m_TransTools = new TransverseTools();
 }
 
 RunPostProcesses::~RunPostProcesses(){
-	// if(m_rec) delete m_rec;
+	if(m_rec) delete m_rec;
 	
-	// if(m_infile->IsOpen()) m_infile->Close();
-	// if(m_infile) delete m_infile;
+	if(m_infile->IsOpen()) m_infile->Close();
+	if(m_infile) delete m_infile;
 
-	// if(m_outtree) delete m_outtree;
+	if(m_outtree) delete m_outtree;
 
-	// if(m_outfile->IsOpen()) m_outfile->Close();
-	// if(m_outfile) delete m_outfile;
+	if(m_outfile->IsOpen()) m_outfile->Close();
+	if(m_outfile) delete m_outfile;
 
-	// delete m_TransTools;
-
+	delete m_TransTools;
 }
 
 void RunPostProcesses::Analyse(){
 
-	// m_outfile->cd();
+	m_outfile->cd();
 
-	// SetOutTree();
+	SetOutTree();
 
-	// for(int ev = 0; ev < m_entries; ev++){
-	// 	m_reader->GetEntry(ev);
+	for(int ev = 0; ev < 10/*m_entries*/; ev++){
+		m_reader->GetEntry(ev);
 
-	// 	FillOutTree();
+		FillOutTree();
 
-	// }
+	}
 
-	// CopyTree("Truth");
-	// CopyTree("Meta");
+	CopyTree("Truth");
+	CopyTree("Meta");
 }
 
 void RunPostProcesses::CopyTree(std::string treename){
@@ -112,8 +111,6 @@ void RunPostProcesses::CopyTree(std::string treename){
 
 int main(int argc, char *argv[])
 {
-
-
 char cc;
     while ((cc = getopt(argc, argv, "i:o:t:")) != -1) {
         switch (cc){
