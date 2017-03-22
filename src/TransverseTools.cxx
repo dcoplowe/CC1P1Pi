@@ -1,4 +1,4 @@
-#include "includes/TransverseTools.h"
+#include "TransverseTools.h"
 
 #include "TVector3.h"
 #include <vector>
@@ -11,7 +11,8 @@
 
 using namespace std;
 
-TransverseTools::TransverseTools() : m_PDP_x(0.231135) , m_PDP_y(45.368069), m_PDP_z(-766.384058), m_Theta(-0.0582977560), m_XOffset(0.2486), m_YOffset(60.350), m_ZOffset(-1022.74) {
+TransverseTools::TransverseTools() : m_PDP_x(0.231135) , m_PDP_y(45.368069), m_PDP_z(-766.384058),
+ m_Theta(-0.0582977560), m_XOffset(0.2486), m_YOffset(60.350), m_ZOffset(-1022.74) {
     //    m_PDP = new TVector3(m_PDP_x, m_PDP_y, m_PDP_z);
 }
 
@@ -19,7 +20,8 @@ TransverseTools::~TransverseTools(){
     //    delete m_PDP;
 }
 
-double TransverseTools::GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth)// const
+double TransverseTools::GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, 
+bool is_truth)// const
 {
     TVector3 * nudir = new TVector3();
     
@@ -43,7 +45,8 @@ double TransverseTools::GetDPTT(double vtx[], const TVector3 *& mumom, const TVe
     return sum_vec.Dot(tmp1_vec);
 }
 
-double TransverseTools::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, bool is_truth)// const
+double TransverseTools::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, 
+const TVector3 *& pimom, bool is_truth)// const
 {
     double vertex[3] = { vtx[0], vtx[1], vtx[2] };
     return GetDPTT(vertex, mumom, prmom, pimom, is_truth);
@@ -51,7 +54,8 @@ double TransverseTools::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom
 
 TVector3 * TransverseTools::SetDPT(const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion)// const
 {
-    //ptmuon and ptproton already in the same plain which is perpendicular to the neutrino and already in a near back-to-back configuration
+    //ptmuon and ptproton already in the same plain which is perpendicular to the neutrino and already in a near back-to-back 
+    //configuration
     TVector3 tmpd = (*ptmuon) + (*ptproton) + (*ptpion);
     TVector3 tmp_had = (*ptproton) + (*ptpion);
     
@@ -118,7 +122,8 @@ TVector3 * TransverseTools::GetPT(std::vector<double> vtx, const TVector3 *& mom
     return GetPT(tmp_vtx, mom, is_truth);
 }
 
-TVector3 * TransverseTools::GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth)// const
+TVector3 * TransverseTools::GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom,
+ const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth)// const
 {
     TVector3 * nudir = new TVector3();
     
@@ -157,7 +162,8 @@ TVector3 * TransverseTools::GetTransverseVars(double vtx[], const TVector3 *& mu
     return deltapt;
 }
 
-TVector3 * TransverseTools::GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth)// const
+TVector3 * TransverseTools::GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom,
+ const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth)// const
 {
     double vector[3] = { vtx[0], vtx[1], vtx[2] };
     
@@ -229,7 +235,8 @@ TVector3 * TransverseTools::GlobalToLocal(double nu_NuParentDecPoint[])// const
     //pl output in [m]
     TVector3 pg(nu_NuParentDecPoint);
     pg *= 0.001; //[mm] -> [m]
-    //exactly following convert-numi-to-minerva.py -> "although it looks like someone already did the bit for changing the labeling of the axes -- Phil" -> true, because the PDP z has the exponential distribution
+    //exactly following convert-numi-to-minerva.py -> "although it looks like someone already 
+    //did the bit for changing the labeling of the axes -- Phil" -> true, because the PDP z has the exponential distribution
     const Double_t tmpx = pg.X();
     const Double_t tmpy = pg.Y();
     const Double_t tmpz = pg.Z();

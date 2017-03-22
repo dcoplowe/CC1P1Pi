@@ -2,7 +2,7 @@
 #define _RUNPOSTPROCESSES_H
 
 // #include <AnalysisReader.h>//This includes the classes to read the tree or copy a tree
-#include <includes/TransverseTools.h>
+#include <TransverseTools.h>
 
 #include <cassert>
 #include <iostream>
@@ -11,6 +11,8 @@
 #include <TTree.h>
 
 using namespace std;
+
+string test_file = "/pnfs/minerva/persistent/users/dcoplowe/CC1P1Pi_PL13C_200317/grid/central_value/minerva/ana/v10r8p9/00/01/32/60/SIM_minerva_00013260_Subruns_0001-0002-0003-0004_CC1P1PiAnalysis_Ana_Tuple_v10r8p9-dcoplowe.root";
 
 class RunPostProcesses {
 
@@ -108,5 +110,23 @@ void RunPostProcesses::CopyTree(std::string treename){
 }
 
 
+int main(int argc, char *argv[])
+{
+
+
+char cc;
+    while ((cc = getopt(argc, argv, "i:o:t:")) != -1) {
+        switch (cc){
+        	case 'i': break;
+        	case 'o': break;
+        	case 't': break;
+        	default: return 1;
+        }
+    }
+
+RunPostProcesses Run(test_file,"some_generic_name.root","sel");
+Run.Analyse();
+
+}
 
 
