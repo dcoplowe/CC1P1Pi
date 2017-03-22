@@ -28,7 +28,7 @@ Int_t AnalysisReader::GetEntries(){
     return fChain->GetEntries();
 }
 
-void AnalysisReader::FillOutTree();{ m_savetree->Fill(); }
+void AnalysisReader::FillOutTree(){ m_savetree->Fill(); }
 
 void AnalysisReader::Init(TTree *tree)
 {
