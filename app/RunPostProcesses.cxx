@@ -1,8 +1,8 @@
 #ifndef _RUNPOSTPROCESSES_H
 #define _RUNPOSTPROCESSES_H
 
-// #include <AnalysisReader.h>//This includes the classes to read the tree or copy a tree
-#include <TransverseTools.h>
+#include <AnalysisReader.h>//This includes the classes to read the tree or copy a tree
+// #include <TransverseTools.h>
 
 #include <cassert>
 #include <iostream>
@@ -25,7 +25,7 @@ public:
 private:
 
 	TFile * m_infile;
-	// AnalysisReader * m_reader;
+	AnalysisReader * m_reader;
 	Int_t m_entries;
 	TTree * m_rec;
 
@@ -36,7 +36,7 @@ private:
 	void SetOutTree();
 	void FillOutTree();
 
-	TransverseTools * m_TransTools;
+	// TransverseTools * m_TransTools;
 };
 
 #endif
@@ -57,10 +57,10 @@ RunPostProcesses::RunPostProcesses(std::string infilemame, std::string outfilena
 	m_outfile->cd();
 	m_outtree = new TTree(rec_tree.c_str(),"");
 
-	// m_reader = new AnalysisReader(m_rec, m_outtree);
-	// m_entries = m_reader->GetEntries();
+	m_reader = new AnalysisReader(m_rec, m_outtree);
+	m_entries = m_reader->GetEntries();
 
-	m_TransTools = new TransverseTools();
+	// m_TransTools = new TransverseTools();
 }
 
 RunPostProcesses::~RunPostProcesses(){
