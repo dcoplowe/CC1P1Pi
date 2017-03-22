@@ -1865,7 +1865,6 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
             }
         }
     }
-    
 }
 
 void CC1P1PiAnalysis::FillTruthMichel(Minerva::GenMinInteraction *truth) const{

@@ -1,0 +1,108 @@
+#ifndef _RUNPOSTPROCESSES_H
+#define _RUNPOSTPROCESSES_H
+
+#include <AnalysisReader.h>//This includes the classes to read the tree or copy a tree
+#include <TransverseTools.h>
+
+#include <TFile.h>
+#include <cassert>
+#include <TTree.h>
+
+using namespace std;
+
+class RunPostProcesses {
+
+public:
+	RunPostProcesses(std::string infilemame, std::string outfilename = "some_generic_name.root", std::string rec_tree = "sel");
+	~RunPostProcesses();
+
+	void Analyse();
+
+private:
+
+	TFile * m_infile;
+	AnalysisReader * m_reader;
+	Int_t m_entries;
+	// TTree * m_rec;
+
+	TFile * m_outfile;
+	TFile * m_outtree;
+	CopyTree(std::string treename);
+
+	void SetOutTree();
+	void FillOutTree();
+
+	TransverseTools * m_TransTools;
+
+};
+
+#endif
+
+RunPostProcesses::RunPostProcesses(std::string infilemame, std::string outfilename, std::string rec_tree) {
+
+	m_infile = new TFile(infilemame.c_str(), "READ");
+	assert(m_infile);
+
+	if(!m_infile->IsOpen()){
+		cout << "RunPostProcesses : Error : Could not open file named: " << infilemame << endl;
+	}
+
+	TTree * m_rec = static_cast<TTree*>(m_infile->Get( rec_tree.c_str() ));
+	assert(m_rec);
+
+	m_outfile = new TFile(outfilename.c_str(), "RECREATE");
+	m_outfile->cd();
+	m_outtree = new TTree(rec_tree.c_str(),"");
+
+	m_reader = new AnalysisReader(m_rec, m_outtree);
+	m_entries = m_reader->GetEntries();
+
+	m_TransTools = new TransverseTools();
+}
+
+RunPostProcesses::~RunPostProcesses(){
+	if(m_rec) delete m_rec;
+	
+	if(m_infile->IsOpen()) m_infile->Close();
+	if(m_infile) delete m_infile;
+
+	if(m_outtree) delete m_outtree;
+
+	if(m_outfile->IsOpen()) m_outfile->Close();
+	if(m_outfile) delete m_outfile;
+
+	delete m_TransTools;
+
+}
+
+void RunPostProcesses::Analyse(){
+
+	m_outfile->cd();
+
+	SetOutTree();
+
+	for(int ev = 0; ev < m_entries; ev++){
+		m_reader->GetEntry(ev);
+
+		FillOutTree();
+
+	}
+
+	CopyTree("Truth");
+	CopyTree("Meta");
+}
+
+void RunPostProcesses::CopyTree(std::string treename){
+	if(!m_infile->IsOpen() || !m_outfile->IsOpen()){
+		cout << "Starting to copy tree " << treename << "...";
+		TTree * tree = static_cast<TTree*>(m_infile->Get( treename.c_str() ));
+		assert(tree);
+		m_outfile->cd();
+		TTree * tree_copy = tree->CopyTree("");
+		tree_copy->Write();
+		cout << " Successful" << endl;
+	}
+	else cout << "RunPostProcesses::CopyTree : Error : In/Out file(s) not open." << endl;
+}
+
+
