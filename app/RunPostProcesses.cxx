@@ -119,8 +119,9 @@ char cc;
         }
     }
 
-RunPostProcesses Run(test_file,"some_generic_name.root","sel");
-Run.Analyse();
+RunPostProcesses * Run = new RunPostProcesses(test_file,"some_generic_name.root","sel");
+Run->Analyse();
+delete Run;
 
 }
 
