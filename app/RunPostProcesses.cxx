@@ -65,34 +65,34 @@ RunPostProcesses::RunPostProcesses(std::string infilemame, std::string outfilena
 }
 
 RunPostProcesses::~RunPostProcesses(){
-	if(m_rec) delete m_rec;
+	// if(m_rec) delete m_rec;
 	
-	if(m_infile->IsOpen()) m_infile->Close();
-	if(m_infile) delete m_infile;
+	// if(m_infile->IsOpen()) m_infile->Close();
+	// if(m_infile) delete m_infile;
 
-	if(m_outtree) delete m_outtree;
+	// if(m_outtree) delete m_outtree;
 
-	if(m_outfile->IsOpen()) m_outfile->Close();
-	if(m_outfile) delete m_outfile;
+	// if(m_outfile->IsOpen()) m_outfile->Close();
+	// if(m_outfile) delete m_outfile;
 
 	// delete m_TransTools;
 }
 
 void RunPostProcesses::Analyse(){
 
-	m_outfile->cd();
+	// m_outfile->cd();
 
-	SetOutTree();
+	// SetOutTree();
 
-	// for(int ev = 0; ev < 10/*m_entries*/; ev++){
-	// 	// m_reader->GetEntry(ev);
+	// // for(int ev = 0; ev < 10/*m_entries*/; ev++){
+	// // 	// m_reader->GetEntry(ev);
 
-	// 	// FillOutTree();
+	// // 	// FillOutTree();
 
-	// }
+	// // }
 
-	CopyTree("Truth");
-	CopyTree("Meta");
+	// CopyTree("Truth");
+	// CopyTree("Meta");
 }
 
 void RunPostProcesses::CopyTree(std::string treename){
@@ -107,7 +107,6 @@ void RunPostProcesses::CopyTree(std::string treename){
 	}
 	else cout << "RunPostProcesses::CopyTree : Error : In/Out file(s) not open." << endl;
 }
-
 
 int main(int argc, char *argv[])
 {
