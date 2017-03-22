@@ -1,7 +1,7 @@
 package AnalysisExamples
 version ${MINERVA_RELEASE}
 
-branches cmt src options
+branches cmt src options app
 
 #==============================================================================
 
@@ -32,9 +32,15 @@ apply_pattern component_library library=CC1P1Pi
 
 #==============================================================================
 
-private
+#private
 #set CC1P1PI_ANA "${CC1P1PIROOT}/ana/CC1P1Pi_Ana”
-path_append LD_LIBRARY_PATH “$(CC1P1PIROOT)”
-end_private
+#path_append LD_LIBRARY_PATH “$(CC1P1PIROOT)”
+#end_private
+
+path_remove PATH "$(CC1P1PIROOT)"
+path_prepend PATH "$(CC1P1PIROOT)"
+path_remove LD_LIBRARY_PATH "$(CC1P1PIROOT)"
+path_prepend LD_LIBRARY_PATH "$(CC1P1PIROOT)"
+
 
 application RunPostProcesses ../app/RunPostProcesses.cxx
