@@ -90,6 +90,9 @@ void RunPostProcesses::Analyse(){
 
 	}
 
+	m_outfile->cd();
+	m_outtree->Wrie();
+
 	CopyTree("Truth");
 	CopyTree("Meta");
 }
