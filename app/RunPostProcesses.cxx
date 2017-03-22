@@ -93,16 +93,18 @@ void RunPostProcesses::Analyse(){
 }
 
 void RunPostProcesses::CopyTree(std::string treename){
-	// if(!m_infile->IsOpen() || !m_outfile->IsOpen()){
-	// 	cout << "Starting to copy tree " << treename << "...";
-	// 	TTree * tree = static_cast<TTree*>(m_infile->Get( treename.c_str() ));
-	// 	assert(tree);
-	// 	m_outfile->cd();
-	// 	TTree * tree_copy = tree->CopyTree("");
-	// 	tree_copy->Write();
-	// 	cout << " Successful" << endl;
-	// }
-	// else cout << "RunPostProcesses::CopyTree : Error : In/Out file(s) not open." << endl;
+	if(!m_infile->IsOpen() || !m_outfile->IsOpen()){
+		cout << "Starting to copy tree " << treename << "...";
+		TTree * tree = static_cast<TTree*>(m_infile->Get( treename.c_str() ));
+		assert(tree);
+		m_outfile->cd();
+		TTree * tree_copy = tree->CopyTree("");
+		tree_copy->Write();
+		cout << " Successful" << endl;
+	}
+	else cout << "RunPostProcesses::CopyTree : Error : In/Out file(s) not open." << endl;
 }
+
+
 
 
