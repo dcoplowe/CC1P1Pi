@@ -28,7 +28,6 @@ use MomByRangeMaker  v*     Ana
 #==============================================================================
 
 # Build methods to include.<-- This is used on T2K. Perhaps it'll work here too. This doesn't work...
-#document doxygen doxygen -group=documentation src/*.cpp src/*.h src/*.hxx src/*.cxx ../doc/*.dox
 
 include_dirs "$(CC1P1PIROOT)/src"
 
@@ -42,6 +41,7 @@ apply_pattern component_library library=CC1P1Pi
 #==============================================================================
 
 private
+path_remove LD_LIBRARY_PATH "$(CC1P1PIROOT)"
 path_append LD_LIBRARY_PATH “$(CC1P1PIROOT)/lib”
 end_private
 
