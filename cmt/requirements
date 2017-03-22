@@ -33,8 +33,10 @@ document doxygen doxygen -group=documentation src/*.cpp src/*.h src/*.hxx src/*.
 #TransverseTools.cxx <-- How do I get this to work with for RunPostProcesses?
 #library CC1P1Pi CC1P1PiAnalysis.cpp TransverseTools.cxx <-- This worked for the CC1P1PiAnalysis but not for the application
 
-library CC1P1Pi CC1P1PiAnalysis.cpp
-apply_pattern component_library library=CC1P1Pi
+#Build a single library for all the cpp files in the src dir:
+library CC1P1Pi *.cpp
+apply_pattern component_library
+#Do this if you want to give the library a specific name: library=CC1P1Pi
 
 #==============================================================================
 
