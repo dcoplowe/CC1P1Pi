@@ -27,7 +27,7 @@ private:
 
 	TFile * m_outfile;
 	TFile * m_outtree;
-	CopyTree(std::string treename);
+	void CopyTree(std::string treename);
 
 	void SetOutTree();
 	void FillOutTree();
