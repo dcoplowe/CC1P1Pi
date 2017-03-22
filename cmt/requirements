@@ -42,10 +42,10 @@ macro RunPostProcesses_use_linkopts "-L$(CC1P1PIROOT)/$(CC1P1Pi_tag) -lTransvers
 #==============================================================================
 
 private
-path_remove PATH "$(CC1P1PIROOT)"
-path_prepend PATH "$(CC1P1PIROOT)/$(CC1P1Pi_tag)"
+#path_remove PATH "$(CC1P1PIROOT)"
+#path_prepend PATH "$(CC1P1PIROOT)/$(CMTCONFIG)"
 path_remove LD_LIBRARY_PATH "$(CC1P1PIROOT)"
-path_append LD_LIBRARY_PATH “$(CC1P1PIROOT)/$(CC1P1Pi_tag)”
+path_append LD_LIBRARY_PATH “$(CC1P1PIROOT)/$(CMTCONFIG)”
 end_private
 
 application RunPostProcesses ../app/RunPostProcesses.cxx
