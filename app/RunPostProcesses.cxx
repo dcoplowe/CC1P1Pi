@@ -37,7 +37,6 @@ private:
 	void FillOutTree();
 
 	TransverseTools * m_TransTools;
-
 };
 
 #endif
