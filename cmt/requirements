@@ -1,4 +1,4 @@
-package AnalysisExamples
+package CC1P1Pi
 version ${MINERVA_RELEASE}
 
 branches cmt src options
@@ -38,7 +38,8 @@ apply_pattern component_library library=CC1P1Pi
 
 private
 path_remove LD_LIBRARY_PATH "$(CC1P1PIROOT)"
-path_append LD_LIBRARY_PATH “$(CC1P1PIROOT)/CC1P1Pi_tag”
+path_append LD_LIBRARY_PATH “$(CC1P1PIROOT)/lib”
+#path_append LD_LIBRARY_PATH “$(CC1P1PIROOT)/CC1P1Pi_tag”
 end_private
 
 application RunPostProcesses ../app/RunPostProcesses.cxx
