@@ -28,7 +28,9 @@ use MomByRangeMaker  v*     Ana
 #==============================================================================
 
 # Build methods to include.<-- This is used on T2K. Perhaps it'll work here too. This doesn't work...
-document doxygen doxygen -group=documentation src/*.cpp src/*.h src/*.hxx src/*.cxx ../doc/*.dox
+#document doxygen doxygen -group=documentation src/*.cpp src/*.h src/*.hxx src/*.cxx ../doc/*.dox
+
+include_dirs "$(CC1P1PIROOT)/src"
 
 #TransverseTools.cxx <-- How do I get this to work with for RunPostProcesses?
 #library CC1P1Pi CC1P1PiAnalysis.cpp TransverseTools.cxx <-- This worked for the CC1P1PiAnalysis but not for the application
@@ -36,7 +38,6 @@ document doxygen doxygen -group=documentation src/*.cpp src/*.h src/*.hxx src/*.
 #Build a single library for all the cpp files in the src dir:
 library CC1P1Pi *.cpp
 apply_pattern component_library library=CC1P1Pi
-include_dirs "$(CC1P1PIROOT)/src"
 
 #==============================================================================
 
