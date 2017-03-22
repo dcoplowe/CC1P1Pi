@@ -23,7 +23,7 @@ public:
 private:
 
 	TFile * m_infile;
-	AnalysisReader * m_reader;
+	// AnalysisReader * m_reader;
 	Int_t m_entries;
 	// TTree * m_rec;
 
@@ -34,7 +34,7 @@ private:
 	void SetOutTree();
 	void FillOutTree();
 
-	// TransverseTools * m_TransTools;
+	TransverseTools * m_TransTools;
 
 };
 
