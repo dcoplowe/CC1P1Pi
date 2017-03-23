@@ -24,6 +24,9 @@ public:
 
     double GetDPTTSim(double vtx[], double pdp[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom);
     double GetDPTTSim(std::vector<double> vtx, std::vector<double> pdp, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom);
+    
+    double GetDPTTDir(double dir[] const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom);
+    double GetDPTTDir(std::vector<double> dir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom);
 
     TVector3 * GetVecT(const TVector3 *& refdir, const TVector3 *& mom);// const;
     
@@ -33,12 +36,21 @@ public:
     TVector3 * GetPTRec(double vtx[], const TVector3 *& mom);// const;
     TVector3 * GetPTRec(std::vector<double> vtx, const TVector3 *& mom);// const;
 
+    TVector3 * GetPTDir(double dir[], const TVector3 *& mom);// const;
+    TVector3 * GetPTDir(std::vector<double> dir, const TVector3 *& mom);// const;
+
     TVector3 * SetDPT(const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion);// const;
     
     TVector3 * GetTransVarsRec(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT);// const;
     
     TVector3 * GetTransVarsRec(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
+                                 double &dpTT, double &dpTMag, double &dalphaT, double &dphiT);// const;
+
+    TVector3 * GetTransVarsDir(double dir[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
+                                 double &dpTMag, double &dalphaT, double &dphiT);// const;
+    
+    TVector3 * GetTransVarsDir(std::vector<double> dir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
                                  double &dpTT, double &dpTMag, double &dalphaT, double &dphiT);// const;
 
     //Use these for checking reco:
