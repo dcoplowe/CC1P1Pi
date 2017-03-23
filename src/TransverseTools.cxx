@@ -36,7 +36,8 @@ bool is_truth)// const
             return -999.;
         }
     }
-    return GetDPTTBase(nudir, mumom, prmom,pimom);
+    const TVector3 * nudir_const = new TVector3();
+    return GetDPTTBase(nudir_const, mumom, prmom,pimom);
 }
 
 double TransverseTools::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, 
@@ -135,7 +136,8 @@ TVector3 * TransverseTools::GetTransVarsRec(double vtx[], const TVector3 *& mumo
             return 0x0;
         }
     }
-    return GetTransVarsBase(nudir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
+    const TVector3 * nudir_const = new TVector3();
+    return GetTransVarsBase(nudir_const, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
 TVector3 * TransverseTools::GetTransVarsRec(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom,
