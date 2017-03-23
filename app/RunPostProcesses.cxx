@@ -192,18 +192,18 @@ void RunPostProcesses::CopyTree(std::string treename){
 
 TVector3 * RunPostProcesses::GetTransVarsRec(double vtx[], double mu[], double pr[], double pi[], double &dpTT, double &dpTMag, double &dalphaT, double &dphiT)
 {
-	const TVector3 mumom = new TVector3( mu[1], pr[2], pi[3] );
-	const TVector3 prmom = new TVector3( mu[1], pr[2], pi[3] );
-	const TVector3 pimom = new TVector3( mu[1], pr[2], pi[3] );
+	const TVector3 * mumom = new TVector3( mu[1], mu[2], mu[3] );
+	const TVector3 * prmom = new TVector3( pr[1], pr[2], pr[3] );
+	const TVector3 * pimom = new TVector3( pi[1], pi[2], pi[3] );
 	return GetTransVarsRec(vtx, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
 TVector3 * RunPostProcesses::GetTransVarsSim(double vtx[], double pdp[], double mumom[], double prmom[], double pimom[], double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT)
 {
-	const TVector3 mumom = new TVector3( mu[1], pr[2], pi[3] );
-	const TVector3 prmom = new TVector3( mu[1], pr[2], pi[3] );
-	const TVector3 pimom = new TVector3( mu[1], pr[2], pi[3] );
+	const TVector3 * mumom = new TVector3( mu[1], pr[2], pi[3] );
+	const TVector3 * prmom = new TVector3( pr[1], pr[2], pr[3] );
+	const TVector3 * pimom = new TVector3( pi[1], pi[2], pi[3] );
 	return GetTransVarsSim(vtx, pdp, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
