@@ -146,19 +146,19 @@ TVector3 * TransverseTools::GetTransVarsRec(std::vector<double> vtx, const TVect
     return GetTransVarsRec(vec, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
-TVector3 * GetTransVarsDir(double dir[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
+TVector3 * TransverseTools::GetTransVarsDir(double dir[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT)
 {
     const TVector3 * nudir = new TVector3(dir[0], dir[1], dir[2]);
     return GetTransVarsBase(nudir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
-}
+}           
     
-TVector3 * GetTransVarsDir(std::vector<double> dir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
+TVector3 * TransverseTools::GetTransVarsDir(std::vector<double> dir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
                                  double &dpTT, double &dpTMag, double &dalphaT, double &dphiT)
 {
     double vec[3] = { dir[0], dir[1], dir[2] };
     return GetTransVarsDir(vec, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
-}
+}           
 
 TVector3 * TransverseTools::GetNuDirBase(const TVector3 *& vtx, const TVector3 *& PDP)// const
 {
