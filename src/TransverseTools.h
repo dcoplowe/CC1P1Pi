@@ -19,8 +19,8 @@ public:
     TVector3 * GetNuDirSim(double vtx[], double pdp[]);// const;
     TVector3 * GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp);// const;
     
-    double GetDPTTReco(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom);// const;
-    double GetDPTTReco(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom);// const;
+    double GetDPTTRec(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom);// const;
+    double GetDPTTRec(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom);// const;
 
     double GetDPTTSim(double vtx[], double pdp[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom);
     double GetDPTTSim(std::vector<double> vtx, std::vector<double> pdp, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom);
