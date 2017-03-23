@@ -47,7 +47,7 @@ double TransverseTools::GetDPTTSim(std::vector<double> vtx, std::vector<double> 
     return GetDPTTSim(tmp_vtx, tmp_pdp, mumom, prmom, pimom);
 }
 
-double TransverseTools::GetDPTTDir(double dir[] const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)
+double TransverseTools::GetDPTTDir(double dir[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)
 {
     const TVector3 * nudir = TVector3(dir[0], dir[1], dir[2]);
     return GetDPTTBase(nudir, mumom, prmom,pimom);
