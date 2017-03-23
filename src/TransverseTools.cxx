@@ -20,11 +20,10 @@ TransverseTools::~TransverseTools(){
     //    delete m_PDP;
 }
 
-double TransverseTools::GetDPTT(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, 
+double TransverseTools::GetDPTTRec(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, 
 bool is_truth)// const
 {
     TVector3 * nudir = new TVector3();
-    
     if(is_truth){//Will need to investigate this. Will depend on coord syst vector is in...
         nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
     }
@@ -36,15 +35,29 @@ bool is_truth)// const
             return -999.;
         }
     }
-    const TVector3 * nudir_const = new TVector3();
+    const TVector3 * nudir_const = new TVector3(*nudir);
     return GetDPTTBase(nudir_const, mumom, prmom,pimom);
 }
 
-double TransverseTools::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, 
+double TransverseTools::GetDPTTRec(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, 
 const TVector3 *& pimom, bool is_truth)// const
 {
     double vertex[3] = { vtx[0], vtx[1], vtx[2] };
     return GetDPTT(vertex, mumom, prmom, pimom, is_truth);
+}
+
+double TransverseTools::GetDPTTSim(double vtx[], double pdp[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)// const
+{
+    const TVector3 * nudir = GetNuDirSim(vtx, pdp);
+    return GetDPTTBase(nudir_const, mumom, prmom,pimom);
+}
+
+double TransverseTools::GetDPTTSim(std::vector<double> vtx, std::vector<double> pdp, const TVector3 *& mumom, const TVector3 *& prmom,
+ const TVector3 *& pimom)// const
+{
+    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
+    double tmp_pdp[3] = { pdp[0], pdp[1], pdp[2] };
+    return GetDPTTSim(tmp_vtx, tmp_pdp, mumom, prmom, pimom, is_truth);
 }
 
 double TransverseTools::GetDPTTBase(const TVector3 *&nudir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)// const
@@ -208,7 +221,7 @@ TVector3 * TransverseTools::GetNuDirSim(std::vector<double> vtx, std::vector<dou
 TVector3 * TransverseTools::GetTransVarsSim(double vtx[], double pdp[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT)// const;
 {
-    TVector3 * nudir = GetNuDirSim(vtx, pdp);
+    const TVector3 * nudir = GetNuDirSim(vtx, pdp);
     return GetTransVarsBase(nudir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
@@ -233,7 +246,7 @@ TVector3 * TransverseTools::GetTransVarsBase(const TVector3 *& nudir, const TVec
     dpTMag  = deltapt->Mag();
     dalphaT = (deltapt->Theta())*TMath::RadToDeg();
     dphiT   = (deltapt->Phi())*TMath::RadToDeg();
-    dpTT    = GetDPTT(nudir, mumom, prmom, pimom, is_truth);
+    dpTT    = GetDPTTBase(nudir, mumom, prmom, pimom);
     
     //TODO: May cause seg fault:
     delete nudir;
