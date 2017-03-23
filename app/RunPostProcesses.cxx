@@ -99,9 +99,9 @@ void RunPostProcesses::Analyse(){
 		if(ev % percent == 0) cout << Form("Reprocessed %.f%%", (double)100*ev/m_entries ) << endl;
 		m_reader->GetEntry(ev);
 		if(m_reader->accum_level[0] > 5 || m_reader->accum_level[1] > 5){
-			cout << "m_reader->sel_dpTT_EX = " << m_reader->sel_dpTT_EX << endl;
+			cout << " Pre: m_reader->sel_dpTT_EX = " << m_reader->sel_dpTT_EX << endl;
 			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
-			cout << "m_reader->sel_dpTT_EX = " << m_reader->sel_dpTT_EX << endl;
+			cout << "Post: m_reader->sel_dpTT_EX = " << m_reader->sel_dpTT_EX << endl;
 			// (void)GetTransVarsSim(m_reader->sel_trueVTX, m_reader->sel_truePDP, m_reader-> mumom, m_reader-> prmom, m_reader->  pimom, m_reader->  dpTT, m_reader->  dpTMag, m_reader-> dalphaT, m_reader-> dphiT);
 		
 					// sel_dpTT_EX;
