@@ -10,6 +10,8 @@
 #include <TFile.h>
 #include <TTree.h>
 
+#include <TVector3.h>
+
 using namespace std;
 
 string test_file = "/pnfs/minerva/persistent/users/dcoplowe/CC1P1Pi_PL13C_200317/grid/central_value/minerva/ana/v10r8p9/00/01/32/60/SIM_minerva_00013260_Subruns_0001-0002-0003-0004_CC1P1PiAnalysis_Ana_Tuple_v10r8p9-dcoplowe.root";
@@ -128,19 +130,21 @@ void RunPostProcesses::CopyTree(std::string treename){
 int main(int argc, char *argv[])
 {
 
-	string infile = test_file;
+	string ifile = test_file;
+	string ofile = "some_generic_name.root";
+	string stree = "sel";
 
 	char cc;
 	while ((cc = getopt(argc, argv, "i:o:t:")) != -1) {
 		switch (cc){
-			case 'i': break;
-			case 'o': break;
-			case 't': break;
+			case 'i': ifile = string(optarg); break;
+			case 'o': ofile = string(optarg); break;
+			case 't': stree = string(optarg); break;
 			default: return 1;
 		}
 	}
 
-	RunPostProcesses * Run = new RunPostProcesses(test_file,"some_generic_name.root","sel");
+	RunPostProcesses * Run = new RunPostProcesses(ifile,ofile,stree);
 	Run->Analyse();
 	delete Run;
 

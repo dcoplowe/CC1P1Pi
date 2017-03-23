@@ -34,21 +34,29 @@ public:
     
     TVector3 * GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
                                  double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false);// const;
+
+    //Use these for checking reco:
+    TVector3 * GetTransVarsSim(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
+                                 double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false);// const;
+    
+    TVector3 * GetTransVarsSim(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
+                                 double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false);// const;
     
 private:
     const Double_t m_PDP_x;
     const Double_t m_PDP_y;
     const Double_t m_PDP_z;
-    
-//    TVector3 * m_PDP;
-    
+        
     const Double_t m_Theta;// = -0.0582977560;
     const Double_t m_XOffset;// = 0.2486;
     const Double_t m_YOffset;// = 60.350;
     const Double_t m_ZOffset;// = -1022.74;
     
-    TVector3 * GlobalToLocal(double nu_NuParentDecPoint[]);// const;
-
+    TVector3 * NuMiToMin(double nu_NuParentDecPoint[]);// const;
+    TVector3 * GetNuDirBase(const TVector3 *& vtx, const TVector3 *& PDP);
+    TVector3 * GetTransVarsBase(const TVector3 *& nudir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
+                                 double &dpTMag, double &dalphaT, double &dphiT);
+    double GetDPTTBase(const TVector3 *&nudir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom);
 };
 
 #endif

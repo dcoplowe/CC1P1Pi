@@ -3,6 +3,7 @@
 #include <AnalysisReader.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TVector3.h"
 
 AnalysisReader::AnalysisReader(TTree *tree, TTree *savetree) : fChain(0)
 {

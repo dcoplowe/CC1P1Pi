@@ -25,7 +25,7 @@ bool is_truth)// const
 {
     TVector3 * nudir = new TVector3();
     
-    if(is_truth){
+    if(is_truth){//Will need to investigate this. Will depend on coord syst vector is in...
         nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
     }
     else{
@@ -36,13 +36,7 @@ bool is_truth)// const
             return -999.;
         }
     }
-    
-    TVector3 tmp1_vec = nudir->Cross(*mumom);
-    tmp1_vec *= 1/tmp1_vec.Mag();
-    
-    TVector3 sum_vec = *prmom + *pimom;
-    
-    return sum_vec.Dot(tmp1_vec);
+    return GetDPTTBase(nudir, mumom, prmom,pimom);
 }
 
 double TransverseTools::GetDPTT(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, 
@@ -50,6 +44,14 @@ const TVector3 *& pimom, bool is_truth)// const
 {
     double vertex[3] = { vtx[0], vtx[1], vtx[2] };
     return GetDPTT(vertex, mumom, prmom, pimom, is_truth);
+}
+
+double TransverseTools::GetDPTTBase(const TVector3 *&nudir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)// const
+{
+    TVector3 tmp1_vec = nudir->Cross(*mumom);
+    tmp1_vec *= 1/tmp1_vec.Mag();   
+    TVector3 sum_vec = *prmom + *pimom;
+    return sum_vec.Dot(tmp1_vec);
 }
 
 TVector3 * TransverseTools::SetDPT(const TVector3 *& ptmuon, const TVector3 *& ptproton, const TVector3 *& ptpion)// const
@@ -69,19 +71,14 @@ TVector3 * TransverseTools::SetDPT(const TVector3 *& ptmuon, const TVector3 *& p
 
 TVector3 * TransverseTools::GetVecT(const TVector3 *& refdir, const TVector3 *& mom)// const
 {
-    //
-    //w.r.t. beam direction
-    //
+    //w.r.t. beam direction   
     if(!refdir){
         cout << "TransverseTools::GetVecT refdir null" << endl;
         exit(1);
     }
-    
     TVector3 vRotated(*mom);
     vRotated.Rotate(TMath::Pi(), *refdir);
-    
     TVector3 *vt = new TVector3( (*mom - vRotated)*0.5 );
-    
     return vt;
 }
 
@@ -122,12 +119,12 @@ TVector3 * TransverseTools::GetPT(std::vector<double> vtx, const TVector3 *& mom
     return GetPT(tmp_vtx, mom, is_truth);
 }
 
-TVector3 * TransverseTools::GetTransverseVars(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom,
+TVector3 * TransverseTools::GetTransVarsRec(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom,
  const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth)// const
 {
     TVector3 * nudir = new TVector3();
     
-    if(is_truth){
+    if(is_truth){//This will become defunct. Now split Rec and Sim.
         nudir->SetXYZ(vtx[0],vtx[1],vtx[2]);
     }
     else{
@@ -138,112 +135,109 @@ TVector3 * TransverseTools::GetTransverseVars(double vtx[], const TVector3 *& mu
             return 0x0;
         }
     }
-    
-    const TVector3 * neutrino_dir = new TVector3(nudir->X(),nudir->Y(), nudir->Z());
-    
-    const TVector3 * mupT = GetVecT(neutrino_dir, mumom);
-    const TVector3 * prpT = GetVecT(neutrino_dir, prmom);
-    const TVector3 * pipT = GetVecT(neutrino_dir, pimom);
+    return GetTransVarsBase(nudir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
+}
+
+TVector3 * TransverseTools::GetTransVarsRec(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom,
+ const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth)// const
+{
+    double vector[3] = { vtx[0], vtx[1], vtx[2] };
+    return GetTransVarsRec(vector, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT, is_truth);
+}
+
+TVector3 * TransverseTools::GetNuDirBase(const TVector3 *& vtx, const TVector3 *& PDP)// const
+{
+    //If PDP exists make sure to rotote to minerva coords: -- May not need to do this
+    TVector3 * nup1local = new TVector3(*vtx);
+    (*nup1local) *= 0.001;//in meters (default mm)
+    if( PDP->Mag() < EPSILON || nup1local->Mag() < EPSILON ){
+        cout << "TransverseTools::CalcNuDir bad input " << PDP->Mag() << " " << nup1local->Mag() << endl;
+        return 0x0;
+    }
+    TVector3 *nuDirCalc = new TVector3( (*nup1local) - (*PDP) );
+    (*nuDirCalc) *= 1./nuDirCalc->Mag();
+    return nuDirCalc;
+}
+
+TVector3 * TransverseTools::GetNuDirRec(double vtx[])// const
+{
+    //If PDP exists make sure to rotote to minerva coords: -- May not need to do this
+    TVector3 * PDP = new TVector3(m_PDP_x, m_PDP_y, m_PDP_z);
+    TVector3 * VTX = new TVector3(vtx[0], vtx[1], vtx[2]);
+    return GetNuDirBase(VTX, PDP);
+}
+
+TVector3 * TransverseTools::GetNuDirRec(std::vector<double> vtx)
+{    
+    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
+    return GetNuDirRec(tmp_vtx);
+}
+
+TVector3 * TransverseTools::NuMiToMin(double nu_NuParentDecPoint[])// const
+{
+    // This converts from Numi (beam) coordinates to Minerva coordinates.
+    //pl output in [m]
+    TVector3 pg(nu_NuParentDecPoint);
+    pg *= 0.001; //[mm] -> [m]
+    const Double_t tmpx = pg.X();
+    const Double_t tmpy = pg.Y();
+    const Double_t tmpz = pg.Z();
+    const Double_t xmnv = tmpx + m_XOffset;
+    const Double_t ymnv =  TMath::Cos(m_Theta)*tmpy + TMath::Sin(m_Theta)*tmpz + m_YOffset;
+    const Double_t zmnv = -TMath::Sin(m_Theta)*tmpy + TMath::Cos(m_Theta)*tmpz + m_ZOffset;
+    return new TVector3(xmnv, ymnv, zmnv);
+}
+
+TVector3 * TransverseTools::GetNuDirSim(double vtx[], double pdp[])// const
+{
+    // May need to delete these after use? 
+    TVector3 * PDP = NuMiToMin(pdp);
+    TVector3 * VTX = new TVector3(vtx[0], vtx[1], vtx[2]);
+    return GetNuDirBase(VTX, PDP);
+}
+
+TVector3 * TransverseTools::GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp)// const
+{   
+    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
+    double tmp_pdp[3] = { pdp[0], pdp[1], pdp[2] };   
+    return GetNuDirSim(tmp_vtx, tmp_pdp);
+}
+
+TVector3 * TransverseTools::GetTransVarsSim(double vtx[], double pdp[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
+                                 double &dpTMag, double &dalphaT, double &dphiT);// const;
+{
+    TVector3 * nudir = GetNuDirSim(vtx, pdp);
+    return GetTransVarsBase(nudir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
+}
+
+TVector3 * TransverseTools::GetTransVarsSim(std::vector<double> vtx, std::vector<double> pdp, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
+                                 double &dpTT, double &dpTMag, double &dalphaT, double &dphiT);// const;
+{
+    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
+    double tmp_pdp[3] = { pdp[0], pdp[1], pdp[2] };
+    return GetTransVarsSim(tmp_vtx, tmp_pdp, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
+}
+
+TVector3 * TransverseTools::GetTransVarsBase(const TVector3 *& nudir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
+                                 double &dpTMag, double &dalphaT, double &dphiT)
+{
+
+    const TVector3 * mupT = GetVecT(nudir, mumom);
+    const TVector3 * prpT = GetVecT(nudir, prmom);
+    const TVector3 * pipT = GetVecT(nudir, pimom);
     
     TVector3 * deltapt = SetDPT(mupT, prpT, pipT);
     
     dpTMag  = deltapt->Mag();
     dalphaT = (deltapt->Theta())*TMath::RadToDeg();
     dphiT   = (deltapt->Phi())*TMath::RadToDeg();
-    dpTT    = GetDPTT(vtx, mumom, prmom, pimom, is_truth);
+    dpTT    = GetDPTT(nudir, mumom, prmom, pimom, is_truth);
     
     //TODO: May cause seg fault:
     delete nudir;
-    delete neutrino_dir;
     delete mupT;
     delete prpT;
     delete pipT;
     
     return deltapt;
-}
-
-TVector3 * TransverseTools::GetTransverseVars(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom,
- const TVector3 *& pimom, double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth)// const
-{
-    double vector[3] = { vtx[0], vtx[1], vtx[2] };
-    
-    return GetTransverseVars(vector, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT, is_truth);
-}
-
-TVector3 * TransverseTools::GetNuDirRec(double vtx[])// const
-{
-    //If PDP exists make sure to rotote to minerva coords: -- May not need to do this
-    
-    TVector3 * PDP = new TVector3(m_PDP_x, m_PDP_y, m_PDP_z);
-    
-    TVector3 * nup1local = new TVector3(vtx[0], vtx[1], vtx[2]);
-    (*nup1local) *= 0.001;//in meters (default mm)
-    
-    if( PDP->Mag() < EPSILON || nup1local->Mag() < EPSILON ){
-        cout << "TransverseTools::CalcNuDir bad input " << PDP->Mag() << " " << nup1local->Mag() << endl;
-        return 0x0;
-    }
-    
-    TVector3 *nuDirCalc = new TVector3( (*nup1local) - (*PDP) );
-    (*nuDirCalc) *= 1./nuDirCalc->Mag();
-    
-    return nuDirCalc;
-}
-
-TVector3 * TransverseTools::GetNuDirRec(std::vector<double> vtx)
-{
-    if( (int)vtx.size() != 3) return 0x0;
-    
-    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
-
-    return GetNuDirRec(tmp_vtx);
-}
-
-TVector3 * TransverseTools::GetNuDirSim(double vtx[], double pdp[])// const
-{
-    
-    TVector3 * PDP = GlobalToLocal(pdp);
-    
-    TVector3 * nup1local = new TVector3(vtx[0], vtx[1], vtx[2]);
-    (*nup1local) *= 0.001;//in meters (default mm)
-    
-    if( PDP->Mag() < EPSILON || nup1local->Mag() < EPSILON ){
-        cout << "TransverseTools::CalcNuDir bad input " << PDP->Mag() << " " << nup1local->Mag() << endl;
-        return 0x0;
-    }
-    
-    TVector3 *nuDirCalc = new TVector3( (*nup1local) - (*PDP) );
-    (*nuDirCalc) *= 1./nuDirCalc->Mag();
-    
-    delete PDP;
-    
-    return nuDirCalc;
-}
-
-TVector3 * TransverseTools::GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp)// const
-{
-    if( (int)vtx.size() != 3 || (int)pdp.size() != 3 ) return 0x0;
-    
-    double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
-    double tmp_pdp[3] = { pdp[0], pdp[1], pdp[2] };
-    
-    return GetNuDirSim(tmp_vtx, tmp_pdp);
-}
-
-TVector3 * TransverseTools::GlobalToLocal(double nu_NuParentDecPoint[])// const
-{
-    //pl output in [m]
-    TVector3 pg(nu_NuParentDecPoint);
-    pg *= 0.001; //[mm] -> [m]
-    //exactly following convert-numi-to-minerva.py -> "although it looks like someone already 
-    //did the bit for changing the labeling of the axes -- Phil" -> true, because the PDP z has the exponential distribution
-    const Double_t tmpx = pg.X();
-    const Double_t tmpy = pg.Y();
-    const Double_t tmpz = pg.Z();
-    
-    const Double_t xmnv = tmpx + m_XOffset;
-    const Double_t ymnv =  TMath::Cos(m_Theta)*tmpy + TMath::Sin(m_Theta)*tmpz + m_YOffset;
-    const Double_t zmnv = -TMath::Sin(m_Theta)*tmpy + TMath::Cos(m_Theta)*tmpz + m_ZOffset;
-    
-    return new TVector3(xmnv, ymnv, zmnv);
 }
