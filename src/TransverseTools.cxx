@@ -157,7 +157,7 @@ TVector3 * GetTransVarsDir(std::vector<double> dir, const TVector3 *& mumom, con
                                  double &dpTT, double &dpTMag, double &dalphaT, double &dphiT)
 {
     double vec[3] = { dir[0], dir[1], dir[2] };
-    return GetTransVarsRec(vec, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
+    return GetTransVarsDir(vec, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
 TVector3 * TransverseTools::GetNuDirBase(const TVector3 *& vtx, const TVector3 *& PDP)// const
