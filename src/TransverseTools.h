@@ -36,10 +36,10 @@ public:
                                  double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false);// const;
 
     //Use these for checking reco:
-    TVector3 * GetTransVarsSim(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
+    TVector3 * GetTransVarsSim(double vtx[], double pdp[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false);// const;
     
-    TVector3 * GetTransVarsSim(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
+    TVector3 * GetTransVarsSim(std::vector<double> vtx, std::vector<double> pdp, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
                                  double &dpTT, double &dpTMag, double &dalphaT, double &dphiT, bool is_truth = false);// const;
     
 private:

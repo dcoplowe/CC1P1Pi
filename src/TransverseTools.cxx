@@ -164,8 +164,8 @@ TVector3 * TransverseTools::GetNuDirBase(const TVector3 *& vtx, const TVector3 *
 TVector3 * TransverseTools::GetNuDirRec(double vtx[])// const
 {
     //If PDP exists make sure to rotote to minerva coords: -- May not need to do this
-    TVector3 * PDP = new TVector3(m_PDP_x, m_PDP_y, m_PDP_z);
-    TVector3 * VTX = new TVector3(vtx[0], vtx[1], vtx[2]);
+    const TVector3 * PDP = new TVector3(m_PDP_x, m_PDP_y, m_PDP_z);
+    const TVector3 * VTX = new TVector3(vtx[0], vtx[1], vtx[2]);
     return GetNuDirBase(VTX, PDP);
 }
 
@@ -193,8 +193,8 @@ TVector3 * TransverseTools::NuMiToMin(double nu_NuParentDecPoint[])// const
 TVector3 * TransverseTools::GetNuDirSim(double vtx[], double pdp[])// const
 {
     // May need to delete these after use? 
-    TVector3 * PDP = NuMiToMin(pdp);
-    TVector3 * VTX = new TVector3(vtx[0], vtx[1], vtx[2]);
+    const TVector3 * PDP = NuMiToMin(pdp);
+    const TVector3 * VTX = new TVector3(vtx[0], vtx[1], vtx[2]);
     return GetNuDirBase(VTX, PDP);
 }
 
