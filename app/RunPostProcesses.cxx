@@ -198,7 +198,7 @@ TVector3 * RunPostProcesses::GetTransVarsRec(double vtx[], double mu[], double p
 	return GetTransVarsRec(vtx, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
-TVector3 * RunPostProcesses::GetTransVarsSim(double vtx[], double pdp[], double mumom[], double prmom[], double pimom[], double &dpTT,
+TVector3 * RunPostProcesses::GetTransVarsSim(double vtx[], double pdp[], double mu[], double pr[], double pi[], double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT)
 {
 	const TVector3 * mumom = new TVector3( mu[1], pr[2], pi[3] );
