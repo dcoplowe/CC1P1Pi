@@ -206,14 +206,14 @@ TVector3 * TransverseTools::GetNuDirSim(std::vector<double> vtx, std::vector<dou
 }
 
 TVector3 * TransverseTools::GetTransVarsSim(double vtx[], double pdp[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
-                                 double &dpTMag, double &dalphaT, double &dphiT);// const;
+                                 double &dpTMag, double &dalphaT, double &dphiT)// const;
 {
     TVector3 * nudir = GetNuDirSim(vtx, pdp);
     return GetTransVarsBase(nudir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
 TVector3 * TransverseTools::GetTransVarsSim(std::vector<double> vtx, std::vector<double> pdp, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
-                                 double &dpTT, double &dpTMag, double &dalphaT, double &dphiT);// const;
+                                 double &dpTT, double &dpTMag, double &dalphaT, double &dphiT)// const;
 {
     double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
     double tmp_pdp[3] = { pdp[0], pdp[1], pdp[2] };
