@@ -1719,9 +1719,9 @@ void CC1P1PiAnalysis::FillCommonBranches(const Minerva::PhysicsEvent *event, con
         const TVector3 * truepr_p = new TVector3(m_Protontrue4Mom[1], m_Protontrue4Mom[2], m_Protontrue4Mom[3]);
         const TVector3 * truepi_p = new TVector3(m_Piontrue4Mom[1], m_Piontrue4Mom[2], m_Piontrue4Mom[3]);
         
-        const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
-        double nu_3vec_mag = sqrt(nu_4vec.px()*nu_4vec.px() + nu_4vec.py()*nu_4vec.py() + nu_4vec.pz()*nu_4vec.pz());
-        double vertex_true[3] = { nu_4vec.px()/nu_3vec_mag, nu_4vec.py()/nu_3vec_mag, nu_4vec.pz()/nu_3vec_mag };
+        // const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
+        // double nu_3vec_mag = sqrt(nu_4vec.px()*nu_4vec.px() + nu_4vec.py()*nu_4vec.py() + nu_4vec.pz()*nu_4vec.pz());
+        // double vertex_true[3] = { nu_4vec.px()/nu_3vec_mag, nu_4vec.py()/nu_3vec_mag, nu_4vec.pz()/nu_3vec_mag };
         
         //Need PDP point + vertrex:
         Gaudi::LorentzVector vtx_truth = truth->Vtx();
@@ -2448,7 +2448,7 @@ void CC1P1PiAnalysis::FillTrueParticle(std::string name, double E, double Px, do
     
     const Gaudi::LorentzVector nu_4vec = truth->IncomingPartVec();
     
-    double nu_3vec_mag = sqrt(nu_4vec.px()*nu_4vec.px() + nu_4vec.py()*nu_4vec.py() + nu_4vec.pz()*nu_4vec.pz());
+    double neutrino_dir_mag = sqrt(nu_4vec.px()*nu_4vec.px() + nu_4vec.py()*nu_4vec.py() + nu_4vec.pz()*nu_4vec.pz());
     std::vector<double> neutrino_dir;
     neutrino_dir.push_back( (nu_4vec.px()/neutrino_dir_mag) );
     neutrino_dir.push_back( (nu_4vec.py()/neutrino_dir_mag) );
