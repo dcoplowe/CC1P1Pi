@@ -83,8 +83,13 @@ void RunPostProcesses::Analyse(){
 
 	m_reader->SetOutTree();
 
-	for(int ev = 0; ev < 10/*m_entries*/; ev++){
+	for(int ev = 0; ev < m_entries; ev++){
 		m_reader->GetEntry(ev);
+		cout << " Pre: dpTT = " << m_reader->sel_dpTT_pi_EX << endl;
+
+		m_outtree->sel_dpTT_pi_EX = 8008135;
+
+		cout << "Post: dpTT = " << m_reader->sel_dpTT_pi_EX << endl;
 
 		m_reader->FillOutTree();
 
