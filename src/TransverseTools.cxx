@@ -16,14 +16,14 @@ TransverseTools::TransverseTools() : m_PDP_x(0.231135) , m_PDP_y(45.368069), m_P
     //    m_PDP = new TVector3(m_PDP_x, m_PDP_y, m_PDP_z);
 }
 
-TransverseTools::~TransverseTools(){
-    //    delete m_PDP;
-}
+TransverseTools::~TransverseTools(){}
 
 double TransverseTools::GetDPTTRec(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)// const
 {
     const TVector3 * nudir = GetNuDirRec(vtx);
-    return GetDPTTBase(nudir, mumom, prmom,pimom);
+    double value = GetDPTTBase(nudir, mumom, prmom,pimom);
+    delete nudir;
+    return value;
 }
 
 double TransverseTools::GetDPTTRec(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, 
@@ -36,7 +36,9 @@ const TVector3 *& pimom)// const
 double TransverseTools::GetDPTTSim(double vtx[], double pdp[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)// const
 {
     const TVector3 * nudir = GetNuDirSim(vtx, pdp);
-    return GetDPTTBase(nudir, mumom, prmom,pimom);
+    double value = GetDPTTBase(nudir, mumom, prmom,pimom);
+    delete nudir;
+    return value;
 }
 
 double TransverseTools::GetDPTTSim(std::vector<double> vtx, std::vector<double> pdp, const TVector3 *& mumom, const TVector3 *& prmom,
@@ -50,7 +52,9 @@ double TransverseTools::GetDPTTSim(std::vector<double> vtx, std::vector<double> 
 double TransverseTools::GetDPTTDir(double dir[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)
 {
     const TVector3 * nudir = new TVector3(dir[0], dir[1], dir[2]);
-    return GetDPTTBase(nudir, mumom, prmom,pimom);
+    double value = GetDPTTBase(nudir, mumom, prmom,pimom);
+    delete nudir;
+    return value;
 }
 
 double TransverseTools::GetDPTTDir(std::vector<double> dir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)
@@ -97,8 +101,10 @@ TVector3 * TransverseTools::GetVecT(const TVector3 *& refdir, const TVector3 *& 
 
 TVector3 * TransverseTools::GetPTRec(double vtx[], const TVector3 *& mom)// const
 {    
-    const TVector3 * nudir = GetNuDirRec(vtx);  
-    return GetVecT(nudir, mom);
+    const TVector3 * nudir = GetNuDirRec(vtx);
+    TVector3 * tmp = GetVecT(nudir, mom);
+    delete nudir;
+    return tmp;
 }
 
 TVector3 * TransverseTools::GetPTRec(std::vector<double> vtx, const TVector3 *& mom)
@@ -110,7 +116,9 @@ TVector3 * TransverseTools::GetPTRec(std::vector<double> vtx, const TVector3 *& 
 TVector3 * TransverseTools::GetPTSim(double vtx[], double pdp[], const TVector3 *& mom)// const
 {    
     const TVector3 * nudir = GetNuDirSim(vtx, pdp);  
-    return GetVecT(nudir, mom);
+    TVector3 * tmp = GetVecT(nudir, mom);
+    delete nudir;
+    return tmp;
 }
 
 TVector3 * TransverseTools::GetPTSim(std::vector<double> vtx, std::vector<double> pdp, const TVector3 *& mom)
@@ -122,8 +130,10 @@ TVector3 * TransverseTools::GetPTSim(std::vector<double> vtx, std::vector<double
 
 TVector3 * TransverseTools::GetPTDir(double dir[], const TVector3 *& mom)
 {
-   const TVector3 * nudir = new TVector3(dir[0], dir[1], dir[2]);  
-   return GetVecT(nudir, mom);
+    const TVector3 * nudir = new TVector3(dir[0], dir[1], dir[2]);  
+    TVector3 * tmp = GetVecT(nudir, mom);
+    delete nudir;
+    return tmp;
 }
 
 TVector3 * TransverseTools::GetPTDir(std::vector<double> dir, const TVector3 *& mom)
@@ -150,7 +160,9 @@ TVector3 * TransverseTools::GetTransVarsDir(double dir[], const TVector3 *& mumo
                                  double &dpTMag, double &dalphaT, double &dphiT)
 {
     const TVector3 * nudir = new TVector3(dir[0], dir[1], dir[2]);
-    return GetTransVarsBase(nudir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
+    TVector3 * tmp = GetTransVarsBase(nudir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
+    delete nudir;
+    return tmp;
 }           
     
 TVector3 * TransverseTools::GetTransVarsDir(std::vector<double> dir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
@@ -171,6 +183,7 @@ TVector3 * TransverseTools::GetNuDirBase(const TVector3 *& vtx, const TVector3 *
     }
     TVector3 *nuDirCalc = new TVector3( (*nup1local) - (*PDP) );
     (*nuDirCalc) *= 1./nuDirCalc->Mag();
+    delete nup1local;
     return nuDirCalc;
 }
 
@@ -179,7 +192,10 @@ TVector3 * TransverseTools::GetNuDirRec(double vtx[])// const
     //If PDP exists make sure to rotote to minerva coords: -- May not need to do this
     const TVector3 * VTX = new TVector3(vtx[0], vtx[1], vtx[2]);
     const TVector3 * PDP = new TVector3(m_PDP_x, m_PDP_y, m_PDP_z);
-    return GetNuDirBase(VTX, PDP);
+    TVector3 * tmp = GetNuDirBase(VTX, PDP);
+    delete VTX;
+    delete PDP;
+    return tmp;
 }
 
 TVector3 * TransverseTools::GetNuDirRec(std::vector<double> vtx)
@@ -208,7 +224,10 @@ TVector3 * TransverseTools::GetNuDirSim(double vtx[], double pdp[])// const
     // May need to delete these after use? 
     const TVector3 * PDP = NuMiToMin(pdp);
     const TVector3 * VTX = new TVector3(vtx[0], vtx[1], vtx[2]);
-    return GetNuDirBase(VTX, PDP);
+    TVector3 * tmp = GetNuDirBase(VTX, PDP);
+    delete VTX;
+    delete PDP;
+    return tmp;
 }
 
 TVector3 * TransverseTools::GetNuDirSim(std::vector<double> vtx, std::vector<double> pdp)// const
@@ -248,11 +267,10 @@ TVector3 * TransverseTools::GetTransVarsBase(const TVector3 *& nudir, const TVec
     dphiT   = (deltapt->Phi())*TMath::RadToDeg();
     dpTT    = GetDPTTBase(nudir, mumom, prmom, pimom);
     
-    //TODO: May cause seg fault:
     delete nudir;
     delete mupT;
     delete prpT;
     delete pipT;
-    
+
     return deltapt;
 }
