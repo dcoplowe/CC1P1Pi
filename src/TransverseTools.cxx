@@ -56,7 +56,7 @@ double TransverseTools::GetDPTTDir(double dir[], const TVector3 *& mumom, const 
 double TransverseTools::GetDPTTDir(std::vector<double> dir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)
 {
     double direction[3] = { dir[0], dir[1], dir[2] };
-    return GetDPTTBase(direction, mumom, prmom, pimom);
+    return GetDPTTDir(direction, mumom, prmom, pimom);
 }
 
 double TransverseTools::GetDPTTBase(const TVector3 *&nudir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)// const
