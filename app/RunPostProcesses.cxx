@@ -38,10 +38,10 @@ private:
 	void SetOutTree();
 	void FillOutTree();
 
-	TVector3 * GetTransVarsRec(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
+	TVector3 * GetTransVarsRec(double vtx[], double mumom[], double prmom[], double pimom[], double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT);
 
-	TVector3 * GetTransVarsSim(double vtx[], double pdp[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
+	TVector3 * GetTransVarsSim(double vtx[], double pdp[], double mumom[], double prmom[], double pimom[], double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT);// const;
 
 	TransverseTools * m_TransTools;
@@ -96,7 +96,7 @@ void RunPostProcesses::Analyse(){
 	cout << "Starting to reprocess transverse variables" << endl;
 
 	for(int ev = 0; ev < m_entries; ev++){
-		if(i % percent == 0) cout << Form("Reprocessed %.f%%", (double)(i/m_entries) ) << endl;
+		if(ev % percent == 0) cout << Form("Reprocessed %.f%%", (double)(ev/m_entries) ) << endl;
 		m_reader->GetEntry(ev);
 		if(m_reader->accum_level[0] > 5 || m_reader->accum_level[1] > 5){
 			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
