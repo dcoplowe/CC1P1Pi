@@ -105,12 +105,12 @@ void RunPostProcesses::Analyse(){
 			// cout << "Post: m_reader->sel_dpTT_EX = " << m_reader->sel_dpTT_EX << endl;
 			double dead1, dead2, dead3;
 			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_true4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX_tmumom, dead1, dead2, dead3);
-			(void)GetTransVarsSim(m_reader->trueVTX, m_reader->truePDP, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX_tnudir, dead1, dead2, dead3);
+			(void)GetTransVarsSim(m_reader->sel_trueVTX, m_reader->sel_truePDP, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX_tnudir, dead1, dead2, dead3);
 			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_true4mom, m_reader->sel_dpTT_EX_tpimom, dead1, dead2, dead3);
 			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_true4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX_tprmom, dead1, dead2, dead3);
 
 			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_true4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tmumom, dead1, dead2, dead3);
-			(void)GetTransVarsSim(m_reader->trueVTX, m_reader->truePDP, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tnudir, dead1, dead2, dead3);
+			(void)GetTransVarsSim(m_reader->sel_trueVTX, m_reader->sel_truePDP, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tnudir, dead1, dead2, dead3);
 			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_true4mom, m_reader->sel_dpTT_LL_tpimom, dead1, dead2, dead3);
 			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_true4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tprmom, dead1, dead2, dead3);
 
