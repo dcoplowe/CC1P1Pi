@@ -96,7 +96,7 @@ void RunPostProcesses::Analyse(){
 	cout << "Starting to reprocess transverse variables" << endl;
 
 	for(int ev = 0; ev < m_entries; ev++){
-		if(ev % percent == 0) cout << Form("Reprocessed %.f%%", (double)(ev/m_entries) ) << endl;
+		if(ev % percent == 0) cout << Form("Reprocessed %.f%%", (double)100*ev/m_entries ) << endl;
 		m_reader->GetEntry(ev);
 		if(m_reader->accum_level[0] > 5 || m_reader->accum_level[1] > 5){
 			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
