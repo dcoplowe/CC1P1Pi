@@ -72,12 +72,13 @@ RunPostProcesses::RunPostProcesses(std::string infilemame, std::string outfilena
 }
 
 RunPostProcesses::~RunPostProcesses(){
-	if(m_rec) delete m_rec;
+
+	if(m_outtree) delete m_outtree;
 	cout << "Working 1" << endl;	
+	if(m_rec) delete m_rec;
+	cout << "Working 2" << endl;	
 	if(m_infile->IsOpen()) m_infile->Close();
 	if(m_infile) delete m_infile;
-	cout << "Working 2" << endl;	
-	if(m_outtree) delete m_outtree;
 	cout << "Working 3" << endl;	
 	if(m_outfile->IsOpen()) m_outfile->Close();
 	if(m_outfile) delete m_outfile;
