@@ -38,6 +38,12 @@ private:
 	void SetOutTree();
 	void FillOutTree();
 
+	TVector3 * GetTransVarsRec(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
+                                 double &dpTMag, double &dalphaT, double &dphiT);
+
+	TVector3 * GetTransVarsSim(double vtx[], double pdp[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
+                                 double &dpTMag, double &dalphaT, double &dphiT);// const;
+
 	TransverseTools * m_TransTools;
 };
 
@@ -81,27 +87,84 @@ RunPostProcesses::~RunPostProcesses(){
 
 void RunPostProcesses::Analyse(){
 
+	int percent = m_entries/20;
+
 	m_outfile->cd();
 
 	m_reader->SetOutTree();
 
+	cout << "Starting to reprocess transverse variables" << endl;
+
 	for(int ev = 0; ev < m_entries; ev++){
+		if(i % percent == 0) cout << Form("Reprocessed %.f%%", (double)(i/m_entries) ) << endl;
 		m_reader->GetEntry(ev);
-		cout << " Pre: dpTT = " << m_reader->sel_dpTT_pi_EX << endl;
+		if(m_reader->accum_level[0] > 5 || m_reader->accum_level[1] > 5){
+			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
 
-		m_reader->sel_dpTT_pi_EX = 8008135.;
+			// (void)GetTransVarsSim(m_reader->sel_trueVTX, m_reader->sel_truePDP, m_reader-> mumom, m_reader-> prmom, m_reader->  pimom, m_reader->  dpTT, m_reader->  dpTMag, m_reader-> dalphaT, m_reader-> dphiT);
+		
+					// sel_dpTT_EX;
+   					// sel_dpTT_EX_tmumom;
+   					// sel_dpTT_EX_tnudir;
+   					// sel_dpTT_EX_tpimom;
+   					// sel_dpTT_EX_tprmom;
+   					// sel_dpTT_LL;
+   					// sel_dpTT_LL_tmumom;
+   					// sel_dpTT_LL_tnudir;
+   					// sel_dpTT_LL_tpimom;
+   					// sel_dpTT_LL_tprmom;
+   					// sel_dpTT_pi_EX;
+   					// sel_dpTT_pi_EX_tmumom;
+   					// sel_dpTT_pi_EX_tnudir;
+   					// sel_dpTT_pi_EX_tpimom;
+   					// sel_dpTT_pi_EX_tprmom;
+   					// sel_dpTT_pi_LL;
+   					// sel_dpTT_pi_LL_tmumom;
+   					// sel_dpTT_pi_LL_tnudir;
+   					// sel_dpTT_pi_LL_tpimom;
+   					// sel_dpTT_pi_LL_tprmom;
+   					// sel_dpTT_pi_dir_EX;
+   					// sel_dpTT_pi_dir_EX_tmumom;
+   					// sel_dpTT_pi_dir_EX_tnudir;
+   					// sel_dpTT_pi_dir_EX_tpidir;
+   					// sel_dpTT_pi_dir_EX_tprmom;
+   					// sel_dpTT_pi_dir_LL;
+   					// sel_dpTT_pi_dir_LL_tmumom;
+   					// sel_dpTT_pi_dir_LL_tnudir;
+   					// sel_dpTT_pi_dir_LL_tpidir;
+   					// sel_dpTT_pi_dir_LL_tprmom;
+   					// sel_dpTT_pr_EX;
+   					// sel_dpTT_pr_EX_tmumom;
+   					// sel_dpTT_pr_EX_tnudir;
+   					// sel_dpTT_pr_EX_tpimon;
+   					// sel_dpTT_pr_EX_tprmom;
+   					// sel_dpTT_pr_LL;
+   					// sel_dpTT_pr_LL_tmumom;
+   					// sel_dpTT_pr_LL_tnudir;
+   					// sel_dpTT_pr_LL_tpimon;
+   					// sel_dpTT_pr_LL_tprmom;
+   					// sel_dpTT_pr_dir_EX;
+   					// sel_dpTT_pr_dir_EX_tmumom;
+   					// sel_dpTT_pr_dir_EX_tnudir;
+   					// sel_dpTT_pr_dir_EX_tpimom;
+   					// sel_dpTT_pr_dir_EX_tprdir;
+   					// sel_dpTT_pr_dir_LL;
+   					// sel_dpTT_pr_dir_LL_tmumom;
+   					// sel_dpTT_pr_dir_LL_tnudir;
+   					// sel_dpTT_pr_dir_LL_tpimom;
+   					// sel_dpTT_pr_dir_LL_tprdir;
 
-		cout << "Post: dpTT = " << m_reader->sel_dpTT_pi_EX << endl;
-
+		}
 		m_reader->FillOutTree();
-
 	}
-
+	cout << "********* Finished Processing *********" << endl;
+	cout << "Copying other trees." << endl;
 	m_outfile->cd();
 	m_outtree->Write();
-
 	CopyTree("Truth");
 	CopyTree("Meta");
+	m_outfile->Close();
+	cout << "Reanalysis Complete" << endl;
 }
 
 void RunPostProcesses::CopyTree(std::string treename){
@@ -125,6 +188,23 @@ void RunPostProcesses::CopyTree(std::string treename){
 		tree_copy->Write();
 		cout << " Successful" << endl;
 	}
+}
+
+TVector3 * RunPostProcesses::GetTransVarsRec(double vtx[], double mu[], double pr[], double pi[], double &dpTT, double &dpTMag, double &dalphaT, double &dphiT)
+{
+	const TVector3 mumom = new TVector3( mu[1], pr[2], pi[3] );
+	const TVector3 prmom = new TVector3( mu[1], pr[2], pi[3] );
+	const TVector3 pimom = new TVector3( mu[1], pr[2], pi[3] );
+	return GetTransVarsRec(vtx, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
+}
+
+TVector3 * RunPostProcesses::GetTransVarsSim(double vtx[], double pdp[], double mumom[], double prmom[], double pimom[], double &dpTT,
+                                 double &dpTMag, double &dalphaT, double &dphiT)
+{
+	const TVector3 mumom = new TVector3( mu[1], pr[2], pi[3] );
+	const TVector3 prmom = new TVector3( mu[1], pr[2], pi[3] );
+	const TVector3 pimom = new TVector3( mu[1], pr[2], pi[3] );
+	return GetTransVarsSim(vtx, pdp, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
 int main(int argc, char *argv[])
