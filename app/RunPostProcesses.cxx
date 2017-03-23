@@ -87,7 +87,7 @@ void RunPostProcesses::Analyse(){
 		m_reader->GetEntry(ev);
 		cout << " Pre: dpTT = " << m_reader->sel_dpTT_pi_EX << endl;
 
-		// m_outtree->sel_dpTT_pi_EX = 8008135;
+		m_outtree->sel_dpTT_pi_EX = 8008135.;
 
 		cout << "Post: dpTT = " << m_reader->sel_dpTT_pi_EX << endl;
 
