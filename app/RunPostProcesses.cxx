@@ -87,7 +87,7 @@ void RunPostProcesses::Analyse(){
 		m_reader->GetEntry(ev);
 		cout << " Pre: dpTT = " << m_reader->sel_dpTT_pi_EX << endl;
 
-		m_outtree->sel_dpTT_pi_EX = 8008135;
+		m_outtree->fChain->sel_dpTT_pi_EX = 8008135;
 
 		cout << "Post: dpTT = " << m_reader->sel_dpTT_pi_EX << endl;
 
@@ -127,19 +127,22 @@ void RunPostProcesses::CopyTree(std::string treename){
 
 int main(int argc, char *argv[])
 {
-char cc;
-    while ((cc = getopt(argc, argv, "i:o:t:")) != -1) {
-        switch (cc){
-        	case 'i': break;
-        	case 'o': break;
-        	case 't': break;
-        	default: return 1;
-        }
-    }
 
-RunPostProcesses * Run = new RunPostProcesses(test_file,"some_generic_name.root","sel");
-Run->Analyse();
-delete Run;
+	string infile = test_file;
+
+	char cc;
+	while ((cc = getopt(argc, argv, "i:o:t:")) != -1) {
+		switch (cc){
+			case 'i': break;
+			case 'o': break;
+			case 't': break;
+			default: return 1;
+		}
+	}
+
+	RunPostProcesses * Run = new RunPostProcesses(test_file,"some_generic_name.root","sel");
+	Run->Analyse();
+	delete Run;
 
 }
 
