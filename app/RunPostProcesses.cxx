@@ -73,15 +73,15 @@ RunPostProcesses::RunPostProcesses(std::string infilemame, std::string outfilena
 
 RunPostProcesses::~RunPostProcesses(){
 	// if(m_outtree) delete m_outtree;
-	cout << "Working 1" << endl;	
+	// cout << "Working 1" << endl;	
 	if(m_rec) delete m_rec;
-	cout << "Working 2" << endl;	
+	// cout << "Working 2" << endl;	
 	if(m_infile->IsOpen()) m_infile->Close();
 	if(m_infile) delete m_infile;
-	cout << "Working 3" << endl;	
+	// cout << "Working 3" << endl;	
 	if(m_outfile->IsOpen()) m_outfile->Close();
 	if(m_outfile) delete m_outfile;
-	cout << "Working 4" << endl;	
+	// cout << "Working 4" << endl;	
 	delete m_TransTools;
 }
 
@@ -99,8 +99,9 @@ void RunPostProcesses::Analyse(){
 		if(ev % percent == 0) cout << Form("Reprocessed %.f%%", (double)100*ev/m_entries ) << endl;
 		m_reader->GetEntry(ev);
 		if(m_reader->accum_level[0] > 5 || m_reader->accum_level[1] > 5){
+			cout << "m_reader->sel_dpTT_EX = " << m_reader->sel_dpTT_EX << endl;
 			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
-
+			cout << "m_reader->sel_dpTT_EX = " << m_reader->sel_dpTT_EX << endl;
 			// (void)GetTransVarsSim(m_reader->sel_trueVTX, m_reader->sel_truePDP, m_reader-> mumom, m_reader-> prmom, m_reader->  pimom, m_reader->  dpTT, m_reader->  dpTMag, m_reader-> dalphaT, m_reader-> dphiT);
 		
 					// sel_dpTT_EX;
