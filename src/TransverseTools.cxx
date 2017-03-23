@@ -22,8 +22,8 @@ TransverseTools::~TransverseTools(){
 
 double TransverseTools::GetDPTTRec(double vtx[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)// const
 {
-    const TVector3 * nudir GetNuDirRec(vtx);
-    return GetDPTTBase(nudir_const, mumom, prmom,pimom);
+    const TVector3 * nudir = GetNuDirRec(vtx);
+    return GetDPTTBase(nudir, mumom, prmom,pimom);
 }
 
 double TransverseTools::GetDPTTRec(std::vector<double> vtx, const TVector3 *& mumom, const TVector3 *& prmom, 
@@ -36,7 +36,7 @@ const TVector3 *& pimom)// const
 double TransverseTools::GetDPTTSim(double vtx[], double pdp[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom)// const
 {
     const TVector3 * nudir = GetNuDirSim(vtx, pdp);
-    return GetDPTTBase(nudir_const, mumom, prmom,pimom);
+    return GetDPTTBase(nudir, mumom, prmom,pimom);
 }
 
 double TransverseTools::GetDPTTSim(std::vector<double> vtx, std::vector<double> pdp, const TVector3 *& mumom, const TVector3 *& prmom,
@@ -92,7 +92,7 @@ TVector3 * TransverseTools::GetPTRec(double vtx[], const TVector3 *& mom)// cons
 TVector3 * TransverseTools::GetPTRec(std::vector<double> vtx, const TVector3 *& mom)
 {
     double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
-    return GetPT(tmp_vtx, mom);
+    return GetPTRec(tmp_vtx, mom);
 }
 
 TVector3 * TransverseTools::GetPTSim(double vtx[], double pdp[], const TVector3 *& mom)// const
@@ -104,7 +104,7 @@ TVector3 * TransverseTools::GetPTSim(double vtx[], double pdp[], const TVector3 
 TVector3 * TransverseTools::GetPTSim(std::vector<double> vtx, std::vector<double> pdp, const TVector3 *& mom)
 {
     double tmp_vtx[3] = { vtx[0], vtx[1], vtx[2] };
-    double tmp_pdp[3] = { vtx[0], vtx[1], vtx[2] };
+    double tmp_pdp[3] = { pdp[0], pdp[1], pdp[2] };
     return GetPTSim(tmp_vtx, tmp_pdp, mom);
 }
 
