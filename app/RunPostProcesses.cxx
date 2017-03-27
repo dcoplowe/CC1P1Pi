@@ -117,22 +117,22 @@ void RunPostProcesses::Analyse(){
 	m_outtree->Branch("dpTT2", &dpTT2, "dpTT2/D");
 
 	Double_t rec001_diffMag;
-	m_outfile->Branch("rec001_diff", &rec001_diffMag, "rec001_diff/D");
+	m_outtree->Branch("rec001_diff", &rec001_diffMag, "rec001_diff/D");
 
 	Double_t truvtx_diffMag;
-	m_outfile->Branch("truvtx_diff", &truvtx_diffMag, "truvtx_diff/D");
+	m_outtree->Branch("truvtx_diff", &truvtx_diffMag, "truvtx_diff/D");
 
 	Double_t recvtx_diffMag;
-	m_outfile->Branch("recvtx_diff", &recvtx_diffMag, "recvtx_diff/D");
+	m_outtree->Branch("recvtx_diff", &recvtx_diffMag, "recvtx_diff/D");
 
 	Double_t simtru_X;
-	m_outfile->Branch("simtru_X", &simtru_X, "simtru_X/D");
+	m_outtree->Branch("simtru_X", &simtru_X, "simtru_X/D");
 
 	Double_t simtru_Y;
-	m_outfile->Branch("simtru_Y", &simtru_Y, "simtru_Y/D");
+	m_outtree->Branch("simtru_Y", &simtru_Y, "simtru_Y/D");
 
 	Double_t simtru_Z;
-	m_outfile->Branch("simtru_Z", &simtru_Z, "simtru_Z/D");
+	m_outtree->Branch("simtru_Z", &simtru_Z, "simtru_Z/D");
 
 	cout << "Starting to reprocess transverse variables" << endl;
 
@@ -187,6 +187,11 @@ void RunPostProcesses::Analyse(){
 			// m_TransTools->RotateToNuMi(m_reader->sel_pi_EX_4mom[2], m_reader->sel_pi_EX_4mom[3]);//m_nudir
 			
 			(void)GetTransVarsDir(direction, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, dpTT1, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
+
+			delete simtru;
+			delete rec001;
+   			delete truvtx;
+   			delete recvtx;
 
    					// sel_dpTT_pr_dir_EX;
    					// sel_dpTT_pr_dir_EX_tmumom;
