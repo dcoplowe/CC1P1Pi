@@ -1011,9 +1011,13 @@ public :
    void SetOutTree();
    void FillOutTree();
 
+   // void AddInt(std::string name);
+   // void AddDouble(std::string name);
+
  private:
 
-TTree * m_savetree;
+   TTree * m_savetree;
+
 };
 
 #endif

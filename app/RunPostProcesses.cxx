@@ -9,6 +9,7 @@
 
 #include <TFile.h>
 #include <TTree.h>
+#include <TMath.h>
 
 #include <TVector3.h>
 
@@ -107,6 +108,15 @@ void RunPostProcesses::Analyse(){
 
 	m_reader->SetOutTree();
 
+
+	Double_t dpTT1;
+	Double_t dpTT2;
+	Double_t dpTT3;
+
+	m_outfile->Branch("dpTT1", &dpTT1, "dpTT1/D");
+	m_outfile->Branch("dpTT2", &dpTT2, "dpTT2/D");
+	// m_outfile->Branch("dpTT3", &dpTT3, "dpTT3/D");
+
 	cout << "Starting to reprocess transverse variables" << endl;
 
 	for(int ev = 0; ev < m_entries; ev++){
@@ -128,13 +138,15 @@ void RunPostProcesses::Analyse(){
 			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_true4mom, m_reader->sel_dpTT_LL_tpimom, dead1, dead2, dead3);
 			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_true4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tprmom, dead1, dead2, dead3);
 			
-			// cout << "Pre: m_reader->sel_mu_4mom[2,3] = " << m_reader->sel_mu_4mom[2] << ", " << m_reader->sel_mu_4mom[3] << endl;
-			//m_TransTools->RotateToNuMi(m_reader->sel_mu_4mom[2], m_reader->sel_mu_4mom[3]);
-			// cout << "Post: m_reader->sel_mu_4mom[2,3] = " << m_reader->sel_mu_4mom[2] << ", " << m_reader->sel_mu_4mom[3] << endl;
-			// m_TransTools->RotateToNuMi(m_reader->sel_pr_EX_4mom[2], m_reader->sel_pr_EX_4mom[3]);
-			// m_TransTools->RotateToNuMi(m_reader->sel_pi_EX_4mom[2], m_reader->sel_pi_EX_4mom[3]);
+			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, dpTT2, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
 
-			(void)GetTransVarsDir(m_nudir, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
+			m_TransTools->RotateToNuMi(m_reader->sel_mu_4mom[2], m_reader->sel_mu_4mom[3]);
+			m_TransTools->RotateToNuMi(m_reader->sel_pr_EX_4mom[2], m_reader->sel_pr_EX_4mom[3]);
+			m_TransTools->RotateToNuMi(m_reader->sel_pi_EX_4mom[2], m_reader->sel_pi_EX_4mom[3]);//m_nudir
+			double dirMag = TMath::Sqrt(m_reader->mc_incomingPartVec[1]*m_reader->mc_incomingPartVec[1] + m_reader->mc_incomingPartVec[2]*m_reader->mc_incomingPartVec[2] + m_reader->mc_incomingPartVec[3]*m_reader->mc_incomingPartVec[3]);
+			double direction[3] = {m_reader->mc_incomingPartVec[1]/dirMag, m_reader->mc_incomingPartVec[2]/dirMag, m_reader->mc_incomingPartVec[3]/dirMag};
+			(void)GetTransVarsDir(direction, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, dpTT1, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
+
    					// sel_dpTT_pr_dir_EX;
    					// sel_dpTT_pr_dir_EX_tmumom;
    					// sel_dpTT_pr_dir_EX_tnudir;

@@ -27,6 +27,16 @@ Int_t AnalysisReader::GetEntries(){
     return fChain->GetEntries();
 }
 
+// void AnalysisReader::AddInt(std::string name)
+// {
+//    var_int[name] =  ;
+//    m_savetree->Branch(name.c_str(), , (name + "/I").c_str() );
+// }
+// void AnalysisReader::AddDouble(std::string name)
+// {
+//    m_savetree->Branch(name.c_str(), prong_part_mass, (name + "/I").c_str() );
+// }
+
 void AnalysisReader::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
