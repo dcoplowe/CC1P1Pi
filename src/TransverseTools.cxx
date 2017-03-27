@@ -274,12 +274,18 @@ TVector3 * TransverseTools::GetTransVarsBase(const TVector3 *& nudir, const TVec
     return deltapt;
 }
 
+void TransverseTools::RotateToMIN(double &py, double &pz)//MinervaUnits::numi_beam_angle_rad (-0.085887) == m_Theta;
+{
+   double py_prime =  TMath::Cos(m_Theta)*py + TMath::Sin(m_Theta)*pz;
+   double pz_prime = -TMath::Sin(m_Theta)*py + TMath::Cos(m_Theta)*pz;
+   py = py_prime;
+   pz = pz_prime;
+}
+
 void TransverseTools::RotateToNuMi(double &py, double &pz)
 {
-   // double py = y;
-   // double pz = z;
-   double py_prime = -1.0 *TMath::Sin( MinervaUnits::numi_beam_angle_rad )*pz + TMath::Cos( MinervaUnits::numi_beam_angle_rad )*py;
-   double pz_prime = TMath::Cos( MinervaUnits::numi_beam_angle_rad )*pz + TMath::Sin( MinervaUnits::numi_beam_angle_rad )*py;
+   double py_prime = TMath::Cos( m_Theta )*py - TMath::Sin( m_Theta )*pz;
+   double pz_prime = TMath::Sin( m_Theta )*py + TMath::Cos( m_Theta )*pz;
    py = py_prime;
    pz = pz_prime;
 }

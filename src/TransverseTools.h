@@ -61,6 +61,7 @@ public:
                                  double &dpTT, double &dpTMag, double &dalphaT, double &dphiT);// const;
 
     void RotateToNuMi(double &y, double &z);
+    void RotateToMIN(double &y, double &z);
     
 private:
     const Double_t m_PDP_x;

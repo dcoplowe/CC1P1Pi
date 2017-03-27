@@ -115,7 +115,24 @@ void RunPostProcesses::Analyse(){
 
 	m_outtree->Branch("dpTT1", &dpTT1, "dpTT1/D");
 	m_outtree->Branch("dpTT2", &dpTT2, "dpTT2/D");
-	// m_outfile->Branch("dpTT3", &dpTT3, "dpTT3/D");
+
+	Double_t rec001_diffMag;
+	m_outfile->Branch("rec001_diff", &rec001_diffMag, "rec001_diff/D");
+
+	Double_t truvtx_diffMag;
+	m_outfile->Branch("truvtx_diff", &truvtx_diffMag, "truvtx_diff/D");
+
+	Double_t recvtx_diffMag;
+	m_outfile->Branch("recvtx_diff", &recvtx_diffMag, "recvtx_diff/D");
+
+	Double_t simtru_X;
+	m_outfile->Branch("simtru_X", &simtru_X, "simtru_X/D");
+
+	Double_t simtru_Y;
+	m_outfile->Branch("simtru_Y", &simtru_Y, "simtru_Y/D");
+
+	Double_t simtru_Z;
+	m_outfile->Branch("simtru_Z", &simtru_Z, "simtru_Z/D");
 
 	cout << "Starting to reprocess transverse variables" << endl;
 
@@ -123,10 +140,9 @@ void RunPostProcesses::Analyse(){
 		if(ev % percent == 0) cout << Form("Reprocessed %.f%%", (double)100*ev/m_entries ) << endl;
 		m_reader->GetEntry(ev);
 		if(m_reader->accum_level[0] > 5 || m_reader->accum_level[1] > 5){
-			// cout << " Pre: m_reader->sel_dpTT_EX = " << m_reader->sel_dpTT_EX << endl;
 			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
 			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL, m_reader->sel_dpT_LL, m_reader->sel_dalphaT_LL, m_reader->sel_dphiT_LL);
-			// // cout << "Post: m_reader->sel_dpTT_EX = " << m_reader->sel_dpTT_EX << endl;
+
 			// double dead1, dead2, dead3;
 			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_true4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX_tmumom, dead1, dead2, dead3);
 			// (void)GetTransVarsSim(m_reader->sel_trueVTX, m_reader->sel_truePDP, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX_tnudir, dead1, dead2, dead3);
@@ -138,20 +154,38 @@ void RunPostProcesses::Analyse(){
 			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_true4mom, m_reader->sel_dpTT_LL_tpimom, dead1, dead2, dead3);
 			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_true4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tprmom, dead1, dead2, dead3);
 			
-			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, dpTT2, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
+			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
+
+			double ver001[3] = {0., 0., 1.};
+			m_TransTools->RotateToMIN(ver001[1], ver001[2]);
 
 			TVector3 * simtru = m_TransTools->GetNuDirSim(m_reader->sel_trueVTX, m_reader->sel_truePDP);
-			TVector3 * recvtx = m_TransTools->GetNuDirRec(m_reader->sel_trueVTX);
-			TVector3 * rec001 = new TVector3(0.,0.,1.);
 
-			TVector3 vtx_diff = *simtru - *recvtx;
-			// TVector * recpdp = m_TransTools->GetNuDirSim(m_reader->sel_VTX, m_reader->sel_truePDP);
+			TVector3 * rec001 = new TVector3(ver001[0], ver001[1], ver001[2]);//<-- Rotate to minerva coords
+			TVector3 * truvtx = m_TransTools->GetNuDirRec(m_reader->sel_trueVTX);
+			TVector3 * recvtx = m_TransTools->GetNuDirRec(m_reader->sel_VTX);
 
-			m_TransTools->RotateToNuMi(m_reader->sel_mu_4mom[2], m_reader->sel_mu_4mom[3]);
-			m_TransTools->RotateToNuMi(m_reader->sel_pr_EX_4mom[2], m_reader->sel_pr_EX_4mom[3]);
-			m_TransTools->RotateToNuMi(m_reader->sel_pi_EX_4mom[2], m_reader->sel_pi_EX_4mom[3]);//m_nudir
+			simtru_X = simtru->X();
+			simtru_Y = simtru->Y();
+			simtru_Z = simtru->Z();
+
+			TVector3 rec001_diff = *simtru - *rec001;
+			TVector3 truvtx_diff = *simtru - *truvtx;
+			TVector3 recvtx_diff = *simtru - *recvtx;
+			
+			rec001_diffMag = rec001_diff.Mag();
+			truvtx_diffMag = truvtx_diff.Mag();
+			recvtx_diffMag = recvtx_diff.Mag();
+
 			double dirMag = TMath::Sqrt(m_reader->mc_incomingPartVec[1]*m_reader->mc_incomingPartVec[1] + m_reader->mc_incomingPartVec[2]*m_reader->mc_incomingPartVec[2] + m_reader->mc_incomingPartVec[3]*m_reader->mc_incomingPartVec[3]);
 			double direction[3] = {m_reader->mc_incomingPartVec[1]/dirMag, m_reader->mc_incomingPartVec[2]/dirMag, m_reader->mc_incomingPartVec[3]/dirMag};
+
+			m_TransTools->RotateToMIN(direction[1], direction[2]);
+
+			// m_TransTools->RotateToNuMi(m_reader->sel_mu_4mom[2], m_reader->sel_mu_4mom[3]);
+			// m_TransTools->RotateToNuMi(m_reader->sel_pr_EX_4mom[2], m_reader->sel_pr_EX_4mom[3]);
+			// m_TransTools->RotateToNuMi(m_reader->sel_pi_EX_4mom[2], m_reader->sel_pi_EX_4mom[3]);//m_nudir
+			
 			(void)GetTransVarsDir(direction, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, dpTT1, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
 
    					// sel_dpTT_pr_dir_EX;
