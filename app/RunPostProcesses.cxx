@@ -49,8 +49,8 @@ private:
 	TVector3 * GetTransVarsSim(double vtx[], double pdp[], double mumom[], double prmom[], double pimom[], double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT);// const;
 
-	TVector3 * GetTransVarsDir(double vtx[], double pdp[], double mumom[], double prmom[], double pimom[], double &dpTT,
-                                 double &dpTMag, double &dalphaT, double &dphiT);// const;
+	TVector3 * GetTransVarsDir(double vtx[], double mumom[], double prmom[], double pimom[], double &dpTT, double &dpTMag,
+								 double &dalphaT, double &dphiT);// const;
 
 	TransverseTools * m_TransTools;
 
