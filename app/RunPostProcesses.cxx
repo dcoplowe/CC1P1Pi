@@ -127,11 +127,12 @@ void RunPostProcesses::Analyse(){
 			// (void)GetTransVarsSim(m_reader->sel_trueVTX, m_reader->sel_truePDP, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tnudir, dead1, dead2, dead3);
 			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_true4mom, m_reader->sel_dpTT_LL_tpimom, dead1, dead2, dead3);
 			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_true4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tprmom, dead1, dead2, dead3);
-			cout << "Pre: m_reader->sel_mu_4mom[2,3] = " << m_reader->sel_mu_4mom[2] << ", " << m_reader->sel_mu_4mom[3] << endl;
-			m_TransTools->RotateToNuMi(m_reader->sel_mu_4mom[2], m_reader->sel_mu_4mom[3]);
-			cout << "Post: m_reader->sel_mu_4mom[2,3] = " << m_reader->sel_mu_4mom[2] << ", " << m_reader->sel_mu_4mom[3] << endl;
-			m_TransTools->RotateToNuMi(m_reader->sel_pr_EX_4mom[2], m_reader->sel_pr_EX_4mom[3]);
-			m_TransTools->RotateToNuMi(m_reader->sel_pi_EX_4mom[2], m_reader->sel_pi_EX_4mom[3]);
+			
+			// cout << "Pre: m_reader->sel_mu_4mom[2,3] = " << m_reader->sel_mu_4mom[2] << ", " << m_reader->sel_mu_4mom[3] << endl;
+			//m_TransTools->RotateToNuMi(m_reader->sel_mu_4mom[2], m_reader->sel_mu_4mom[3]);
+			// cout << "Post: m_reader->sel_mu_4mom[2,3] = " << m_reader->sel_mu_4mom[2] << ", " << m_reader->sel_mu_4mom[3] << endl;
+			// m_TransTools->RotateToNuMi(m_reader->sel_pr_EX_4mom[2], m_reader->sel_pr_EX_4mom[3]);
+			// m_TransTools->RotateToNuMi(m_reader->sel_pi_EX_4mom[2], m_reader->sel_pi_EX_4mom[3]);
 
 			(void)GetTransVarsDir(m_nudir, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
    					// sel_dpTT_pr_dir_EX;

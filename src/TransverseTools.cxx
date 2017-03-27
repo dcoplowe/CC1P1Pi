@@ -255,7 +255,6 @@ TVector3 * TransverseTools::GetTransVarsSim(std::vector<double> vtx, std::vector
 TVector3 * TransverseTools::GetTransVarsBase(const TVector3 *& nudir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT)
 {
-
     const TVector3 * mupT = GetVecT(nudir, mumom);
     const TVector3 * prpT = GetVecT(nudir, prmom);
     const TVector3 * pipT = GetVecT(nudir, pimom);
@@ -275,13 +274,12 @@ TVector3 * TransverseTools::GetTransVarsBase(const TVector3 *& nudir, const TVec
     return deltapt;
 }
 
-void TransverseTools::RotateToNuMi(double &y, double &z)
+void TransverseTools::RotateToNuMi(double &py, double &pz)
 {
-   double py = y;
-   double pz = z;
-        //! momentum rotated to beam coordinate system
+   // double py = y;
+   // double pz = z;
    double py_prime = -1.0 *TMath::Sin( MinervaUnits::numi_beam_angle_rad )*pz + TMath::Cos( MinervaUnits::numi_beam_angle_rad )*py;
    double pz_prime = TMath::Cos( MinervaUnits::numi_beam_angle_rad )*pz + TMath::Sin( MinervaUnits::numi_beam_angle_rad )*py;
-   y = py_prime;
-   z = pz_prime;
+   py = py_prime;
+   pz = pz_prime;
 }
