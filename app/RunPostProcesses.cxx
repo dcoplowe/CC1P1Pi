@@ -216,6 +216,7 @@ TVector3 * RunPostProcesses::GetTransVarsDir(double dir[], double mu[], double p
 	const TVector3 * mumom = new TVector3( mu[1], pr[2], pi[3] );
 	const TVector3 * prmom = new TVector3( pr[1], pr[2], pr[3] );
 	const TVector3 * pimom = new TVector3( pi[1], pi[2], pi[3] );
+	cout << "RunPostProcesses::GetTransVarsDir" << endl;
 	return m_TransTools->GetTransVarsDir(dir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
