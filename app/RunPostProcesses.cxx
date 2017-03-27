@@ -25,6 +25,9 @@ public:
 	void Analyse();
 
 private:
+	bool m_light;
+	bool m_data;
+	bool m_meta;
 
 	TFile * m_infile;
 	AnalysisReader * m_reader;
@@ -38,18 +41,25 @@ private:
 	void SetOutTree();
 	void FillOutTree();
 
+	void SetOptions(bool light, bool data, bool meta){ m_light = light; m_data = data; m_meta = meta; }
+
 	TVector3 * GetTransVarsRec(double vtx[], double mumom[], double prmom[], double pimom[], double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT);
 
 	TVector3 * GetTransVarsSim(double vtx[], double pdp[], double mumom[], double prmom[], double pimom[], double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT);// const;
 
+	TVector3 * GetTransVarsDir(double vtx[], double pdp[], double mumom[], double prmom[], double pimom[], double &dpTT,
+                                 double &dpTMag, double &dalphaT, double &dphiT);// const;
+
 	TransverseTools * m_TransTools;
+
+	double m_nudir[3];
 };
 
 #endif
 
-RunPostProcesses::RunPostProcesses(std::string infilemame, std::string outfilename, std::string rec_tree) {
+RunPostProcesses::RunPostProcesses(std::string infilemame, std::string outfilename, std::string rec_tree) : m_light(false), m_data(false), m_meta(true) {
 
 	m_infile = new TFile(infilemame.c_str(), "READ");
 	assert(m_infile);
@@ -69,6 +79,10 @@ RunPostProcesses::RunPostProcesses(std::string infilemame, std::string outfilena
 	m_entries = m_reader->GetEntries();
 
 	m_TransTools = new TransverseTools();
+
+	m_nudir[0] = 0.;
+	m_nudir[1] = 0.;
+	m_nudir[2] = 1.;
 }
 
 RunPostProcesses::~RunPostProcesses(){
@@ -100,20 +114,24 @@ void RunPostProcesses::Analyse(){
 		m_reader->GetEntry(ev);
 		if(m_reader->accum_level[0] > 5 || m_reader->accum_level[1] > 5){
 			// cout << " Pre: m_reader->sel_dpTT_EX = " << m_reader->sel_dpTT_EX << endl;
-			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
-			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL, m_reader->sel_dpT_LL, m_reader->sel_dalphaT_LL, m_reader->sel_dphiT_LL);
-			// cout << "Post: m_reader->sel_dpTT_EX = " << m_reader->sel_dpTT_EX << endl;
-			double dead1, dead2, dead3;
-			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_true4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX_tmumom, dead1, dead2, dead3);
-			(void)GetTransVarsSim(m_reader->sel_trueVTX, m_reader->sel_truePDP, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX_tnudir, dead1, dead2, dead3);
-			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_true4mom, m_reader->sel_dpTT_EX_tpimom, dead1, dead2, dead3);
-			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_true4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX_tprmom, dead1, dead2, dead3);
+			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
+			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL, m_reader->sel_dpT_LL, m_reader->sel_dalphaT_LL, m_reader->sel_dphiT_LL);
+			// // cout << "Post: m_reader->sel_dpTT_EX = " << m_reader->sel_dpTT_EX << endl;
+			// double dead1, dead2, dead3;
+			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_true4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX_tmumom, dead1, dead2, dead3);
+			// (void)GetTransVarsSim(m_reader->sel_trueVTX, m_reader->sel_truePDP, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX_tnudir, dead1, dead2, dead3);
+			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_true4mom, m_reader->sel_dpTT_EX_tpimom, dead1, dead2, dead3);
+			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_true4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX_tprmom, dead1, dead2, dead3);
 
-			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_true4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tmumom, dead1, dead2, dead3);
-			(void)GetTransVarsSim(m_reader->sel_trueVTX, m_reader->sel_truePDP, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tnudir, dead1, dead2, dead3);
-			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_true4mom, m_reader->sel_dpTT_LL_tpimom, dead1, dead2, dead3);
-			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_true4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tprmom, dead1, dead2, dead3);
+			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_true4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tmumom, dead1, dead2, dead3);
+			// (void)GetTransVarsSim(m_reader->sel_trueVTX, m_reader->sel_truePDP, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tnudir, dead1, dead2, dead3);
+			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_true4mom, m_reader->sel_dpTT_LL_tpimom, dead1, dead2, dead3);
+			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_true4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tprmom, dead1, dead2, dead3);
 
+			m_TransTools->RotateToNuMi(m_reader->sel_mu_4mom[2], m_reader->sel_mu_4mom[3]);
+			m_TransTools->RotateToNuMi(m_reader->sel_pr_4mom[2], m_reader->sel_pr_4mom[3]);
+			m_TransTools->RotateToNuMi(m_reader->sel_pi_4mom[2], m_reader->sel_pi_4mom[3]);
+			(void)GetTransVarsDir(m_nudir, m_reader->sel_mu_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
    					// sel_dpTT_pr_dir_EX;
    					// sel_dpTT_pr_dir_EX_tmumom;
    					// sel_dpTT_pr_dir_EX_tnudir;
@@ -124,16 +142,17 @@ void RunPostProcesses::Analyse(){
    					// sel_dpTT_pr_dir_LL_tnudir;
    					// sel_dpTT_pr_dir_LL_tpimom;
    					// sel_dpTT_pr_dir_LL_tprdir;
-
+			if(m_light) m_reader->FillOutTree();
 		}
-		m_reader->FillOutTree();
+
+		if(!m_light) m_reader->FillOutTree();
 	}
 	cout << "********* Finished Processing *********" << endl;
 	cout << "Copying other trees." << endl;
 	m_outfile->cd();
 	m_outtree->Write();
-	CopyTree("Truth");
-	CopyTree("Meta");
+	if(!m_data) CopyTree("Truth");
+	if(m_meta) CopyTree("Meta");
 	m_outfile->Close();
 	cout << "Reanalysis Complete" << endl;
 }
@@ -145,6 +164,7 @@ void RunPostProcesses::CopyTree(std::string treename){
 		cout <<  "RunPostProcesses::CopyTree : Error : In file not open." << endl;
 		good_files = false; 
 	}
+
 	if(!m_outfile->IsOpen()){ 
 		cout <<  "RunPostProcesses::CopyTree : Error : Out file not open." << endl;
 		good_files = false;
@@ -178,24 +198,40 @@ TVector3 * RunPostProcesses::GetTransVarsSim(double vtx[], double pdp[], double 
 	return m_TransTools->GetTransVarsSim(vtx, pdp, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
+TVector3 * RunPostProcesses::GetTransVarsDir(double dir[], double mumom[], double prmom[], double pimom[], double &dpTT,
+                                 double &dpTMag, double &dalphaT, double &dphiT);// const;
+{
+	const TVector3 * mumom = new TVector3( mu[1], pr[2], pi[3] );
+	const TVector3 * prmom = new TVector3( pr[1], pr[2], pr[3] );
+	const TVector3 * pimom = new TVector3( pi[1], pi[2], pi[3] );
+	return m_TransTools->GetTransVarsDir(dir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
+}
+
 int main(int argc, char *argv[])
 {
 
 	string ifile = test_file;
 	string ofile = "some_generic_name.root";
 	string stree = "sel";
+	bool data = false; 
+	bool light = false;
+	bool meta = true;
 
 	char cc;
-	while ((cc = getopt(argc, argv, "i:o:t:")) != -1) {
+	while ((cc = getopt(argc, argv, "i:o:t:d::l::")) != -1) {
 		switch (cc){
 			case 'i': ifile = string(optarg); break;
 			case 'o': ofile = string(optarg); break;
 			case 't': stree = string(optarg); break;
+			case 'd': data  = true; break;
+			case 'l': light = true; break;
+			case 'm': meta  = false;
 			default: return 1;
 		}
 	}
 
 	RunPostProcesses * Run = new RunPostProcesses(ifile,ofile,stree);
+	Run->SetOptions(light, data, meta);
 	Run->Analyse();
 	delete Run;
 

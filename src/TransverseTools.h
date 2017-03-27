@@ -59,6 +59,8 @@ public:
     
     TVector3 * GetTransVarsSim(std::vector<double> vtx, std::vector<double> pdp, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom,
                                  double &dpTT, double &dpTMag, double &dalphaT, double &dphiT);// const;
+
+    void RotateToNuMi(double &y, double &z);
     
 private:
     const Double_t m_PDP_x;

@@ -4,6 +4,7 @@
 #include <vector>
 #include "TMath.h"
 #include <iostream>
+#include <MinervaPhysicalConstants.h>
 
 #ifndef EPSILON
 #define EPSILON  1e-10
@@ -273,4 +274,15 @@ TVector3 * TransverseTools::GetTransVarsBase(const TVector3 *& nudir, const TVec
     delete pipT;
 
     return deltapt;
+}
+
+void TransverseTools::RotateToNuMi(double &y, double &z)
+{
+   double py = y;
+   double pz = z;
+        //! momentum rotated to beam coordinate system
+   double py_prime = -1.0 *TMath::Sin( MinervaUnits::numi_beam_angle_rad )*pz + TMath::Cos( MinervaUnits::numi_beam_angle_rad )*py;
+   double pz_prime = TMath::Cos( MinervaUnits::numi_beam_angle_rad )*pz + TMath::Sin( MinervaUnits::numi_beam_angle_rad )*py;
+   y = py_prime;
+   z = pz_prime;
 }
