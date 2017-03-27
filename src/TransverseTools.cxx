@@ -160,13 +160,8 @@ TVector3 * TransverseTools::GetTransVarsRec(std::vector<double> vtx, const TVect
 TVector3 * TransverseTools::GetTransVarsDir(double dir[], const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT)
 {
-    cout << "TransverseTools::GetTransVarsDir 1" <<  endl;
     const TVector3 * nudir = new TVector3(dir[0], dir[1], dir[2]);
-    cout << "TransverseTools::GetTransVarsDir 2" <<  endl;
     TVector3 * tmp = GetTransVarsBase(nudir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
-    cout << "TransverseTools::GetTransVarsDir 3" <<  endl;
-    // delete nudir;
-    cout << "TransverseTools::GetTransVarsDir 4" <<  endl;
     return tmp;
 }           
     
