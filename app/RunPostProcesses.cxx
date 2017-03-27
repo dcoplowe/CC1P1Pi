@@ -131,7 +131,7 @@ void RunPostProcesses::Analyse(){
 			m_TransTools->RotateToNuMi(m_reader->sel_mu_4mom[2], m_reader->sel_mu_4mom[3]);
 			m_TransTools->RotateToNuMi(m_reader->sel_pr_EX_4mom[2], m_reader->sel_pr_EX_4mom[3]);
 			m_TransTools->RotateToNuMi(m_reader->sel_pi_EX_4mom[2], m_reader->sel_pi_EX_4mom[3]);
-			(void)GetTransVarsDir(m_nudir, m_reader->sel_mu_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
+			(void)GetTransVarsDir(m_nudir, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, m_reader->sel_dpTT_EX, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
    					// sel_dpTT_pr_dir_EX;
    					// sel_dpTT_pr_dir_EX_tmumom;
    					// sel_dpTT_pr_dir_EX_tnudir;
@@ -198,7 +198,7 @@ TVector3 * RunPostProcesses::GetTransVarsSim(double vtx[], double pdp[], double 
 	return m_TransTools->GetTransVarsSim(vtx, pdp, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
-TVector3 * RunPostProcesses::GetTransVarsDir(double dir[], double mumom[], double prmom[], double pimom[], double &dpTT,
+TVector3 * RunPostProcesses::GetTransVarsDir(double dir[], double mu[], double pr[], double pi[], double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT)// const;
 {
 	const TVector3 * mumom = new TVector3( mu[1], pr[2], pi[3] );
