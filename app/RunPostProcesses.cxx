@@ -113,8 +113,8 @@ void RunPostProcesses::Analyse(){
 	Double_t dpTT2;
 	Double_t dpTT3;
 
-	m_outfile->Branch("dpTT1", &dpTT1, "dpTT1/D");
-	m_outfile->Branch("dpTT2", &dpTT2, "dpTT2/D");
+	m_outtree->Branch("dpTT1", &dpTT1, "dpTT1/D");
+	m_outtree->Branch("dpTT2", &dpTT2, "dpTT2/D");
 	// m_outfile->Branch("dpTT3", &dpTT3, "dpTT3/D");
 
 	cout << "Starting to reprocess transverse variables" << endl;
