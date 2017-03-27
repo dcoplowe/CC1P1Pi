@@ -23,6 +23,7 @@ public:
 	~RunPostProcesses();
 
 	void Analyse();
+	void SetOptions(bool light, bool data, bool meta){ m_light = light; m_data = data; m_meta = meta; }
 
 private:
 	bool m_light;
@@ -41,7 +42,6 @@ private:
 	void SetOutTree();
 	void FillOutTree();
 
-	void SetOptions(bool light, bool data, bool meta){ m_light = light; m_data = data; m_meta = meta; }
 
 	TVector3 * GetTransVarsRec(double vtx[], double mumom[], double prmom[], double pimom[], double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT);
@@ -199,7 +199,7 @@ TVector3 * RunPostProcesses::GetTransVarsSim(double vtx[], double pdp[], double 
 }
 
 TVector3 * RunPostProcesses::GetTransVarsDir(double dir[], double mumom[], double prmom[], double pimom[], double &dpTT,
-                                 double &dpTMag, double &dalphaT, double &dphiT);// const;
+                                 double &dpTMag, double &dalphaT, double &dphiT)// const;
 {
 	const TVector3 * mumom = new TVector3( mu[1], pr[2], pi[3] );
 	const TVector3 * prmom = new TVector3( pr[1], pr[2], pr[3] );
