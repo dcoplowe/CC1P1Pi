@@ -4,7 +4,7 @@
 #include <vector>
 #include "TMath.h"
 #include <iostream>
-#include <Kernal/MinervaPhysicalConstants.h>
+#include <Kernel/MinervaPhysicalConstants.h>
 
 #ifndef EPSILON
 #define EPSILON  1e-10
