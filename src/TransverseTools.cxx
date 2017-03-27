@@ -165,7 +165,7 @@ TVector3 * TransverseTools::GetTransVarsDir(double dir[], const TVector3 *& mumo
     cout << "TransverseTools::GetTransVarsDir 2" <<  endl;
     TVector3 * tmp = GetTransVarsBase(nudir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
     cout << "TransverseTools::GetTransVarsDir 3" <<  endl;
-    delete nudir;
+    // delete nudir;
     cout << "TransverseTools::GetTransVarsDir 4" <<  endl;
     return tmp;
 }           
