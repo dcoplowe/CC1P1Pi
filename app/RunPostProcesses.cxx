@@ -127,8 +127,9 @@ void RunPostProcesses::Analyse(){
 			// (void)GetTransVarsSim(m_reader->sel_trueVTX, m_reader->sel_truePDP, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tnudir, dead1, dead2, dead3);
 			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_LL_4mom, m_reader->sel_pi_true4mom, m_reader->sel_dpTT_LL_tpimom, dead1, dead2, dead3);
 			// (void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_true4mom, m_reader->sel_pi_LL_4mom, m_reader->sel_dpTT_LL_tprmom, dead1, dead2, dead3);
-
+			cout << "Pre: m_reader->sel_mu_4mom[2,3] = " << m_reader->sel_mu_4mom[2] << ", " << m_reader->sel_mu_4mom[3] << endl;
 			m_TransTools->RotateToNuMi(m_reader->sel_mu_4mom[2], m_reader->sel_mu_4mom[3]);
+			cout << "Post: m_reader->sel_mu_4mom[2,3] = " << m_reader->sel_mu_4mom[2] << ", " << m_reader->sel_mu_4mom[3] << endl;
 			m_TransTools->RotateToNuMi(m_reader->sel_pr_EX_4mom[2], m_reader->sel_pr_EX_4mom[3]);
 			m_TransTools->RotateToNuMi(m_reader->sel_pi_EX_4mom[2], m_reader->sel_pi_EX_4mom[3]);
 
@@ -205,7 +206,6 @@ TVector3 * RunPostProcesses::GetTransVarsDir(double dir[], double mu[], double p
 	const TVector3 * mumom = new TVector3( mu[1], pr[2], pi[3] );
 	const TVector3 * prmom = new TVector3( pr[1], pr[2], pr[3] );
 	const TVector3 * pimom = new TVector3( pi[1], pi[2], pi[3] );
-	cout << "RunPostProcesses::GetTransVarsDir" << endl;
 	return m_TransTools->GetTransVarsDir(dir, mumom, prmom, pimom, dpTT, dpTMag, dalphaT, dphiT);
 }
 
@@ -215,19 +215,19 @@ int main(int argc, char *argv[])
 	string ifile = test_file;
 	string ofile = "some_generic_name.root";
 	string stree = "sel";
-	bool data = false; 
-	bool light = false;
-	bool meta = true;
+	bool data = false; //Is real data
+	bool light = false;//save only stree
+	bool meta = true;//save meta tree;
 
 	char cc;
-	while ((cc = getopt(argc, argv, "i:o:t:d::l::")) != -1) {
+	while ((cc = getopt(argc, argv, "i:o:t:d::l::m::")) != -1) {
 		switch (cc){
 			case 'i': ifile = string(optarg); break;
 			case 'o': ofile = string(optarg); break;
 			case 't': stree = string(optarg); break;
 			case 'd': data  = true; break;
 			case 'l': light = true; break;
-			case 'm': meta  = false;
+			case 'm': meta  = false; break;
 			default: return 1;
 		}
 	}
