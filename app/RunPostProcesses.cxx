@@ -140,6 +140,13 @@ void RunPostProcesses::Analyse(){
 			
 			(void)GetTransVarsRec(m_reader->sel_VTX, m_reader->sel_mu_4mom, m_reader->sel_pr_EX_4mom, m_reader->sel_pi_EX_4mom, dpTT2, m_reader->sel_dpT_EX, m_reader->sel_dalphaT_EX, m_reader->sel_dphiT_EX);
 
+			TVector3 * simtru = m_TransTools->GetNuDirSim(m_reader->sel_trueVTX, m_reader->sel_truePDP);
+			TVector3 * recvtx = m_TransTools->GetNuDirRec(m_reader->sel_trueVTX);
+			TVector3 * rec001 = new TVector3(0.,0.,1.);
+
+			TVector3 vtx_diff = *simtru - *recvtx;
+			// TVector * recpdp = m_TransTools->GetNuDirSim(m_reader->sel_VTX, m_reader->sel_truePDP);
+
 			m_TransTools->RotateToNuMi(m_reader->sel_mu_4mom[2], m_reader->sel_mu_4mom[3]);
 			m_TransTools->RotateToNuMi(m_reader->sel_pr_EX_4mom[2], m_reader->sel_pr_EX_4mom[3]);
 			m_TransTools->RotateToNuMi(m_reader->sel_pi_EX_4mom[2], m_reader->sel_pi_EX_4mom[3]);//m_nudir

@@ -72,7 +72,7 @@ private:
     const Double_t m_YOffset;// = 60.350;
     const Double_t m_ZOffset;// = -1022.74;
     
-    TVector3 * NuMiToMin(double nu_NuParentDecPoint[]);// const;
+    TVector3 * NuMiToMin(double nu_NuParentDecPoint[]);
     TVector3 * GetNuDirBase(const TVector3 *& vtx, const TVector3 *& PDP);
     TVector3 * GetTransVarsBase(const TVector3 *& nudir, const TVector3 *& mumom, const TVector3 *& prmom, const TVector3 *& pimom, double &dpTT,
                                  double &dpTMag, double &dalphaT, double &dphiT);
