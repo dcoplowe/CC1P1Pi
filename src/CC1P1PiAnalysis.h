@@ -115,6 +115,9 @@ private:
     IMinervaCoordSysTool * m_coordSysTool;
     INuclearTargetTool *   m_nuclearTargetTool;
     std::string m_nuclearTargetToolAlias;
+
+    //Find true vertex
+    void VertIsIn(Minerva::GenMinInteraction* truth) const;
     
     //Default is the full detector fiducial volume
     double m_default_apothem;

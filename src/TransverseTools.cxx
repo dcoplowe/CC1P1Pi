@@ -12,7 +12,7 @@
 
 using namespace std;
 
-TransverseTools::TransverseTools() : m_PDP_x(0.231135) , m_PDP_y(45.368069), m_PDP_z(-766.384058),
+TransverseTools::TransverseTools(Double_t pdp_x, Double_t pdp_y, Double_t pdp_z) : m_PDP_x(pdp_x) , m_PDP_y(pdp_y), m_PDP_z(pdp_z),
  m_Theta(-0.0582977560), m_XOffset(0.2486), m_YOffset(60.350), m_ZOffset(-1022.74) {
     //    m_PDP = new TVector3(m_PDP_x, m_PDP_y, m_PDP_z);
 }

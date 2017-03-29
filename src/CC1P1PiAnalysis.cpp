@@ -305,8 +305,8 @@ StatusCode CC1P1PiAnalysis::initialize()
     declareIntEventBranch("n_tracks3", INIVALUE);
     declareIntEventBranch("vert_exists", INIVALUE);
     declareIntEventBranch("target_region", INIVALUE);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
-    declareIntEventBranch("true_target_region", INIVALUE);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
-    declareIntTruthBranch("true_target_region", INIVALUE);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
+    // declareIntEventBranch("true_target_region", INIVALUE);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
+    declareIntTruthBranch("target_region", INIVALUE);//1 - Scint, 2 - carbon, 3 - other - There shouldn't be any of these as these events will be cut.
     //  declareContainerDoubleEventBranch( "shower_momentum", 4, -999. );
     declareBoolEventBranch("isMinosMatchTrack");
     declareBoolEventBranch("isMinosMatchStub");
@@ -619,33 +619,6 @@ StatusCode CC1P1PiAnalysis::finalize()
 //! did this PhysicsEvent come (primarily) from the MC?  (See DocDB 10471.)
 bool CC1P1PiAnalysis::truthIsPlausible( const Minerva::PhysicsEvent * event ) const
 {
-    
-    //debug() << "CC1P1PiAnalysis::truthIsPlausible" << endmsg;
-
-    // Here you need to decide whether the things that you require for the event
-    // to pass your signal selection were made up primarily of MC.
-    // SEE DOCDB 10471 IF YOU ARE UNSURE HOW TO IMPLEMENT THIS METHOD.
-    
-    // in a MINOS-matched-muon analysis, for example, you usually just want the muon to be plausible
-    
-    //My own truth check: I am doing an exclusive selection and therefore want to make sure that the the three particle final state
-    //has at least 3, true, mc prongs associated to it and not just data overlay.
-    /*
-    bool plausible = true;
-    
-    if(m_PID_method != 1){
-        plausible = ( muonIsPlausible(m_MuonProng) && prongIsMC(m_EX_ProtonProng) && prongIsMC(m_EX_PionProng) );
-    }
-    
-    if(m_PID_method > 0){
-        if (!plausible) return false;
-        
-        plausible = ( muonIsPlausible(m_MuonProng) && prongIsMC(m_LL_ProtonProng) && prongIsMC(m_LL_PionProng) );
-    }
-    
-    return plausible;*/
-    
-    //Old method:
     SmartRef<Minerva::Prong> muonProng;
     SmartRef<Minerva::Particle> muonPart;
     if ( ! MuonUtils->findMuonProng(event, muonProng, muonPart) )  // returns false if it can't find a muon
@@ -681,7 +654,6 @@ void CC1P1PiAnalysis::FindShortTracks(Minerva::PhysicsEvent * event) const
     PrintInfo(Form("n_anchored_long_trk_prongs = %d", n_anchored_long_trk_prongs), true);
     PrintInfo(Form("n_anchored_short_trk_prongs = %d", n_anchored_short_trk_prongs), true);
     //PrintInfo(Form("n_iso_trk_prongs = %d", n_iso_trk_prongs), true);
-    
 }
 
 
@@ -801,8 +773,8 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
             }
             i++;
         }
-        event->setIntData("true_target_region", vert_tag);
-        truth->setIntData("true_target_region", vert_tag);
+        // event->setIntData("true_target_region", vert_tag);
+        // truth->setIntData("target_region", vert_tag);
     }
     
     //Reco Information, the cut takes place here:
@@ -849,6 +821,66 @@ bool CC1P1PiAnalysis::VertIsIn(TString targetRegion, Minerva::PhysicsEvent* even
     
     
     return fidVertex;
+}
+
+void CC1P1PiAnalysis::VertIsIn(Minerva::GenMinInteraction* truth) const
+{
+    if(truth){
+        Gaudi::LorentzVector truevertex_4v = truth->Vtx();//Get the true vertex
+        const Gaudi::XYZPoint truevertex(truevertex_4v.x(), truevertex_4v.y(), truevertex_4v.z());// = truevertex_4v.Vect();//Make it a 3-vec
+        
+        int vert_tag = INIVALUE;
+        
+        double apothem_true = m_default_apothem;
+        double upZ_true = m_default_upZ;
+        double downZ_true = m_default_downZ;
+
+        int i = 0;
+        while(i < 2){ //for(int i = 0; i < 2; i++){
+            
+            bool true_mat = false;
+            
+            if(i == 0){//Scintilator
+                apothem_true = m_scint_apothem;
+                upZ_true = m_scint_upZ;
+                downZ_true = m_scint_downZ;
+            }
+            else{//Carbon
+                const Material * material = m_nuclearTargetTool->getSectionMaterial(truevertex);
+                int materialZ = -999;
+                
+                if(material){
+                    materialZ = (int)(material->Z()+0.5);//Why + 0.5 -- This was taken from another analysis... I should check this out.
+                    debug() << "  retrieve the target's section material name = " << material->name() << ", and Z = " << material->Z() << endmsg;
+                }
+                //Carbon is in target region 3 and has Z == 6.
+                
+                if(materialZ == 6) true_mat =  true;
+                
+                apothem_true = m_carbon_apothem;
+                upZ_true = m_carbon_upZ;
+                downZ_true = m_carbon_downZ;
+            }
+        
+            bool fidtrueVertex = m_coordSysTool->inFiducial( truevertex.x(), truevertex.y(), truevertex.z(), apothem_true, upZ_true, downZ_true);
+            
+            if(fidtrueVertex){
+                if(i == 0){
+                    vert_tag = 1;
+                    break;
+                }//The following at the end of the loop so no need to break it:
+                else if(i == 1 && true_mat){
+                    vert_tag = 2;
+                }
+            }
+            else{
+                vert_tag = 3;
+            }
+            i++;
+        }
+        truth->setIntData("target_region", vert_tag);
+    }
+    
 }
 
 bool CC1P1PiAnalysis::FindParticles(Minerva::PhysicsEvent * event, int method) const
@@ -2292,7 +2324,7 @@ void CC1P1PiAnalysis::FillTruthTree(Minerva::GenMinInteraction* truth) const
     //Want to iterate through final states vector of particles and each for the highest mom. p/pi/mu. these should then be used to fill the true variables.
     
     //Want to tag the Carbon, Scintillator targets. --> Use same numbering convention as reco. (obvs.)
-    
+    VertIsIn(truth);
 //    const int n_part = (int)truth->nParticlesFS();
     
     const std::vector<double> fs_Pe = truth->fsParticlesE();

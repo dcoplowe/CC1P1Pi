@@ -9,8 +9,8 @@ class vector;//Is this good?
 
 class TransverseTools {
     
-public:
-    TransverseTools();
+public:                 
+    TransverseTools(Double_t pdp_x = 0.231135, Double_t pdp_y = 45.368069, Double_t pdp_z = -766.384058);
     ~TransverseTools();
     
     TVector3 * GetNuDirRec(double vtx[]);// const;
